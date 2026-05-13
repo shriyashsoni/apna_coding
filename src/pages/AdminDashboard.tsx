@@ -65,6 +65,37 @@ export default function AdminDashboard() {
   const [productsStatus, setProductsStatus] = useState<"CanLoadMore" | "Loading" | "AllLoaded">("CanLoadMore");
   const [newsStatus, setNewsStatus] = useState<"CanLoadMore" | "Loading" | "AllLoaded">("CanLoadMore");
 
+  // Missing form and scraping states
+  const [newAdminWallet, setNewAdminWallet] = useState("");
+  const [newLeaderEntry, setNewLeaderEntry] = useState({ userName: "", score: 0, rank: 1, achievements: "" });
+  const [newCommunity, setNewCommunity] = useState({
+    name: "",
+    description: "",
+    logo: "",
+    website: "",
+    twitter: "",
+    discord: "",
+    partnershipType: "community",
+    partnerCategory: "community"
+  });
+  const [newNewsPost, setNewNewsPost] = useState({
+    title: "",
+    slug: "",
+    content: "",
+    excerpt: "",
+    coverImage: "",
+    category: "announcement",
+    tags: "",
+    isPublished: true,
+    isFeatured: false
+  });
+  const [newsUrl, setNewsUrl] = useState("");
+  const [partnerUrl, setPartnerUrl] = useState("");
+  const [isScrapingJobs, setIsScrapingJobs] = useState(false);
+  const [isScrapingEvents, setIsScrapingEvents] = useState(false);
+  const [isScrapingProducts, setIsScrapingProducts] = useState(false);
+  const [isScrapingNews, setIsScrapingNews] = useState(false);
+
   useEffect(() => {
     if (ready && !authenticated) {
       navigate("/");
@@ -95,6 +126,8 @@ export default function AdminDashboard() {
         { count: eventsCount },
         { count: jobsCount },
         { count: productsCount },
+        { count: newsCount },
+        { count: registrationsCount },
         { data: adminsData },
         { data: leaderboardData },
         { data: communitiesData }
@@ -104,6 +137,8 @@ export default function AdminDashboard() {
         supabase.from('events').select('*', { count: 'exact', head: true }),
         supabase.from('jobs').select('*', { count: 'exact', head: true }),
         supabase.from('products').select('*', { count: 'exact', head: true }),
+        supabase.from('news').select('*', { count: 'exact', head: true }),
+        supabase.from('hackathon_teams').select('*', { count: 'exact', head: true }),
         supabase.from('users').select('*').eq('role', 'admin'),
         supabase.from('leaderboard').select('*').order('score', { ascending: false }),
         supabase.from('communities').select('*')
@@ -114,7 +149,9 @@ export default function AdminDashboard() {
         totalHackathons: hackathonsCount,
         totalEvents: eventsCount,
         totalJobs: jobsCount,
-        totalProducts: productsCount
+        totalProducts: productsCount,
+        totalNews: newsCount,
+        totalRegistrations: registrationsCount
       });
       setAdmins(adminsData || []);
       setLeaderboard(leaderboardData || []);
@@ -268,6 +305,23 @@ export default function AdminDashboard() {
       fetchAdminData();
     } catch (error: any) {
       toast.error(error.message || "Failed to delete product");
+    }
+  };
+
+  const handleDeleteNews = async (id: any) => {
+    if (!address) return;
+    try {
+      const { error } = await supabase
+        .from('news')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      toast.success("News post deleted successfully");
+      fetchAdminData();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete news post");
     }
   };
 
@@ -1691,7 +1745,7 @@ export default function AdminDashboard() {
                     {allNews && allNews.length > 0 ? (
                       allNews.map((post: any) => (
                         <div
-                          key={post._id}
+                          key={post.id}
                           className="flex items-start justify-between p-4 border border-primary/20 rounded-lg bg-background/30"
                         >
                           <div className="flex-1">
@@ -1708,11 +1762,11 @@ export default function AdminDashboard() {
                             <div className="flex items-center gap-4 text-xs text-muted-foreground">
                               <span className="flex items-center gap-1">
                                 <Calendar className="h-3 w-3" />
-                                {new Date(post._creationTime).toLocaleDateString()}
+                                {new Date(post.created_at).toLocaleDateString()}
                               </span>
                               <span className="flex items-center gap-1">
                                 <Eye className="h-3 w-3" />
-                                {post.views} views
+                                {post.views || 0} views
                               </span>
                               <Badge variant="outline" className="text-xs">
                                 {post.category}
@@ -1720,11 +1774,11 @@ export default function AdminDashboard() {
                             </div>
                             <div className="flex items-center gap-2 mt-2">
                               <Switch
-                                checked={post.isFeatured || false}
-                                onCheckedChange={() => handleToggleFeaturedNews(post._id)}
+                                checked={post.is_featured || false}
+                                onCheckedChange={() => handleToggleFeaturedNews(post.id, post.is_featured || false)}
                               />
-                              <Label className="text-xs cursor-pointer" onClick={() => handleToggleFeaturedNews(post._id)}>
-                                {post.isFeatured ? '⭐ Featured' : '☆ Not Featured'}
+                              <Label className="text-xs cursor-pointer" onClick={() => handleToggleFeaturedNews(post.id, post.is_featured || false)}>
+                                {post.is_featured ? '⭐ Featured' : '☆ Not Featured'}
                               </Label>
                             </div>
                           </div>
@@ -1733,12 +1787,7 @@ export default function AdminDashboard() {
                             size="sm"
                             onClick={async () => {
                               if (!address) return;
-                              try {
-                                await deleteNews({ newsId: post._id, walletAddress: address });
-                                toast.success("News post deleted");
-                              } catch (error: any) {
-                                toast.error(error.message || "Failed to delete news post");
-                              }
+                              handleDeleteNews(post.id);
                             }}
                           >
                             <Trash2 className="h-4 w-4" />
