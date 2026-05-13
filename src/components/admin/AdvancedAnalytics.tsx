@@ -31,7 +31,7 @@ export function AdvancedAnalytics() {
         supabase.from('users').select('*', { count: 'exact', head: true }),
         supabase.from('products').select('*', { count: 'exact', head: true }),
         supabase.from('news').select('*', { count: 'exact', head: true }),
-        supabase.from('registrations').select('*', { count: 'exact', head: true }).catch(() => ({ count: 0 }))
+        supabase.from('registrations').select('*', { count: 'exact', head: true }).then(res => ({ count: res.count || 0 }))
       ]);
 
       setAnalytics({

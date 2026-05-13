@@ -62,7 +62,9 @@ createRoot(document.getElementById("root")!).render(
               logo: 'https://harmless-tapir-303.convex.cloud/api/storage/1afb27dd-9d64-48c2-be2e-ada93b76526a',
             },
             embeddedWallets: {
-              createOnLogin: 'users-without-wallets',
+              ethereum: {
+                createOnLogin: 'users-without-wallets',
+              }
             },
           }}
         >

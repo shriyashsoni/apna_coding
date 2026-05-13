@@ -65,7 +65,14 @@ export const PRODUCT_LAUNCH_ABI = [
     "type": "function",
     "name": "launchProduct",
     "stateMutability": "payable",
-    "inputs": [],
+    "inputs": [
+      { "name": "name", "type": "string" },
+      { "name": "description", "type": "string" },
+      { "name": "category", "type": "string" },
+      { "name": "logoUrl", "type": "string" },
+      { "name": "websiteUrl", "type": "string" },
+      { "name": "socialLinks", "type": "string[]" }
+    ],
     "outputs": []
   },
   {

@@ -14,11 +14,13 @@ import {
   PUBLIC_SUBMISSION_STAKING_ABI
 } from '@/contracts/PublicSubmissionStaking';
 
-export enum SubmissionType {
-  Event = 0,
-  Hackathon = 1,
-  Product = 2
-}
+export const SubmissionType = {
+  Event: 0,
+  Hackathon: 1,
+  Product: 2
+} as const;
+
+export type SubmissionType = typeof SubmissionType[keyof typeof SubmissionType];
 
 export function useSubmissionStaking() {
   const { wallets } = useWallets();

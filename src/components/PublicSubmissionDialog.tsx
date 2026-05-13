@@ -51,11 +51,37 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
     try {
       // First, save to Supabase with is_approved: false
       const table = type === "hackathon" ? "hackathons" : type === "event" ? "events" : "products";
-      const payload = type === "hackathon" 
-        ? { name: formData.title, description: formData.description, registration_link: formData.link, image: formData.image, wallet_address: authUser?.wallet_address, is_approved: false }
-        : type === "event"
-        ? { title: formData.title, description: formData.description, website_url: formData.link, image_url: formData.image, wallet_address: authUser?.wallet_address, is_approved: false }
-        : { name: formData.title, description: formData.description, website_url: formData.link, image_url: formData.image, wallet_address: authUser?.wallet_address, is_approved: false };
+      
+      let payload: any;
+      if (type === "hackathon") {
+        payload = {
+          name: formData.title,
+          description: formData.description,
+          registration_link: formData.link,
+          image: formData.image,
+          wallet_address: authUser?.wallet_address,
+          is_approved: false
+        };
+      } else if (type === "event") {
+        payload = {
+          title: formData.title,
+          description: formData.description,
+          website_url: formData.link,
+          image_url: formData.image,
+          wallet_address: authUser?.wallet_address,
+          is_approved: false
+        };
+      } else {
+        // product
+        payload = {
+          name: formData.title,
+          description: formData.description,
+          website_url: formData.link,
+          image_url: formData.image,
+          wallet_address: authUser?.wallet_address,
+          status: "pending"
+        };
+      }
 
       const { data, error } = await supabase.from(table).insert(payload).select().single();
 

@@ -64,6 +64,10 @@ export default function AdminDashboard() {
   const [jobsStatus, setJobsStatus] = useState<"CanLoadMore" | "Loading" | "AllLoaded">("CanLoadMore");
   const [productsStatus, setProductsStatus] = useState<"CanLoadMore" | "Loading" | "AllLoaded">("CanLoadMore");
   const [newsStatus, setNewsStatus] = useState<"CanLoadMore" | "Loading" | "AllLoaded">("CanLoadMore");
+  const [hackathonsStatus, setHackathonsStatus] = useState<"CanLoadMore" | "Loading" | "AllLoaded">("CanLoadMore");
+
+  // Tabs state
+  const [activeTab, setActiveTab] = useState("overview");
 
   // Missing form and scraping states
   const [newAdminWallet, setNewAdminWallet] = useState("");
@@ -95,6 +99,7 @@ export default function AdminDashboard() {
   const [isScrapingEvents, setIsScrapingEvents] = useState(false);
   const [isScrapingProducts, setIsScrapingProducts] = useState(false);
   const [isScrapingNews, setIsScrapingNews] = useState(false);
+  const [isScrapingPartner, setIsScrapingPartner] = useState(false);
 
   useEffect(() => {
     if (ready && !authenticated) {
@@ -544,6 +549,18 @@ export default function AdminDashboard() {
   const handleSubmitPartnerUrl = async (e: React.FormEvent) => {
     e.preventDefault();
     toast.info("Scraping logic needs to be migrated to Supabase Edge Functions");
+  };
+
+  const loadMoreHackathons = async (count: number) => {
+    setHackathonsStatus("Loading");
+    const { data } = await supabase.from('hackathons').select('*').range(allHackathons.length, allHackathons.length + count - 1);
+    if (data && data.length > 0) {
+      setAllHackathons([...allHackathons, ...data]);
+      if (data.length < count) setHackathonsStatus("AllLoaded");
+      else setHackathonsStatus("CanLoadMore");
+    } else {
+      setHackathonsStatus("AllLoaded");
+    }
   };
 
   const loadMoreEvents = async (count: number) => {
