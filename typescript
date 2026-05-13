@@ -1,0 +1,25 @@
+"use node";
+import { action } from "./_generated/server";
+import { v } from "convex/values";
+
+export const callExternalAPI = action({
+  args: { url: v.string() },
+  handler: async (ctx, args) => {
+    const response = await fetch(args.url);
+    const data = await response.json();
+    return data;
+  },
+});
+
+http.route({
+  path: "/api/my-endpoint",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const body = await req.json();
+    // Process and return response
+    return new Response(JSON.stringify({ success: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }),
+});
