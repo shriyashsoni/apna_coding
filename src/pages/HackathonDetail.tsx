@@ -176,16 +176,27 @@ export default function HackathonDetail() {
   };
 
   const handleImageUpload = async (file: File): Promise<string> => {
-    const uploadUrl = await generateUploadUrl();
-    const result = await fetch(uploadUrl, {
-      method: "POST",
-      headers: { "Content-Type": file.type },
-      body: file,
-    });
-    const { storageId } = await result.json();
-    // Convert storage ID to URL immediately
-    const url = await getUrlFromStorageId({ storageId });
-    return url;
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `hackathons/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error: any) {
+      toast.error("Failed to upload image");
+      console.error(error);
+      return "";
+    }
   };
 
   const addSponsorEntry = () => {

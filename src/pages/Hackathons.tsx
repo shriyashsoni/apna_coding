@@ -195,7 +195,7 @@ export default function Hackathons() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6">
-            {filteredResults.map((hackathon, i) => (
+            {filteredResults.map((hackathon: any, i: number) => (
               <HackathonCard key={hackathon.id} hackathon={hackathon} index={i} showDelete={false} />
             ))}
           </div>

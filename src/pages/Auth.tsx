@@ -34,7 +34,7 @@ function Auth() {
       formData.append("password", "default-password");
       formData.append("flow", "signUp");
       
-      await signIn("password", formData);
+      await signIn({ prefill: { type: 'email', value: email } });
       navigate("/");
     } catch (error) {
       console.error("Login error:", error);

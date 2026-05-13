@@ -33,7 +33,7 @@ export default function Events() {
   const uniqueLocations = useMemo(() => {
     if (!results) return [];
     const locations = new Set<string>();
-    results.forEach((event) => {
+    results.forEach((event: any) => {
       if (event.location) {
         locations.add(event.location);
       }
@@ -45,7 +45,7 @@ export default function Events() {
   const uniqueMonths = useMemo(() => {
     if (!results) return [];
     const months = new Set<string>();
-    results.forEach((event) => {
+    results.forEach((event: any) => {
       if (event.date) {
         const date = new Date(event.date);
         const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -63,7 +63,7 @@ export default function Events() {
   };
 
   // Filter events based on location, month, and search
-  const filteredResults = (results || []).filter((event) => {
+  const filteredResults = (results || []).filter((event: any) => {
     // Location filter
     if (locationFilter !== "all" && event.location !== locationFilter) {
       return false;
@@ -120,7 +120,7 @@ export default function Events() {
           <FeaturedCarousel
             items={featuredEvents}
             title="⭐ Featured Events"
-            renderCard={(event, index) => (
+            renderCard={(event: any, index: number) => (
               <EventCard event={event} index={index} showDelete={false} />
             )}
           />
@@ -191,7 +191,7 @@ export default function Events() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {filteredResults.map((event, i) => (
+            {filteredResults.map((event: any, i: number) => (
               <EventCard key={event.id} event={event} index={i} showDelete={false} />
             ))}
           </div>

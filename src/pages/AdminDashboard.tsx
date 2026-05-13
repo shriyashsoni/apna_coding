@@ -57,8 +57,13 @@ export default function AdminDashboard() {
   const [allJobs, setAllJobs] = useState<any[]>([]);
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [allNews, setAllNews] = useState<any[]>([]);
-
   const [loading, setLoading] = useState(true);
+
+  // Pagination statuses
+  const [eventsStatus, setEventsStatus] = useState<"CanLoadMore" | "Loading" | "AllLoaded">("CanLoadMore");
+  const [jobsStatus, setJobsStatus] = useState<"CanLoadMore" | "Loading" | "AllLoaded">("CanLoadMore");
+  const [productsStatus, setProductsStatus] = useState<"CanLoadMore" | "Loading" | "AllLoaded">("CanLoadMore");
+  const [newsStatus, setNewsStatus] = useState<"CanLoadMore" | "Loading" | "AllLoaded">("CanLoadMore");
 
   useEffect(() => {
     if (ready && !authenticated) {
@@ -485,6 +490,54 @@ export default function AdminDashboard() {
   const handleSubmitPartnerUrl = async (e: React.FormEvent) => {
     e.preventDefault();
     toast.info("Scraping logic needs to be migrated to Supabase Edge Functions");
+  };
+
+  const loadMoreEvents = async (count: number) => {
+    setEventsStatus("Loading");
+    const { data } = await supabase.from('events').select('*').range(allEvents.length, allEvents.length + count - 1);
+    if (data && data.length > 0) {
+      setAllEvents([...allEvents, ...data]);
+      if (data.length < count) setEventsStatus("AllLoaded");
+      else setEventsStatus("CanLoadMore");
+    } else {
+      setEventsStatus("AllLoaded");
+    }
+  };
+
+  const loadMoreJobs = async (count: number) => {
+    setJobsStatus("Loading");
+    const { data } = await supabase.from('jobs').select('*').range(allJobs.length, allJobs.length + count - 1);
+    if (data && data.length > 0) {
+      setAllJobs([...allJobs, ...data]);
+      if (data.length < count) setJobsStatus("AllLoaded");
+      else setJobsStatus("CanLoadMore");
+    } else {
+      setJobsStatus("AllLoaded");
+    }
+  };
+
+  const loadMoreProducts = async (count: number) => {
+    setProductsStatus("Loading");
+    const { data } = await supabase.from('products').select('*').range(allProducts.length, allProducts.length + count - 1);
+    if (data && data.length > 0) {
+      setAllProducts([...allProducts, ...data]);
+      if (data.length < count) setProductsStatus("AllLoaded");
+      else setProductsStatus("CanLoadMore");
+    } else {
+      setProductsStatus("AllLoaded");
+    }
+  };
+
+  const loadMoreNews = async (count: number) => {
+    setNewsStatus("Loading");
+    const { data } = await supabase.from('news').select('*').range(allNews.length, allNews.length + count - 1);
+    if (data && data.length > 0) {
+      setAllNews([...allNews, ...data]);
+      if (data.length < count) setNewsStatus("AllLoaded");
+      else setNewsStatus("CanLoadMore");
+    } else {
+      setNewsStatus("AllLoaded");
+    }
   };
 
   return (
