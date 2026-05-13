@@ -21,6 +21,8 @@ export default function Jobs() {
   const isAdmin = authUser?.role === "admin";
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [jobs, setJobs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isScrapingJobs, setIsScrapingJobs] = useState(false);
   const [isScraperOpen, setIsScraperOpen] = useState(false);
   const [scraperMode, setScraperMode] = useState<"ai" | "url">("ai");
@@ -118,7 +120,7 @@ export default function Jobs() {
 
   const uniqueLocations = useMemo(() => {
     const locations = new Set<string>();
-    jobs.forEach((job) => {
+    jobs.forEach((job: any) => {
       if (job.location) {
         locations.add(job.location);
       }
@@ -128,7 +130,7 @@ export default function Jobs() {
 
   const jobTypes = ["full-time", "part-time", "contract", "internship"];
 
-  const filteredResults = jobs.filter((job) => {
+  const filteredResults = jobs.filter((job: any) => {
     if (locationFilter !== "all" && job.location !== locationFilter) return false;
     if (typeFilter !== "all" && job.type !== typeFilter) return false;
     if (searchQuery.trim()) {
@@ -413,7 +415,7 @@ export default function Jobs() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-4">
-            {filteredResults.map((job, i) => (
+            {filteredResults.map((job: any, i: number) => (
               <motion.div
                 key={job.id}
                 initial={{ opacity: 0, y: 10 }}

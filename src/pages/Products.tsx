@@ -57,7 +57,7 @@ export default function Products() {
   const chain = undefined; // Chain info needs to be derived differently if needed
   const navigate = useNavigate();
   const { launchProduct, isLaunching } = useProductLaunch();
-  const createProductMutation = useSupabaseMutation("products", "INSERT");
+  const createProductMutation = useSupabaseMutation("products");
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -186,7 +186,14 @@ Perfect for developers and users looking to explore ${formData.category || "Web3
     setIsSubmitting(true);
     try {
       toast.info(`Launching product with ${LAUNCH_FEE} ETH fee...`);
-      const txHash = await launchProduct();
+      const txHash = await launchProduct(
+        formData.name,
+        formData.description,
+        formData.category,
+        formData.image_url,
+        formData.website_url,
+        formData.tags
+      );
 
       if (!txHash) {
         toast.error("Payment cancelled or failed");
@@ -196,7 +203,7 @@ Perfect for developers and users looking to explore ${formData.category || "Web3
 
       const slug = formData.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       
-      await createProductMutation.mutate({
+      await createProductMutation.mutate('insert', {
         ...formData,
         wallet_address: address,
         slug,

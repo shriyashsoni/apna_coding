@@ -221,7 +221,7 @@ export default function Profile() {
             {/* Profile Card */}
             <div className="lg:col-span-2">
               <ProfileInfoCard 
-                address={address}
+                address={address as `0x${string}`}
                 profile={user ? {
                   name: user.name,
                   bio: user.bio,

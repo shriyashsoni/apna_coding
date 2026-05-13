@@ -21,9 +21,10 @@ interface HackathonCardProps {
   hackathon: any;
   index: number;
   showDelete?: boolean;
+  onDelete?: () => void;
 }
 
-export function HackathonCard({ hackathon, index, showDelete = true }: HackathonCardProps) {
+export function HackathonCard({ hackathon, index, showDelete = true, onDelete }: HackathonCardProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { mutate: deleteHackathonMutate } = useSupabaseMutation('hackathons');
@@ -39,6 +40,7 @@ export function HackathonCard({ hackathon, index, showDelete = true }: Hackathon
     try {
       await deleteHackathonMutate('delete', null, { id: hackathon.id });
       toast.success("Hackathon deleted successfully");
+      if (onDelete) onDelete();
     } catch (error) {
       toast.error("Failed to delete hackathon");
       console.error(error);

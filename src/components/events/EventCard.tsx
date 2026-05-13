@@ -21,9 +21,10 @@ interface EventCardProps {
   event: any;
   index: number;
   showDelete?: boolean;
+  onDelete?: () => void;
 }
 
-export function EventCard({ event, index, showDelete = false }: EventCardProps) {
+export function EventCard({ event, index, showDelete = false, onDelete }: EventCardProps) {
   const { user } = useAuth();
   const { mutate: deleteEventMutate } = useSupabaseMutation('events');
 
@@ -44,6 +45,7 @@ export function EventCard({ event, index, showDelete = false }: EventCardProps) 
     try {
       await deleteEventMutate('delete', null, { id: event.id });
       toast.success("Event deleted successfully");
+      if (onDelete) onDelete();
     } catch (error) {
       toast.error("Failed to delete event");
       console.error(error);

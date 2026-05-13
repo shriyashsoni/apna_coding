@@ -243,7 +243,7 @@ export default function LaunchOnChain() {
                 </CardTitle>
                 <CardDescription>
                   Fill in the details below to launch your product on the blockchain
-                  {launchFee && ` (Fee: ${(Number(launchFee) / 1e18).toFixed(3)} ETH)`}
+                  {LAUNCH_FEE && ` (Fee: ${(Number(LAUNCH_FEE) / 1e18).toFixed(3)} ETH)`}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
