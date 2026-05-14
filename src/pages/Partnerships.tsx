@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ExternalLink, Twitter, MessageSquare, Globe, Sparkles, Loader2, Plus } from "lucide-react";
+import { scrapeContentDirectly } from "@/utils/frontend-scraper";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -65,25 +66,25 @@ export default function Partnerships() {
     }
 
     setIsScrapingUrl(true);
-    toast.info("🔍 AI Scraping partner data from URL...");
-
     try {
-      // Call Supabase Edge Function
-      const { data, error } = await supabase.functions.invoke('scrape-partner', {
-        body: { url: partnerUrl, wallet_address: address }
+      const result = await scrapeContentDirectly(partnerUrl.trim(), 'communities');
+      
+      if (!result.success) throw new Error(result.error || "Scraping failed");
+
+      const { error: insertError } = await supabase.from('communities').insert({
+        ...result.data,
+        slug: result.data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        wallet_address: address,
+        is_published: true
       });
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      if (data?.success) {
-        toast.success("✅ Partner scraped and added successfully!");
-        setPartnerUrl("");
-        fetchCommunities();
-      } else {
-        toast.error(data?.error || "Failed to scrape partner data");
-      }
+      toast.success("✅ Partner scraped and added successfully!");
+      setPartnerUrl("");
+      fetchCommunities();
     } catch (error: any) {
-      toast.error(error.message || "Failed to scrape partner data. Make sure the 'scrape-partner' Edge Function is deployed.");
+      toast.error(error.message || "Failed to scrape partner data");
       console.error(error);
     } finally {
       setIsScrapingUrl(false);

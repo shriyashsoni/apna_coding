@@ -46,6 +46,7 @@ import {
   Clock,
   Zap,
 } from "lucide-react";
+import { scrapeContentDirectly } from "@/utils/frontend-scraper";
 
 export function AIAgentManager() {
   const { user: authUser } = useAuth();
@@ -117,17 +118,40 @@ export function AIAgentManager() {
       setSourceData("");
       fetchJobs();
 
-      // 2. Invoke the edge function
-      const { data: result, error: invokeError } = await supabase.functions.invoke('process-ai-job', {
-        body: { job_id: job.id }
-      });
+      // 2. Perform extraction in frontend
+      const result = await scrapeContentDirectly(sourceData.trim(), selectedJobType as any);
+      
+      if (result.success) {
+        const table = selectedJobType === 'community' ? 'communities' : 
+                      selectedJobType === 'news' ? 'news' : 'hackathons';
+        
+        const { data: insertedData, error: insertError } = await supabase.from(table).insert({
+          ...result.data,
+          slug: (result.data.name || result.data.title).toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+          wallet_address: address,
+          is_approved: true
+        }).select().single();
 
-      if (invokeError) throw invokeError;
+        if (insertError) throw insertError;
 
-      if (result?.success) {
+        // Update job status to completed
+        await supabase.from('ai_agent_jobs').update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          created_item_id: insertedData.id,
+          created_item_type: selectedJobType,
+          extracted_data: result.data
+        }).eq('id', job.id);
+
         toast.success("AI extraction completed successfully!");
       } else {
-        toast.error(result?.error || "AI extraction failed");
+        // Update job status to failed
+        await supabase.from('ai_agent_jobs').update({
+          status: 'failed',
+          error: result.error || "Extraction failed"
+        }).eq('id', job.id);
+        
+        throw new Error(result.error || "AI extraction failed");
       }
       
       fetchJobs();
