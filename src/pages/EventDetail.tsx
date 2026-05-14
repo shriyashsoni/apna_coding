@@ -101,9 +101,9 @@ export default function EventDetail() {
   };
 
   const handleDelete = async () => {
-    if (!address || !id) return;
+    if (!address || !event?.id) return;
     try {
-      await deleteEventMutate('delete', null, { id });
+      await deleteEventMutate('delete', null, { id: event.id });
       toast.success("Event deleted successfully");
       navigate("/events");
     } catch (error: any) {

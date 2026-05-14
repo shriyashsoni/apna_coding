@@ -98,9 +98,9 @@ export default function JobDetail() {
   };
 
   const handleDelete = async () => {
-    if (!address || !id) return;
+    if (!address || !job?.id) return;
     try {
-      await deleteJobMutate('delete', null, { id });
+      await deleteJobMutate('delete', null, { id: job.id });
       toast.success("Job deleted successfully");
       navigate("/jobs");
     } catch (error: any) {
@@ -114,7 +114,7 @@ export default function JobDetail() {
         title={`${job.title} at ${job.company}`}
         description={job.description}
         image={job.image_url || undefined}
-        url={`/jobs/${job.id}`}
+        url={`/jobs/${job.slug || job.id}`}
         type="article"
         publishedTime={new Date(job.created_at).toISOString()}
       />
