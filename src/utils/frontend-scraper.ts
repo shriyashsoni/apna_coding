@@ -82,7 +82,7 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
         end_date: Date.now() + 7 * 24 * 60 * 60 * 1000,
         location: $('[class*="location"]').first().text().trim() || 
                   $('[class*="venue"]').first().text().trim() || "Online",
-        external_url: url || metadata.website,
+        registration_link: url || metadata.website,
         image: metadata.image
       };
     } else if (contentType === 'events') {
