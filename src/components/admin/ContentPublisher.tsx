@@ -66,17 +66,84 @@ export function ContentPublisher({ onSuccess }: ContentPublisherProps) {
 
   const handleScrapeHackathon = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info("AI scraping logic needs to be migrated to Supabase Edge Functions");
+    if (!hackathonUrl.trim()) {
+      toast.error("Please enter a valid hackathon URL");
+      return;
+    }
+
+    setIsScrapingHackathon(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-hackathon', {
+        body: { url: hackathonUrl.trim(), wallet_address: address }
+      });
+
+      if (error) throw error;
+      if (data?.success) {
+        toast.success("✅ Hackathon scraped and submitted for review!");
+        setHackathonUrl("");
+        onSuccess();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to scrape hackathon");
+    } finally {
+      setIsScrapingHackathon(false);
+    }
   };
 
   const handleScrapeEvent = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info("AI scraping logic needs to be migrated to Supabase Edge Functions");
+    if (!eventUrl.trim()) {
+      toast.error("Please enter a valid event URL");
+      return;
+    }
+
+    setIsScrapingEvent(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-event', {
+        body: { 
+          url: eventUrl.trim(), 
+          wallet_address: address,
+          eventGroupId: selectedEventGroupId 
+        }
+      });
+
+      if (error) throw error;
+      if (data?.success) {
+        toast.success("✅ Event scraped and submitted for review!");
+        setEventUrl("");
+        onSuccess();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to scrape event");
+    } finally {
+      setIsScrapingEvent(false);
+    }
   };
 
   const handleScrapeJob = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info("AI scraping logic needs to be migrated to Supabase Edge Functions");
+    if (!jobUrl.trim()) {
+      toast.error("Please enter a valid job URL");
+      return;
+    }
+
+    setIsScrapingJob(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-job', {
+        body: { url: jobUrl.trim(), wallet_address: address }
+      });
+
+      if (error) throw error;
+      if (data?.success) {
+        toast.success("✅ Job scraped and submitted for review!");
+        setJobUrl("");
+        onSuccess();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to scrape job");
+    } finally {
+      setIsScrapingJob(false);
+    }
   };
 
   const handleSubmitJob = async (e: React.FormEvent) => {

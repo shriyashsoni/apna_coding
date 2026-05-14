@@ -44,32 +44,34 @@ serve(async (req) => {
 
     const startTime = Date.now();
 
-    // 3. Perform Extraction (Simulated)
-    let extractedData = {};
-    let targetTable = "";
+    // 3. Perform Extraction
+    const scraperResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/ai-scraper`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ 
+        url: job.source_type === 'url' ? job.source_data : null,
+        textContent: job.source_type === 'text' ? job.source_data : null,
+        contentType: job.job_type === 'community' ? 'communities' : 
+                     job.job_type === 'news' ? 'news' : 
+                     job.job_type === 'hackathon' ? 'hackathons' : 'jobs'
+      }),
+    });
 
-    if (job.job_type === "community") {
-      targetTable = "communities";
-      extractedData = {
-        name: "Extracted Community",
-        description: "Description from " + job.source_data,
-        status: "pending_approval"
-      };
-    } else if (job.job_type === "news") {
-      targetTable = "news";
-      extractedData = {
-        title: "Extracted News",
-        content: "Content from " + job.source_data,
-        status: "pending_approval"
-      };
-    } else if (job.job_type === "hackathon") {
-      targetTable = "hackathons";
-      extractedData = {
-        title: "Extracted Hackathon",
-        description: "Description from " + job.source_data,
-        status: "pending_approval"
-      };
+    if (!scraperResponse.ok) {
+      const error = await scraperResponse.json();
+      throw new Error(error.error || "AI Scraping failed");
     }
+
+    const { data: extractedData } = await scraperResponse.json();
+    
+    let targetTable = "";
+    if (job.job_type === "community") targetTable = "communities";
+    else if (job.job_type === "news") targetTable = "news";
+    else if (job.job_type === "hackathon") targetTable = "hackathons";
+    else targetTable = "jobs";
 
     // 4. Create the item in the target table
     const { data: newItem, error: createError } = await supabaseClient

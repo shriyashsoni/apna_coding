@@ -43,6 +43,26 @@ export function QuickActions({ onTabChange }: QuickActionsProps) {
       bgColor: "bg-orange-500/10",
       action: () => onTabChange("ai-email"),
     },
+    {
+      title: "Update Sitemap",
+      description: "Refresh SEO indexing",
+      icon: FileText,
+      color: "text-cyan-500",
+      bgColor: "bg-cyan-500/10",
+      action: async () => {
+        try {
+          const { data, error } = await supabase.functions.invoke('generate-sitemap');
+          if (error) throw error;
+          toast.success("Sitemap XML generated successfully!");
+          // Open in new tab to verify
+          const blob = new Blob([data], { type: 'application/xml' });
+          const url = URL.createObjectURL(blob);
+          window.open(url, '_blank');
+        } catch (err) {
+          toast.error("Failed to generate sitemap");
+        }
+      },
+    },
   ];
 
   return (

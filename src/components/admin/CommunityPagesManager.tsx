@@ -199,7 +199,29 @@ export function CommunityPagesManager() {
 
   const handleSubmitLink = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info("Community scraping logic needs to be migrated to Supabase Edge Functions");
+    if (!communityUrl.trim()) {
+      toast.error("Please enter a valid URL");
+      return;
+    }
+
+    setIsScrapingLink(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-partner', {
+        body: { url: communityUrl.trim(), wallet_address: address }
+      });
+
+      if (error) throw error;
+      if (data?.success) {
+        toast.success("✅ Community page created and published successfully!");
+        setCommunityUrl("");
+        setIsOpen(false);
+        fetchCommunities(); // Refresh list
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to scrape community data");
+    } finally {
+      setIsScrapingLink(false);
+    }
   };
 
   return (

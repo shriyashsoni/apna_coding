@@ -27,33 +27,55 @@ serve(async (req) => {
       
       for (const url of urls) {
         try {
-          // In a real scenario, you would trigger an AI extraction for each URL
-          // For now, we'll just create a pending item
-          const newItem = {
-            status: 'pending_approval',
-            wallet_address: wallet_address,
-            // Add group if events
-            ...(contentType === 'events' && eventGroupId ? { group_id: eventGroupId } : {})
-          };
+          // Invoke the central AI scraper
+          const scraperResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/ai-scraper`, {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ url, contentType }),
+          });
 
-          // Simple logic based on contentType
-          let data;
-          if (contentType === 'events') {
-            data = await supabaseClient.from('events').insert({ ...newItem, title: "Imported from " + url, registration_link: url }).select().single();
-          } else if (contentType === 'hackathons') {
-            data = await supabaseClient.from('hackathons').insert({ ...newItem, title: "Imported from " + url, external_url: url }).select().single();
-          } else if (contentType === 'jobs') {
-            data = await supabaseClient.from('jobs').insert({ ...newItem, title: "Imported from " + url, source_url: url }).select().single();
-          } else if (contentType === 'news') {
-            data = await supabaseClient.from('news').insert({ ...newItem, title: "Imported from " + url }).select().single();
-          } else if (contentType === 'products') {
-            data = await supabaseClient.from('products').insert({ ...newItem, name: "Imported from " + url, website_url: url }).select().single();
-          } else if (contentType === 'communities') {
-            data = await supabaseClient.from('communities').insert({ ...newItem, name: "Imported from " + url, website: url }).select().single();
+          if (!scraperResponse.ok) {
+            const error = await scraperResponse.json();
+            throw new Error(error.error || "AI Scraping failed");
           }
 
-          if (data?.error) throw data.error;
-          results.push({ url, status: "success", message: "Item imported successfully" });
+          const { data: extractedData } = await scraperResponse.json();
+
+          // Prepare data for insertion based on content type
+          const insertData: any = {
+            ...extractedData,
+            wallet_address: wallet_address,
+          };
+
+          // Set approval/status fields based on table schema
+          if (contentType === 'products') {
+            insertData.status = 'pending';
+          } else if (contentType === 'communities') {
+            insertData.is_published = false;
+            insertData.slug = extractedData.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-") || `community-${Date.now()}`;
+          } else if (contentType === 'news') {
+            insertData.is_approved = false;
+            insertData.is_published = false;
+            insertData.slug = extractedData.title?.toLowerCase().replace(/[^a-z0-9]+/g, "-") || `news-${Date.now()}`;
+          } else {
+            // hackathons, events, jobs
+            insertData.is_approved = false;
+            if (contentType === 'events' && eventGroupId) {
+              insertData.group_id = eventGroupId;
+            }
+            if (contentType === 'hackathons') {
+              insertData.status = 'upcoming';
+            }
+          }
+
+          // Insert into database
+          const { error } = await supabaseClient.from(contentType).insert(insertData);
+
+          if (error) throw error;
+          results.push({ url, status: "success", message: "Item scraped and imported successfully" });
         } catch (err) {
           results.push({ url, status: "error", message: err.message });
         }
@@ -71,12 +93,33 @@ serve(async (req) => {
         });
 
         try {
-          const { error } = await supabaseClient.from(contentType).insert({
+          const insertData: any = {
             ...item,
-            status: 'pending_approval',
             wallet_address: wallet_address,
-            ...(contentType === 'events' && eventGroupId ? { group_id: eventGroupId } : {})
-          });
+          };
+
+          // Set approval/status fields based on table schema
+          if (contentType === 'products') {
+            insertData.status = 'pending';
+          } else if (contentType === 'communities') {
+            insertData.is_published = false;
+            if (!insertData.slug) insertData.slug = (item.name || item.title || `community-${Date.now()}`).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+          } else if (contentType === 'news') {
+            insertData.is_approved = false;
+            insertData.is_published = false;
+            if (!insertData.slug) insertData.slug = (item.title || `news-${Date.now()}`).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+          } else {
+            // hackathons, events, jobs
+            insertData.is_approved = false;
+            if (contentType === 'events' && eventGroupId) {
+              insertData.group_id = eventGroupId;
+            }
+            if (contentType === 'hackathons') {
+              insertData.status = 'upcoming';
+            }
+          }
+
+          const { error } = await supabaseClient.from(contentType).insert(insertData);
 
           if (error) throw error;
           results.push({ url: item.title || item.name || `Row ${i}`, status: "success", message: "Item imported successfully" });

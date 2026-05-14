@@ -530,25 +530,109 @@ export default function AdminDashboard() {
   };
 
   const handleScrapeJobs = async () => {
-    toast.info("Scraping logic needs to be migrated to Supabase Edge Functions");
+    setIsScrapingJobs(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-job', {
+        body: { wallet_address: address, mode: 'ai' }
+      });
+      if (error) throw error;
+      if (data?.success) {
+        toast.success("✅ AI extraction completed!");
+        fetchAdminData();
+      } else {
+        toast.error(data?.error || "AI extraction failed");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to connect to AI service");
+    } finally {
+      setIsScrapingJobs(false);
+    }
   };
 
   const handleScrapeEvents = async () => {
-    toast.info("Scraping logic needs to be migrated to Supabase Edge Functions");
+    setIsScrapingEvents(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-event', {
+        body: { wallet_address: address }
+      });
+      if (error) throw error;
+      if (data?.success) {
+        toast.success("✅ AI extraction completed!");
+        fetchAdminData();
+      } else {
+        toast.error(data?.error || "AI extraction failed");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to connect to AI service");
+    } finally {
+      setIsScrapingEvents(false);
+    }
   };
 
   const handleScrapeProducts = async () => {
-    toast.info("Scraping logic needs to be migrated to Supabase Edge Functions");
+    setIsScrapingProducts(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-product', {
+        body: { wallet_address: address }
+      });
+      if (error) throw error;
+      if (data?.success) {
+        toast.success("✅ AI extraction completed!");
+        fetchAdminData();
+      } else {
+        toast.error(data?.error || "AI extraction failed");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to connect to AI service");
+    } finally {
+      setIsScrapingProducts(false);
+    }
   };
 
   const handleSubmitNewsUrl = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info("Scraping logic needs to be migrated to Supabase Edge Functions");
+    if (!newsUrl.trim()) return;
+    setIsScrapingNews(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-news', {
+        body: { url: newsUrl.trim(), wallet_address: address }
+      });
+      if (error) throw error;
+      if (data?.success) {
+        toast.success("✅ AI extraction completed!");
+        setNewsUrl("");
+        fetchAdminData();
+      } else {
+        toast.error(data?.error || "AI extraction failed");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to connect to AI service");
+    } finally {
+      setIsScrapingNews(false);
+    }
   };
 
   const handleSubmitPartnerUrl = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info("Scraping logic needs to be migrated to Supabase Edge Functions");
+    if (!partnerUrl.trim()) return;
+    setIsScrapingPartner(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-partner', {
+        body: { url: partnerUrl.trim(), wallet_address: address }
+      });
+      if (error) throw error;
+      if (data?.success) {
+        toast.success("✅ AI extraction completed!");
+        setPartnerUrl("");
+        fetchAdminData();
+      } else {
+        toast.error(data?.error || "AI extraction failed");
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to connect to AI service");
+    } finally {
+      setIsScrapingPartner(false);
+    }
   };
 
   const loadMoreHackathons = async (count: number) => {

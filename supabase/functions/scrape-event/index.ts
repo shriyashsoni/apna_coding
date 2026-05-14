@@ -14,21 +14,15 @@ serve(async (req) => {
   try {
     const { url, wallet_address } = await req.json();
 
-    if (!url) {
-      return new Response(JSON.stringify({ error: "URL is required" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
-    }
+    if (!url) throw new Error("URL is required");
 
-    // 1. Invoke the central AI scraper
     const scraperResponse = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/ai-scraper`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ url, contentType: "communities" }),
+      body: JSON.stringify({ url, contentType: "events" }),
     });
 
     if (!scraperResponse.ok) {
@@ -38,20 +32,17 @@ serve(async (req) => {
 
     const { data: extractedData } = await scraperResponse.json();
 
-    // 2. Initialize Supabase client
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    // 3. Insert into database
     const { data, error } = await supabaseClient
-      .from("communities")
+      .from("events")
       .insert({
         ...extractedData,
         wallet_address: wallet_address,
-        is_published: false,
-        slug: extractedData.name?.toLowerCase().replace(/[^a-z0-9]+/g, "-") || `community-${Date.now()}`
+        is_approved: false
       })
       .select()
       .single();

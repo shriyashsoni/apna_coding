@@ -114,8 +114,37 @@ export default function Jobs() {
       return;
     }
 
-    toast.info("AI Scraping logic has been moved to Supabase Edge Functions. This is a placeholder for the integration.");
-    setIsScraperOpen(false);
+    if (scraperMode === "url" && !scrapeUrl.trim()) {
+      toast.error("Please enter a URL to scrape");
+      return;
+    }
+
+    setIsScrapingJobs(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-job', {
+        body: { 
+          url: scraperMode === "url" ? scrapeUrl.trim() : null,
+          wallet_address: address,
+          mode: scraperMode 
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast.success("✅ AI extraction completed successfully! Job submitted for review.");
+        setIsScraperOpen(false);
+        setScrapeUrl("");
+        fetchJobs();
+      } else {
+        toast.error(data?.error || "AI extraction failed");
+      }
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "Failed to connect to AI service");
+    } finally {
+      setIsScrapingJobs(false);
+    }
   };
 
   const uniqueLocations = useMemo(() => {
