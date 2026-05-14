@@ -89,7 +89,8 @@ export function BulkImport() {
                 ...result.data,
                 event_group_id: contentType === 'events' ? (selectedEventGroupId || null) : undefined,
                 wallet_address: address,
-                is_approved: false
+                is_approved: true,
+                status: 'published'
               });
               
               if (insertError) throw insertError;
