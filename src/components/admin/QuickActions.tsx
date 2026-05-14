@@ -4,6 +4,7 @@ import { Sparkles, Shield, Users, Mail, Settings, FileText, Download } from "luc
 import { useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
 
 interface QuickActionsProps {
   onTabChange: (tab: string) => void;
