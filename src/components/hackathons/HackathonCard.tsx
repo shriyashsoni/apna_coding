@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 import { useSupabaseMutation } from "@/hooks/useSupabase";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
+import { isSuperAdmin } from "@/lib/admin-config";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -53,8 +54,7 @@ export function HackathonCard({ hackathon, index, showDelete = true, onDelete }:
   const endLabel = formatDateLabel(hackathon.end_date);
 
   // Check if current user can delete this hackathon
-  const SUPER_ADMIN_WALLET = "0x9D307F0C1B614C9088Aa83eAE9AA3D9779c4921D";
-  const isAdmin = user?.role === "admin" || user?.wallet_address?.toLowerCase() === SUPER_ADMIN_WALLET.toLowerCase();
+  const isAdmin = user?.role === "admin" || isSuperAdmin(user?.wallet_address, user?.email);
   const isCreator = hackathon.organizer_wallet && user?.wallet_address && 
     hackathon.organizer_wallet.toLowerCase() === user.wallet_address.toLowerCase();
   const canDelete = showDelete && (isAdmin || isCreator);

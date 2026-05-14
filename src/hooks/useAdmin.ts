@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { usePrivy } from '@privy-io/react-auth';
+import { isSuperAdmin } from '@/lib/admin-config';
 
 export function useAdmin() {
   const { user } = usePrivy();
   const address = user?.wallet?.address;
+  const email = user?.email?.address;
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -12,6 +14,13 @@ export function useAdmin() {
     async function checkAdmin() {
       if (!address) {
         setIsAdmin(false);
+        setLoading(false);
+        return;
+      }
+
+      // Check if super admin first (hardcoded/config list)
+      if (isSuperAdmin(address, email)) {
+        setIsAdmin(true);
         setLoading(false);
         return;
       }
@@ -37,7 +46,7 @@ export function useAdmin() {
     }
 
     checkAdmin();
-  }, [address]);
+  }, [address, email]);
 
   return { isAdmin, loading };
 }
