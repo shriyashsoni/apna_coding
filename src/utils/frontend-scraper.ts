@@ -7,21 +7,24 @@ import * as cheerio from 'cheerio';
 
 const PROXIES = [
   "https://corsproxy.io/?",
+  "https://api.codetabs.com/v1/proxy?quest=",
   "https://api.allorigins.win/get?url=",
-  "https://thingproxy.freeboard.io/fetch/"
 ];
 
 async function fetchWithFallback(url: string) {
   let lastError = null;
+  console.log(`🚀 Starting multi-proxy fetch for: ${url}`);
 
   for (const proxy of PROXIES) {
     try {
-      const targetUrl = proxy.includes('allorigins') 
-        ? `${proxy}${encodeURIComponent(url)}` 
-        : `${proxy}${url}`;
+      console.log(`📡 Trying proxy: ${proxy}`);
+      const targetUrl = `${proxy}${encodeURIComponent(url)}`;
         
       const response = await fetch(targetUrl);
-      if (!response.ok) continue;
+      if (!response.ok) {
+        console.warn(`⚠️ Proxy ${proxy} failed with status: ${response.status}`);
+        continue;
+      }
 
       if (proxy.includes('allorigins')) {
         const json = await response.json();
@@ -30,12 +33,13 @@ async function fetchWithFallback(url: string) {
         return await response.text();
       }
     } catch (err) {
+      console.error(`❌ Proxy ${proxy} error:`, err);
       lastError = err;
       continue;
     }
   }
 
-  throw lastError || new Error("All proxies failed to fetch content");
+  throw lastError || new Error("All proxies failed to fetch content. Please check your internet or try a different URL.");
 }
 
 export async function scrapeContentDirectly(url: string, contentType: 'jobs' | 'hackathons' | 'events' | 'news' | 'communities' | 'products') {
