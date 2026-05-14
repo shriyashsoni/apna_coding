@@ -35,7 +35,17 @@ export default function HackathonDetail() {
   useEffect(() => {
     async function fetchData() {
       if (!slug) return;
-      const { data: h, error: he } = await supabase.from('hackathons').select('*').eq('slug', slug).single();
+      
+      let query = supabase.from('hackathons').select('*');
+      
+      if (slug.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        query = query.eq('id', slug);
+      } else {
+        query = query.eq('slug', slug);
+      }
+
+      const { data: h, error: he } = await query.single();
+      
       if (h) {
         setHackathon(h);
         const { data: t } = await supabase.from('hackathon_teams').select('*').eq('hackathon_id', h.id);
