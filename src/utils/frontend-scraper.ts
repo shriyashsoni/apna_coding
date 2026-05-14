@@ -6,7 +6,7 @@ import * as cheerio from 'cheerio';
  * It uses a CORS proxy to fetch HTML from external sites.
  */
 
-const CORS_PROXY = "https://api.allorigins.win/get?url=";
+const CORS_PROXY = "https://corsproxy.io/?";
 
 export async function scrapeContentDirectly(url: string, contentType: 'jobs' | 'hackathons' | 'events' | 'news' | 'communities' | 'products') {
   try {
@@ -14,8 +14,7 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
     const response = await fetch(`${CORS_PROXY}${encodeURIComponent(url)}`);
     if (!response.ok) throw new Error("Failed to fetch content through proxy");
     
-    const json = await response.json();
-    const html = json.contents;
+    const html = await response.text();
     
     // 2. Load Cheerio
     const $ = cheerio.load(html);
