@@ -7,6 +7,10 @@
     {
       "source": "/robots.txt",
       "destination": "https://quiet-meadowlark-706.convex.site/robots.txt"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
