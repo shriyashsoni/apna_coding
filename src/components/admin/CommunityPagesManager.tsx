@@ -13,6 +13,7 @@ import { Link } from "react-router";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/lib/supabase";
+import { scrapeContentDirectly } from "@/utils/frontend-scraper";
 
 export function CommunityPagesManager() {
   const { user: authUser } = useAuth();
@@ -206,11 +207,32 @@ export function CommunityPagesManager() {
 
     setIsScrapingLink(true);
     try {
+      // Try Edge Function first
       const { data, error } = await supabase.functions.invoke('scrape-partner', {
         body: { url: communityUrl.trim(), wallet_address: address }
       });
 
-      if (error) throw error;
+      if (error || !data?.success) {
+        console.warn("Edge function failed, trying frontend scraper fallback...");
+        const result = await scrapeContentDirectly(communityUrl.trim(), 'communities');
+        
+        if (result.success) {
+          const { error: insertError } = await supabase.from('communities').insert({
+            ...result.data,
+            slug: result.data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+            wallet_address: address,
+            is_published: true
+          });
+          if (insertError) throw insertError;
+          toast.success("✅ Community page created (via Frontend) successfully!");
+          setCommunityUrl("");
+          setIsOpen(false);
+          fetchCommunities();
+          return;
+        }
+        throw new Error(error?.message || result.error || "Scraping failed");
+      }
+
       if (data?.success) {
         toast.success("✅ Community page created and published successfully!");
         setCommunityUrl("");

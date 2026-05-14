@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { CreateHackathonDialog } from "@/components/hackathons/CreateHackathonDialog";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
+import { scrapeContentDirectly } from "@/utils/frontend-scraper";
 
 interface ContentPublisherProps {
   onSuccess: () => void;
@@ -73,11 +74,30 @@ export function ContentPublisher({ onSuccess }: ContentPublisherProps) {
 
     setIsScrapingHackathon(true);
     try {
+      // Try Edge Function first
       const { data, error } = await supabase.functions.invoke('scrape-hackathon', {
         body: { url: hackathonUrl.trim(), wallet_address: address }
       });
 
-      if (error) throw error;
+      if (error || !data?.success) {
+        console.warn("Edge function failed, trying frontend scraper fallback...");
+        const result = await scrapeContentDirectly(hackathonUrl.trim(), 'hackathons');
+        
+        if (result.success) {
+          const { error: insertError } = await supabase.from('hackathons').insert({
+            ...result.data,
+            wallet_address: address,
+            is_approved: false
+          });
+          if (insertError) throw insertError;
+          toast.success("✅ Hackathon scraped (via Frontend) and submitted!");
+          setHackathonUrl("");
+          onSuccess();
+          return;
+        }
+        throw new Error(error?.message || result.error || "Scraping failed");
+      }
+
       if (data?.success) {
         toast.success("✅ Hackathon scraped and submitted for review!");
         setHackathonUrl("");
@@ -99,6 +119,7 @@ export function ContentPublisher({ onSuccess }: ContentPublisherProps) {
 
     setIsScrapingEvent(true);
     try {
+      // Try Edge Function first
       const { data, error } = await supabase.functions.invoke('scrape-event', {
         body: { 
           url: eventUrl.trim(), 
@@ -107,7 +128,26 @@ export function ContentPublisher({ onSuccess }: ContentPublisherProps) {
         }
       });
 
-      if (error) throw error;
+      if (error || !data?.success) {
+        console.warn("Edge function failed, trying frontend scraper fallback...");
+        const result = await scrapeContentDirectly(eventUrl.trim(), 'events');
+        
+        if (result.success) {
+          const { error: insertError } = await supabase.from('events').insert({
+            ...result.data,
+            event_group_id: selectedEventGroupId || null,
+            wallet_address: address,
+            is_approved: false
+          });
+          if (insertError) throw insertError;
+          toast.success("✅ Event scraped (via Frontend) and submitted!");
+          setEventUrl("");
+          onSuccess();
+          return;
+        }
+        throw new Error(error?.message || result.error || "Scraping failed");
+      }
+
       if (data?.success) {
         toast.success("✅ Event scraped and submitted for review!");
         setEventUrl("");
@@ -129,11 +169,30 @@ export function ContentPublisher({ onSuccess }: ContentPublisherProps) {
 
     setIsScrapingJob(true);
     try {
+      // Try Edge Function first
       const { data, error } = await supabase.functions.invoke('scrape-job', {
         body: { url: jobUrl.trim(), wallet_address: address }
       });
 
-      if (error) throw error;
+      if (error || !data?.success) {
+        console.warn("Edge function failed, trying frontend scraper fallback...");
+        const result = await scrapeContentDirectly(jobUrl.trim(), 'jobs');
+        
+        if (result.success) {
+          const { error: insertError } = await supabase.from('jobs').insert({
+            ...result.data,
+            wallet_address: address,
+            is_approved: false
+          });
+          if (insertError) throw insertError;
+          toast.success("✅ Job scraped (via Frontend) and submitted!");
+          setJobUrl("");
+          onSuccess();
+          return;
+        }
+        throw new Error(error?.message || result.error || "Scraping failed");
+      }
+
       if (data?.success) {
         toast.success("✅ Job scraped and submitted for review!");
         setJobUrl("");
