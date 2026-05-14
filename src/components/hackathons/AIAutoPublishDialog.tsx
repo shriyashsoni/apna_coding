@@ -7,6 +7,7 @@ import { Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
+import { scrapeContentDirectly } from "@/utils/frontend-scraper";
 
 interface AIAutoPublishDialogProps {
   onSuccess: () => void;
@@ -29,25 +30,25 @@ export function AIAutoPublishDialog({ onSuccess }: AIAutoPublishDialogProps) {
 
     setIsScrapingAI(true);
     try {
-      const { data, error } = await supabase.functions.invoke('scrape-hackathon', {
-        body: {
-          url: eventUrl.trim(),
-          wallet_address: address,
-        }
+      const result = await scrapeContentDirectly(eventUrl.trim(), 'hackathons');
+
+      if (!result.success) throw new Error(result.error || "Scraping failed");
+
+      const { error: insertError } = await supabase.from('hackathons').insert({
+        ...result.data,
+        wallet_address: address,
+        is_approved: false, // Public submissions need review
+        slug: (result.data.title || result.data.name).toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now().toString().slice(-4)
       });
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      if (data?.success) {
-        toast.success("✅ Hackathon submitted for review! Admin will approve it soon.");
-        setAiDialogOpen(false);
-        setEventUrl("");
-        onSuccess();
-      } else {
-        toast.error(data?.error || "Failed to scrape and publish");
-      }
-    } catch (error) {
-      toast.error("AI scraping failed. Please try again.");
+      toast.success("✅ Hackathon submitted for review! Admin will approve it soon.");
+      setAiDialogOpen(false);
+      setEventUrl("");
+      onSuccess();
+    } catch (error: any) {
+      toast.error(error.message || "AI scraping failed. Please try again.");
       console.error(error);
     } finally {
       setIsScrapingAI(false);
