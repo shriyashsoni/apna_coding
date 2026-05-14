@@ -75,13 +75,13 @@ createRoot(document.getElementById("root")!).render(
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/events" element={<Events />} />
-                <Route path="/events/:id" element={<EventDetail />} />
+                <Route path="/events/:slug" element={<EventDetail />} />
                 <Route path="/event-groups" element={<EventGroups />} />
                 <Route path="/event-groups/:slug" element={<EventGroupDetail />} />
                 <Route path="/hackathons" element={<Hackathons />} />
                 <Route path="/hackathons/:slug" element={<HackathonDetail />} />
                 <Route path="/jobs" element={<Jobs />} />
-                <Route path="/jobs/:id" element={<JobDetail />} />
+                <Route path="/jobs/:slug" element={<JobDetail />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/:slug" element={<ProductDetail />} />
                 <Route path="/news" element={<News />} />

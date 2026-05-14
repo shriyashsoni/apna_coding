@@ -60,7 +60,7 @@ export function EventCard({ event, index, showDelete = false, onDelete }: EventC
   const canDelete = showDelete && (isAdmin || isCreator);
 
   return (
-    <Link to={`/events/${event.id}`}>
+    <Link to={`/events/${event.slug || event.id}`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

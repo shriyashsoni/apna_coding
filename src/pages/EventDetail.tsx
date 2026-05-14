@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function EventDetail() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const address = user?.wallet_address;
@@ -35,12 +35,18 @@ export default function EventDetail() {
 
   useEffect(() => {
     async function fetchEvent() {
-      if (!id) return;
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .eq('id', id)
-        .single();
+      if (!slug) return;
+      
+      // Try fetching by slug first, then ID if it's a UUID
+      let query = supabase.from('events').select('*');
+      
+      if (slug.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        query = query.eq('id', slug);
+      } else {
+        query = query.eq('slug', slug);
+      }
+
+      const { data, error } = await query.single();
       
       if (error) {
         console.error("Error fetching event:", error);
@@ -50,7 +56,7 @@ export default function EventDetail() {
       }
     }
     fetchEvent();
-  }, [id]);
+  }, [slug]);
 
   if (event === undefined) {
     return (
@@ -257,7 +263,7 @@ export default function EventDetail() {
                   Register for This Event
                 </Button>
                 <ShareButtons
-                  url={`/events/${id}`}
+                  url={`/events/${event.slug || event.id}`}
                   title={event.title}
                   description={event.description}
                   hashtags={['web3', 'event', 'blockchain', 'apnacoding']}

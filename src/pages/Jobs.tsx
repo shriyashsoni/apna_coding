@@ -457,7 +457,7 @@ export default function Jobs() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
                 className="group relative cursor-pointer"
-                onClick={() => navigate(`/jobs/${job.id}`)}
+                onClick={() => navigate(`/jobs/${job.slug || job.id}`)}
               >
                 <div className="bg-card border border-primary/10 rounded-lg p-6 group-hover:border-primary/50 transition-all group-hover:bg-card/50 flex flex-col md:flex-row gap-4 items-start md:items-center">
                   <div className="h-12 w-12 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0">

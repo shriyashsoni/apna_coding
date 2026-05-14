@@ -49,7 +49,7 @@ export function HackathonCard({ hackathon, index, showDelete = true, onDelete }:
   };
 
   const prizeLabel = hackathon.prizes || hackathon.prizePool || "Prize TBA";
-  const statusLabel = hackathon.status || "upcoming";
+  const statusLabel = hackathon.category ? `${hackathon.category} Hackathon` : "Hackathon";
   const startLabel = formatDateLabel(hackathon.start_date);
   const endLabel = formatDateLabel(hackathon.end_date);
 

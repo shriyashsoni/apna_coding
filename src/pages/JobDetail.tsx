@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function JobDetail() {
-  const { id } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const address = user?.wallet_address;
@@ -35,12 +35,18 @@ export default function JobDetail() {
 
   useEffect(() => {
     async function fetchJob() {
-      if (!id) return;
-      const { data, error } = await supabase
-        .from('jobs')
-        .select('*')
-        .eq('id', id)
-        .single();
+      if (!slug) return;
+      
+      // Try fetching by slug first, then ID if it's a UUID
+      let query = supabase.from('jobs').select('*');
+      
+      if (slug.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        query = query.eq('id', slug);
+      } else {
+        query = query.eq('slug', slug);
+      }
+
+      const { data, error } = await query.single();
       
       if (error) {
         console.error("Error fetching job:", error);
@@ -50,7 +56,7 @@ export default function JobDetail() {
       }
     }
     fetchJob();
-  }, [id]);
+  }, [slug]);
 
   if (job === undefined) {
     return (
@@ -201,7 +207,7 @@ export default function JobDetail() {
                   </Button>
                   
                   <ShareButtons
-                    url={`/jobs/${id}`}
+                    url={`/jobs/${job.slug || job.id}`}
                     title={`${job.title} at ${job.company}`}
                     description={job.description}
                     hashtags={['jobs', 'tech', 'web3', 'apnacoding']}

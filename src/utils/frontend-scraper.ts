@@ -1,4 +1,5 @@
 import * as cheerio from 'cheerio';
+import { generateSlug } from './slugify';
 
 /**
  * Frontend Scraper Utility
@@ -90,7 +91,8 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
     };
 
     const metadata = extractMetadata();
-    let result: any = { ...metadata };
+    const slug = generateSlug(metadata.title);
+    let result: any = { ...metadata, slug };
 
     const extractSalary = (text: string) => {
       const salaryRegex = /(\$\d{1,3}(?:,\d{3})*(?:\s?-\s?\$\d{1,3}(?:,\d{3})*)|(?:\$\d{1,3}k(?:\s?-\s?\$\d{1,3}k))|(?:\$\d{1,3}(?:,\d{3})*))/i;

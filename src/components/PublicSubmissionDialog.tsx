@@ -12,6 +12,7 @@ import { useSubmissionStaking, SubmissionType } from "@/hooks/useSubmissionStaki
 import { motion, AnimatePresence } from "framer-motion";
 import { decodeEventLog } from "viem";
 import { PUBLIC_SUBMISSION_STAKING_ABI } from "@/contracts/PublicSubmissionStaking";
+import { generateSlug } from "@/utils/slugify";
 
 interface PublicSubmissionDialogProps {
   type: "event" | "hackathon" | "product";
@@ -51,11 +52,13 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
     try {
       // First, save to Supabase with is_approved: false
       const table = type === "hackathon" ? "hackathons" : type === "event" ? "events" : "products";
+      const slug = generateSlug(formData.title);
       
       let payload: any;
       if (type === "hackathon") {
         payload = {
           name: formData.title,
+          slug: slug,
           description: formData.description,
           registration_link: formData.link,
           image: formData.image,
@@ -65,6 +68,7 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
       } else if (type === "event") {
         payload = {
           title: formData.title,
+          slug: slug,
           description: formData.description,
           website_url: formData.link,
           image_url: formData.image,
@@ -75,6 +79,7 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
         // product
         payload = {
           name: formData.title,
+          slug: slug,
           description: formData.description,
           website_url: formData.link,
           image_url: formData.image,
