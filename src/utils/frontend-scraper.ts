@@ -2,19 +2,46 @@ import * as cheerio from 'cheerio';
 
 /**
  * Frontend Scraper Utility
- * This ports the logic from the Supabase Edge Functions directly to the frontend.
- * It uses a CORS proxy to fetch HTML from external sites.
+ * Robust multi-proxy scraping with fallback logic.
  */
 
-const CORS_PROXY = "https://corsproxy.io/?";
+const PROXIES = [
+  "https://corsproxy.io/?",
+  "https://api.allorigins.win/get?url=",
+  "https://thingproxy.freeboard.io/fetch/"
+];
+
+async function fetchWithFallback(url: string) {
+  let lastError = null;
+
+  for (const proxy of PROXIES) {
+    try {
+      const targetUrl = proxy.includes('allorigins') 
+        ? `${proxy}${encodeURIComponent(url)}` 
+        : `${proxy}${url}`;
+        
+      const response = await fetch(targetUrl);
+      if (!response.ok) continue;
+
+      if (proxy.includes('allorigins')) {
+        const json = await response.json();
+        return json.contents;
+      } else {
+        return await response.text();
+      }
+    } catch (err) {
+      lastError = err;
+      continue;
+    }
+  }
+
+  throw lastError || new Error("All proxies failed to fetch content");
+}
 
 export async function scrapeContentDirectly(url: string, contentType: 'jobs' | 'hackathons' | 'events' | 'news' | 'communities' | 'products') {
   try {
-    // 1. Fetch HTML via CORS Proxy
-    const response = await fetch(`${CORS_PROXY}${encodeURIComponent(url)}`);
-    if (!response.ok) throw new Error("Failed to fetch content through proxy");
-    
-    const html = await response.text();
+    // 1. Fetch HTML via Multi-Proxy Fallback
+    const html = await fetchWithFallback(url);
     
     // 2. Load Cheerio
     const $ = cheerio.load(html);
@@ -30,18 +57,32 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
       const description = $('meta[property="og:description"]').attr('content') ||
                           $('meta[name="description"]').attr('content') ||
                           $('meta[name="twitter:description"]').attr('content') ||
+                          $('.description').first().text().trim() ||
+                          $('[class*="desc"]').first().text().trim() ||
                           $('p').first().text().trim().substring(0, 500) ||
                           "No description available";
 
       const image = $('meta[property="og:image"]').attr('content') ||
                     $('meta[name="twitter:image"]').attr('content') ||
+                    $('link[rel="apple-touch-icon"]').attr('href') ||
+                    $('link[rel="icon"]').attr('href') ||
                     $('img[src*="logo"]').attr('src') ||
                     $('img[src*="banner"]').attr('src') ||
+                    $('img[src*="brand"]').attr('src') ||
                     $('img').first().attr('src');
 
       const website = $('meta[property="og:url"]').attr('content') || url;
 
-      return { title, description, image, website };
+      // Fix relative URLs for images
+      let finalImage = image;
+      if (finalImage && !finalImage.startsWith('http')) {
+        try {
+          const baseUrl = new URL(url).origin;
+          finalImage = new URL(finalImage, baseUrl).toString();
+        } catch (e) {}
+      }
+
+      return { title, description, image: finalImage, website };
     };
 
     const metadata = extractMetadata();
