@@ -19,6 +19,7 @@ import {
   AlertCircle,
   Download
 } from "lucide-react";
+import { scrapeContentDirectly } from "@/utils/frontend-scraper";
 
 export function BulkImport() {
   const { user: authUser } = useAuth();
@@ -66,38 +67,49 @@ export function BulkImport() {
     setIsProcessing(true);
     setResults([]);
 
+    setIsProcessing(true);
+    setResults([]);
+
     try {
-      const { data, error } = await supabase.functions.invoke('bulk-import', {
-        body: {
-          contentType,
-          importMethod,
-          urlList,
-          excelData,
-          wallet_address: address,
-          eventGroupId: selectedEventGroupId
-        }
-      });
-
-      if (error) throw error;
-
-      if (data?.success) {
-        setResults(data.results);
-        const successCount = data.results.filter((r: any) => r.status === "success").length;
-        const failCount = data.results.filter((r: any) => r.status === "error").length;
+      if (importMethod === "urls") {
+        const urls = urlList.split('\n').map(u => u.trim()).filter(Boolean);
+        const newResults: any[] = [];
         
-        if (failCount === 0) {
-          toast.success(`Successfully imported all ${successCount} items!`);
-          setUrlList("");
-          setExcelData("");
-        } else {
-          toast.warning(`Import completed: ${successCount} success, ${failCount} failed.`);
+        for (const url of urls) {
+          try {
+            const result = await scrapeContentDirectly(url, contentType);
+            if (result.success) {
+              const table = contentType === 'events' ? 'events' : 
+                            contentType === 'hackathons' ? 'hackathons' : 
+                            contentType === 'jobs' ? 'jobs' : 
+                            contentType === 'news' ? 'news' : 
+                            contentType === 'products' ? 'products' : 'communities';
+              
+              const { error: insertError } = await supabase.from(table).insert({
+                ...result.data,
+                event_group_id: contentType === 'events' ? (selectedEventGroupId || null) : undefined,
+                wallet_address: address,
+                is_approved: false
+              });
+              
+              if (insertError) throw insertError;
+              newResults.push({ url, status: "success", message: "Imported successfully" });
+            } else {
+              newResults.push({ url, status: "error", message: result.error });
+            }
+          } catch (err: any) {
+            newResults.push({ url, status: "error", message: err.message });
+          }
         }
+        setResults(newResults);
+        const successCount = newResults.filter(r => r.status === "success").length;
+        toast.success(`Bulk import completed: ${successCount} successful.`);
       } else {
-        toast.error(data?.error || "Failed to process bulk import");
+        toast.info("Excel import is currently being migrated. Please use URL list for now.");
       }
     } catch (error: any) {
       console.error(error);
-      toast.error(error.message || "Failed to connect to import service. Make sure the 'bulk-import' Edge Function is deployed.");
+      toast.error(error.message || "Failed to process bulk import");
     } finally {
       setIsProcessing(false);
     }

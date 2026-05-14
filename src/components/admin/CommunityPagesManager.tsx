@@ -207,38 +207,23 @@ export function CommunityPagesManager() {
 
     setIsScrapingLink(true);
     try {
-      // Try Edge Function first
-      const { data, error } = await supabase.functions.invoke('scrape-partner', {
-        body: { url: communityUrl.trim(), wallet_address: address }
+      const result = await scrapeContentDirectly(communityUrl.trim(), 'communities');
+      
+      if (!result.success) throw new Error(result.error || "Scraping failed");
+
+      const { error: insertError } = await supabase.from('communities').insert({
+        ...result.data,
+        slug: result.data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        wallet_address: address,
+        is_published: true
       });
 
-      if (error || !data?.success) {
-        console.warn("Edge function failed, trying frontend scraper fallback...");
-        const result = await scrapeContentDirectly(communityUrl.trim(), 'communities');
-        
-        if (result.success) {
-          const { error: insertError } = await supabase.from('communities').insert({
-            ...result.data,
-            slug: result.data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-            wallet_address: address,
-            is_published: true
-          });
-          if (insertError) throw insertError;
-          toast.success("✅ Community page created (via Frontend) successfully!");
-          setCommunityUrl("");
-          setIsOpen(false);
-          fetchCommunities();
-          return;
-        }
-        throw new Error(error?.message || result.error || "Scraping failed");
-      }
-
-      if (data?.success) {
-        toast.success("✅ Community page created and published successfully!");
-        setCommunityUrl("");
-        setIsOpen(false);
-        fetchCommunities(); // Refresh list
-      }
+      if (insertError) throw insertError;
+      
+      toast.success("✅ Community page created successfully!");
+      setCommunityUrl("");
+      setIsOpen(false);
+      fetchCommunities();
     } catch (err: any) {
       toast.error(err.message || "Failed to scrape community data");
     } finally {

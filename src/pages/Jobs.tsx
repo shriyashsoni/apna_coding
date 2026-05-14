@@ -3,7 +3,7 @@ import { Footer } from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Briefcase, MapPin, DollarSign, Building, ExternalLink, Plus, Sparkles, Loader2, Globe } from "lucide-react";
-import { motion } from "framer-motion";
+import { scrapeContentDirectly } from "@/utils/frontend-scraper";
 import { Badge } from "@/components/ui/badge";
 import { useState, useMemo, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -121,27 +121,31 @@ export default function Jobs() {
 
     setIsScrapingJobs(true);
     try {
-      const { data, error } = await supabase.functions.invoke('scrape-job', {
-        body: { 
-          url: scraperMode === "url" ? scrapeUrl.trim() : null,
-          wallet_address: address,
-          mode: scraperMode 
-        }
+      if (scraperMode === "ai") {
+        toast.info("AI Generation mode is currently transitioning to frontend. Please use 'Scrape URL' for now.");
+        setIsScrapingJobs(false);
+        return;
+      }
+
+      const result = await scrapeContentDirectly(scrapeUrl.trim(), 'jobs');
+      
+      if (!result.success) throw new Error(result.error || "Scraping failed");
+
+      const { error: insertError } = await supabase.from('jobs').insert({
+        ...result.data,
+        wallet_address: address,
+        is_approved: isAdmin
       });
 
-      if (error) throw error;
+      if (insertError) throw insertError;
 
-      if (data?.success) {
-        toast.success("✅ AI extraction completed successfully! Job submitted for review.");
-        setIsScraperOpen(false);
-        setScrapeUrl("");
-        fetchJobs();
-      } else {
-        toast.error(data?.error || "AI extraction failed");
-      }
+      toast.success("✅ Job scraped and posted successfully!");
+      setIsScraperOpen(false);
+      setScrapeUrl("");
+      fetchJobs();
     } catch (error: any) {
       console.error(error);
-      toast.error(error.message || "Failed to connect to AI service");
+      toast.error(error.message || "Failed to scrape job");
     } finally {
       setIsScrapingJobs(false);
     }
