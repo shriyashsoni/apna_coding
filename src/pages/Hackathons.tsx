@@ -22,7 +22,7 @@ export default function Hackathons() {
   const [limit, setLimit] = useState(10);
   
   const { data: results, loading: isLoading } = useSupabaseQuery('hackathons', (q) => {
-    let base = q.eq('is_approved', true).order('start_date', { ascending: false }).limit(limit);
+    let base = q.order('start_date', { ascending: false }).limit(limit);
     if (locationFilter !== "all") base = base.eq('location', locationFilter);
     return base;
   }, [limit, locationFilter, refreshKey]);

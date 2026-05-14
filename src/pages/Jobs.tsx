@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function Jobs() {
@@ -47,7 +48,6 @@ export default function Jobs() {
       const { data, error } = await supabase
         .from('jobs')
         .select('*')
-        .eq('is_approved', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -84,7 +84,7 @@ export default function Jobs() {
           salary: formData.salary || null,
           link: formData.link,
           wallet_address: address,
-          is_approved: isAdmin // Auto-approve if admin
+          is_approved: true // Auto-approve for now
         });
 
       if (error) throw error;
@@ -455,33 +455,41 @@ export default function Jobs() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-card border border-primary/10 rounded-lg p-6 hover:border-primary/50 transition-all hover:bg-card/50 flex flex-col md:flex-row gap-4 items-start md:items-center"
+                className="group relative cursor-pointer"
+                onClick={() => navigate(`/jobs/${job.id}`)}
               >
-                <div className="h-12 w-12 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0">
-                  <Building className="h-6 w-6" />
-                </div>
-                
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-1">
-                    <h3 className="text-lg font-bold truncate">{job.title}</h3>
-                    <Badge variant="outline" className="border-primary/30 text-primary text-xs">{job.type}</Badge>
+                <div className="bg-card border border-primary/10 rounded-lg p-6 group-hover:border-primary/50 transition-all group-hover:bg-card/50 flex flex-col md:flex-row gap-4 items-start md:items-center">
+                  <div className="h-12 w-12 rounded bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                    <Building className="h-6 w-6" />
                   </div>
-                  <div className="flex items-center text-sm text-muted-foreground gap-4">
-                    <span className="flex items-center"><Building className="h-3 w-3 mr-1" /> {job.company}</span>
-                    <span className="flex items-center"><MapPin className="h-3 w-3 mr-1" /> {job.location}</span>
-                    {job.salary && <span className="flex items-center text-accent"><DollarSign className="h-3 w-3 mr-1" /> {job.salary}</span>}
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
+                      <h3 className="text-lg font-bold truncate group-hover:text-primary transition-colors">{job.title}</h3>
+                      <Badge variant="outline" className="border-primary/30 text-primary text-xs">{job.type}</Badge>
+                    </div>
+                    <div className="flex items-center text-sm text-muted-foreground gap-4">
+                      <span className="flex items-center"><Building className="h-3 w-3 mr-1" /> {job.company}</span>
+                      <span className="flex items-center"><MapPin className="h-3 w-3 mr-1" /> {job.location}</span>
+                      {job.salary && <span className="flex items-center text-accent"><DollarSign className="h-3 w-3 mr-1" /> {job.salary}</span>}
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
-                  <div className="text-xs text-muted-foreground hidden md:block">
-                    {new Date(job.created_at).toLocaleDateString()}
-                  </div>
-                  <Button size="sm" className="w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90" asChild>
-                    <a href={job.link} target="_blank" rel="noopener noreferrer">
+                  <div className="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
+                    <div className="text-xs text-muted-foreground hidden md:block">
+                      {new Date(job.created_at).toLocaleDateString()}
+                    </div>
+                    <Button 
+                      size="sm" 
+                      className="w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90" 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(job.link, "_blank");
+                      }}
+                    >
                       Apply Now <ExternalLink className="ml-2 h-3 w-3" />
-                    </a>
-                  </Button>
+                    </Button>
+                  </div>
                 </div>
               </motion.div>
             ))}

@@ -19,6 +19,7 @@ const EventGroupDetail = lazy(() => import("./pages/EventGroupDetail.tsx"));
 const Hackathons = lazy(() => import("./pages/Hackathons.tsx"));
 const HackathonDetail = lazy(() => import("./pages/HackathonDetail.tsx"));
 const Jobs = lazy(() => import("./pages/Jobs.tsx"));
+const JobDetail = lazy(() => import("./pages/JobDetail.tsx"));
 const Products = lazy(() => import("./pages/Products.tsx"));
 const ProductDetail = lazy(() => import("./pages/ProductDetail.tsx"));
 const News = lazy(() => import("./pages/News.tsx"));
@@ -80,6 +81,7 @@ createRoot(document.getElementById("root")!).render(
                 <Route path="/hackathons" element={<Hackathons />} />
                 <Route path="/hackathons/:slug" element={<HackathonDetail />} />
                 <Route path="/jobs" element={<Jobs />} />
+                <Route path="/jobs/:id" element={<JobDetail />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/:slug" element={<ProductDetail />} />
                 <Route path="/news" element={<News />} />

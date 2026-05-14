@@ -26,7 +26,6 @@ export default function Communities() {
       const { data, error } = await supabase
         .from("community_pages")
         .select("*")
-        .eq("is_published", true)
         .order("created_at", { ascending: false });
       
       if (error) throw error;

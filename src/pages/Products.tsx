@@ -89,7 +89,6 @@ export default function Products() {
           *,
           author:users!author_id(*)
         `)
-        .eq('status', 'approved')
         .order("created_at", { ascending: false });
       
       if (error) throw error;
@@ -208,13 +207,13 @@ Perfect for developers and users looking to explore ${formData.category || "Web3
         wallet_address: address,
         slug,
         author_id: user?.id,
-        status: "pending",
+        status: "approved",
         views: 0,
         likes: 0,
         is_featured: false
       });
 
-      toast.success("Product launched successfully! Awaiting admin approval.");
+      toast.success("Product launched successfully! It is now live.");
       setIsDialogOpen(false);
       setFormData({
         name: "",
