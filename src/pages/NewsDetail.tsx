@@ -221,7 +221,7 @@ export default function NewsDetail() {
         type="article"
         keywords={post.tags || []}
         author="Apna Coding"
-        publishedTime={new Date(post.created_at).toISOString()}
+        publishedTime={new Date(post.created_at || Date.now()).toISOString()}
         section={post.category}
         tags={post.tags || []}
       />

@@ -116,7 +116,7 @@ export default function JobDetail() {
         image={job.image_url || undefined}
         url={`/jobs/${job.slug || job.id}`}
         type="article"
-        publishedTime={new Date(job.created_at).toISOString()}
+        publishedTime={new Date(job.created_at || Date.now()).toISOString()}
       />
       <Navbar />
 

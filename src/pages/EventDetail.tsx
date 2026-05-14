@@ -119,7 +119,7 @@ export default function EventDetail() {
         image={event.image || undefined}
         url={`/events/${event.id}`}
         type="article"
-        publishedTime={new Date(event.date).toISOString()}
+        publishedTime={new Date(event.date || Date.now()).toISOString()}
       />
       <Navbar />
 

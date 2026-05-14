@@ -496,7 +496,7 @@ export default function HackathonDetail() {
         url={currentUrl}
         type="article"
         keywords={hackathon.tags || []}
-        publishedTime={new Date(hackathon.startDate).toISOString()}
+        publishedTime={new Date(hackathon.start_date || hackathon.startDate || Date.now()).toISOString()}
       />
       <Navbar />
       

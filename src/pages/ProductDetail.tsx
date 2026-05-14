@@ -249,6 +249,7 @@ export default function ProductDetail() {
         url={`/products/${product.slug}`}
         type="product"
         keywords={product.tags || []}
+        publishedTime={new Date(product.created_at || Date.now()).toISOString()}
       />
       <Navbar />
       <main className="flex-1 pt-24 pb-16">
