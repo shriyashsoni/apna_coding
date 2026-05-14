@@ -37,7 +37,7 @@ export function AIAutoPublishDialog({ onSuccess }: AIAutoPublishDialogProps) {
       const { error: insertError } = await supabase.from('hackathons').insert({
         ...result.data,
         wallet_address: address,
-        is_approved: false, // Public submissions need review
+        is_approved: true, // Auto-approve for now
         slug: (result.data.title || result.data.name).toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now().toString().slice(-4)
       });
 

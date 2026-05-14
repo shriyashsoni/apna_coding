@@ -60,7 +60,7 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
           registration_link: formData.link,
           image: formData.image,
           wallet_address: authUser?.wallet_address,
-          is_approved: false
+          is_approved: true
         };
       } else if (type === "event") {
         payload = {
@@ -69,7 +69,7 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
           website_url: formData.link,
           image_url: formData.image,
           wallet_address: authUser?.wallet_address,
-          is_approved: false
+          is_approved: true
         };
       } else {
         // product
@@ -79,7 +79,7 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
           website_url: formData.link,
           image_url: formData.image,
           wallet_address: authUser?.wallet_address,
-          status: "pending"
+          status: "approved" // Auto-approve for now
         };
       }
 
