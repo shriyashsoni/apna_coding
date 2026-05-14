@@ -21,6 +21,7 @@ export default function Jobs() {
   const address = authUser?.wallet_address;
   const isConnected = isAuthenticated;
   const isAdmin = authUser?.role === "admin";
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [jobs, setJobs] = useState<any[]>([]);
