@@ -8,7 +8,7 @@ import * as cheerio from 'cheerio';
 
 const CORS_PROXY = "https://api.allorigins.win/get?url=";
 
-export async function scrapeContentDirectly(url: string, contentType: 'jobs' | 'hackathons' | 'events' | 'news' | 'communities') {
+export async function scrapeContentDirectly(url: string, contentType: 'jobs' | 'hackathons' | 'events' | 'news' | 'communities' | 'products') {
   try {
     // 1. Fetch HTML via CORS Proxy
     const response = await fetch(`${CORS_PROXY}${encodeURIComponent(url)}`);
@@ -117,6 +117,15 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
                  $('a[href*="discord.com"]').attr('href') || null,
         partnership_type: "Community",
         partner_category: "Web3"
+      };
+    } else if (contentType === 'products') {
+      result = {
+        name: metadata.title,
+        description: metadata.description,
+        website_url: url || metadata.website,
+        image_url: metadata.image,
+        category: "Web3",
+        status: "approved"
       };
     }
 

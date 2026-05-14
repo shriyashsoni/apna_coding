@@ -3,6 +3,7 @@ import { Footer } from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Briefcase, MapPin, DollarSign, Building, ExternalLink, Plus, Sparkles, Loader2, Globe } from "lucide-react";
+import { motion } from "framer-motion";
 import { scrapeContentDirectly } from "@/utils/frontend-scraper";
 import { Badge } from "@/components/ui/badge";
 import { useState, useMemo, useEffect } from "react";
