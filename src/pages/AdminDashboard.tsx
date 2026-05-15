@@ -38,6 +38,7 @@ import { SettingsManager } from "@/components/admin/SettingsManager";
 import { BulkImport } from "@/components/admin/BulkImport";
 import { BulkEmailSender } from "@/components/admin/BulkEmailSender";
 import { GlobalContentExplorer } from "@/components/admin/GlobalContentExplorer";
+import { AutonomousAgentManager } from "@/components/admin/AutonomousAgentManager";
 import { scrapeContentDirectly } from "@/utils/frontend-scraper";
 
 export default function AdminDashboard() {
@@ -843,7 +844,11 @@ export default function AdminDashboard() {
                   </Badge>
                 )}
               </TabsTrigger>
-              <TabsTrigger value="library" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem] bg-primary/5">
+              <TabsTrigger value="master" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem] border border-primary/20 bg-primary/5">
+                <Bot className="h-4 w-4 flex-shrink-0 text-primary" />
+                <span className="truncate">Super Agent</span>
+              </TabsTrigger>
+              <TabsTrigger value="library" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
                 <Database className="h-4 w-4 flex-shrink-0" />
                 <span className="truncate">Content Library</span>
               </TabsTrigger>
@@ -954,6 +959,11 @@ export default function AdminDashboard() {
             {/* Approvals Tab */}
             <TabsContent value="approvals" className="space-y-6">
               <PendingApprovals />
+            </TabsContent>
+
+            {/* Super Agent Tab */}
+            <TabsContent value="master" className="space-y-6">
+              <AutonomousAgentManager />
             </TabsContent>
 
             {/* Content Library Tab */}
