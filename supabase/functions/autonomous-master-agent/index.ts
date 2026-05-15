@@ -27,6 +27,13 @@ serve(async (req) => {
 
     console.log("Autonomous Super Agent: Cycle Started");
 
+    // Log cycle start to DB for UI visibility
+    await supabase.from('autonomous_agent_logs').insert({
+      action_type: 'info',
+      message: 'Autonomous Cycle Started: Scanning for new industry content...',
+      status: 'info'
+    });
+
     // 1. SEARCH FOR CONTENT
     const searchQuery = "upcoming web3 hackathons 2024 2025";
     const searchResponse = await fetch(SERPER_API_URL, {

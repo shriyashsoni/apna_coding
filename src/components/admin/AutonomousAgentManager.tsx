@@ -29,7 +29,7 @@ import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 
 export function AutonomousAgentManager() {
-  const [isActive, setIsActive] = useState(false);
+  const [isActive, setIsActive] = useState(true);
   const [scanningStatus, setScanningStatus] = useState<string>("Idle");
   const [progress, setProgress] = useState(0);
   const [logs, setLogs] = useState<any[]>([]);
@@ -137,7 +137,7 @@ export function AutonomousAgentManager() {
           </div>
           <div className="flex items-center gap-3">
             <Badge variant={isActive ? "default" : "secondary"} className="px-3 py-1">
-              {isActive ? "ACTIVE & MONITORING" : "OFFLINE"}
+               {isActive ? "SYSTEM ACTIVE 24/7" : "PAUSED"}
             </Badge>
             <Switch checked={isActive} onCheckedChange={handleToggle} />
           </div>
@@ -148,7 +148,7 @@ export function AutonomousAgentManager() {
               <div className="flex items-center justify-between text-sm mb-2">
                 <span className="flex items-center gap-2 text-primary font-medium">
                   <Activity className="h-4 w-4 animate-spin" />
-                  {scanningStatus}
+                   {isActive ? (scanningStatus === "Idle" ? "Agent Monitoring 24/7" : scanningStatus) : "System Paused"}
                 </span>
                 <span className="text-muted-foreground">{progress}%</span>
               </div>
