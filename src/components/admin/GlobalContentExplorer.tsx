@@ -58,13 +58,15 @@ export function GlobalContentExplorer() {
   const fetchAllContent = async () => {
     setLoading(true);
     try {
+      console.log("Fetching unified content library...");
+      
       const [
-        { data: events },
-        { data: hackathons },
-        { data: jobs },
-        { data: news },
-        { data: products },
-        { data: communities },
+        eventsRes,
+        hackathonsRes,
+        jobsRes,
+        newsRes,
+        productsRes,
+        communitiesRes,
       ] = await Promise.all([
         supabase.from("events").select("id, title, description, is_approved, is_featured, created_at"),
         supabase.from("hackathons").select("id, title, description, is_approved, is_featured, created_at, slug"),
@@ -74,37 +76,93 @@ export function GlobalContentExplorer() {
         supabase.from("communities").select("id, name, description, is_published, is_featured, created_at, slug, category"),
       ]);
 
+      if (eventsRes.error) console.error("Events fetch error:", eventsRes.error);
+      if (hackathonsRes.error) console.error("Hackathons fetch error:", hackathonsRes.error);
+      if (jobsRes.error) console.error("Jobs fetch error:", jobsRes.error);
+      if (newsRes.error) console.error("News fetch error:", newsRes.error);
+      if (productsRes.error) console.error("Products fetch error:", productsRes.error);
+      if (communitiesRes.error) console.error("Communities fetch error:", communitiesRes.error);
+
+      const eventsData = eventsRes.data || [];
+      const hackathonsData = hackathonsRes.data || [];
+      const jobsData = jobsRes.data || [];
+      const newsData = newsRes.data || [];
+      const productsData = productsRes.data || [];
+      const communitiesData = communitiesRes.data || [];
+
       const unified: ContentItem[] = [
-        ...(events || []).map((i) => ({ ...i, type: "event" as const, title: i.title })),
-        ...(hackathons || []).map((i) => ({ ...i, type: "hackathon" as const, title: i.title })),
-        ...(jobs || []).map((i) => ({ ...i, type: "job" as const, title: `${i.title} @ ${i.company}` })),
-        ...(news || []).map((i) => ({ 
-          ...i, 
+        ...eventsData.map((i: any) => ({ 
+          id: i.id,
+          type: "event" as const, 
+          title: i.title || "Untitled Event",
+          description: i.description,
+          is_approved: !!i.is_approved,
+          is_featured: !!i.is_featured,
+          created_at: i.created_at
+        })),
+        ...hackathonsData.map((i: any) => ({ 
+          id: i.id,
+          type: "hackathon" as const, 
+          title: i.title || i.name || "Untitled Hackathon",
+          description: i.description,
+          is_approved: !!i.is_approved,
+          is_featured: !!i.is_featured,
+          created_at: i.created_at,
+          slug: i.slug
+        })),
+        ...jobsData.map((i: any) => ({ 
+          id: i.id,
+          type: "job" as const, 
+          title: i.title ? `${i.title} @ ${i.company || 'Unknown'}` : "Untitled Job",
+          is_approved: !!i.is_approved,
+          is_featured: !!i.is_featured,
+          created_at: i.created_at
+        })),
+        ...newsData.map((i: any) => ({ 
+          id: i.id,
           type: "news" as const, 
-          title: i.title, 
+          title: i.title || "Untitled News", 
           description: i.excerpt, 
-          is_approved: i.is_approved || i.is_published 
+          is_approved: !!(i.is_approved || i.is_published),
+          is_featured: !!i.is_featured,
+          created_at: i.created_at,
+          slug: i.slug,
+          category: i.category
         })),
-        ...(products || []).map((i) => ({ 
-          ...i, 
+        ...productsData.map((i: any) => ({ 
+          id: i.id,
           type: "product" as const, 
-          title: i.name, 
-          is_approved: i.status === 'approved' 
+          title: i.name || "Untitled Product", 
+          description: i.description, 
+          is_approved: i.status === 'approved',
+          is_featured: !!i.is_featured,
+          created_at: i.created_at,
+          slug: i.slug,
+          category: i.category
         })),
-        ...(communities || []).map((i) => ({ 
-          ...i, 
+        ...communitiesData.map((i: any) => ({ 
+          id: i.id,
           type: "community" as const, 
-          title: i.name, 
-          is_approved: i.is_published 
+          title: i.name || "Untitled Community", 
+          description: i.description, 
+          is_approved: !!i.is_published,
+          is_featured: !!i.is_featured,
+          created_at: i.created_at,
+          slug: i.slug,
+          category: i.category
         })),
       ];
 
-      // Sort by created_at desc
-      unified.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      unified.sort((a, b) => {
+        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return dateB - dateA;
+      });
+      
       setItems(unified);
     } catch (err) {
-      console.error("Error fetching unified content:", err);
-      toast.error("Failed to load content library");
+      console.error("Critical error in content library:", err);
+      toast.error("Critical error loading library. See console.");
     } finally {
       setLoading(false);
     }
