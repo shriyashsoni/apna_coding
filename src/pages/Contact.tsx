@@ -232,12 +232,12 @@ Sent from Apna Coding Contact Form
                     <div>
                       <p className="text-sm font-medium">Website</p>
                       <a
-                        href="https://apnacoding.site"
+                        href="https://apnacoding.com"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-sm text-muted-foreground hover:text-primary transition-colors"
                       >
-                        apnacoding.site
+                        apnacoding.com
                       </a>
                     </div>
                   </div>

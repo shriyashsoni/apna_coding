@@ -18,21 +18,21 @@
 
 ### Now in Sitemap (Updated!)
 
-✅ **Homepage** - https://apnacoding.site/
-✅ **Hackathons** - https://apnacoding.site/hackathons
-✅ **Events** - https://apnacoding.site/events
-✅ **Jobs** - https://apnacoding.site/jobs
-✅ **Products** - https://apnacoding.site/products
-✅ **News** - https://apnacoding.site/news
-✅ **Communities** - https://apnacoding.site/communities
-✅ **Partnerships** - https://apnacoding.site/partnerships
-✅ **Certificates** - https://apnacoding.site/certificates
-✅ **Contact** - https://apnacoding.site/contact
-✅ **Branding Kit** - https://apnacoding.site/branding
-✅ **Profile** - https://apnacoding.site/profile
-✅ **My Content** - https://apnacoding.site/my-content
-✅ **Privacy Policy** - https://apnacoding.site/privacy
-✅ **Terms of Service** - https://apnacoding.site/terms
+✅ **Homepage** - https://apnacoding.com/
+✅ **Hackathons** - https://apnacoding.com/hackathons
+✅ **Events** - https://apnacoding.com/events
+✅ **Jobs** - https://apnacoding.com/jobs
+✅ **Products** - https://apnacoding.com/products
+✅ **News** - https://apnacoding.com/news
+✅ **Communities** - https://apnacoding.com/communities
+✅ **Partnerships** - https://apnacoding.com/partnerships
+✅ **Certificates** - https://apnacoding.com/certificates
+✅ **Contact** - https://apnacoding.com/contact
+✅ **Branding Kit** - https://apnacoding.com/branding
+✅ **Profile** - https://apnacoding.com/profile
+✅ **My Content** - https://apnacoding.com/my-content
+✅ **Privacy Policy** - https://apnacoding.com/privacy
+✅ **Terms of Service** - https://apnacoding.com/terms
 
 **Previous**: 11 pages ❌
 **Now**: **15 pages** ✅
@@ -95,7 +95,7 @@ https://quiet-meadowlark-706.convex.site/sitemap-communities.xml
 - ❌ Not on main domain yet
 
 **After Deployment** (In 3 minutes):
-- ✅ Sitemaps work on main domain: `https://apnacoding.site/sitemap.xml`
+- ✅ Sitemaps work on main domain: `https://apnacoding.com/sitemap.xml`
 - ✅ All 15 pages discoverable by Google
 - ✅ Dynamic sitemaps ready for content
 
@@ -151,17 +151,17 @@ Intentionally blocked in robots.txt:
 
 ```xml
 <!-- Only 11 pages -->
-<url><loc>https://apnacoding.site/</loc></url>
-<url><loc>https://apnacoding.site/about</loc></url>
-<url><loc>https://apnacoding.site/hackathons</loc></url>
-<url><loc>https://apnacoding.site/events</loc></url>
-<url><loc>https://apnacoding.site/jobs</loc></url>
-<url><loc>https://apnacoding.site/products</loc></url>
-<url><loc>https://apnacoding.site/news</loc></url>
-<url><loc>https://apnacoding.site/leaderboard</loc></url>
-<url><loc>https://apnacoding.site/communities</loc></url>
-<url><loc>https://apnacoding.site/learn</loc></url>
-<url><loc>https://apnacoding.site/referral</loc></url>
+<url><loc>https://apnacoding.com/</loc></url>
+<url><loc>https://apnacoding.com/about</loc></url>
+<url><loc>https://apnacoding.com/hackathons</loc></url>
+<url><loc>https://apnacoding.com/events</loc></url>
+<url><loc>https://apnacoding.com/jobs</loc></url>
+<url><loc>https://apnacoding.com/products</loc></url>
+<url><loc>https://apnacoding.com/news</loc></url>
+<url><loc>https://apnacoding.com/leaderboard</loc></url>
+<url><loc>https://apnacoding.com/communities</loc></url>
+<url><loc>https://apnacoding.com/learn</loc></url>
+<url><loc>https://apnacoding.com/referral</loc></url>
 ```
 
 **Missing**: Partnerships, Certificates, Contact, Branding, Profile, My Content, Privacy, Terms
@@ -170,21 +170,21 @@ Intentionally blocked in robots.txt:
 
 ```xml
 <!-- All 15 pages - properly organized by priority -->
-<url><loc>https://apnacoding.site/</loc><priority>1.0</priority></url>
-<url><loc>https://apnacoding.site/hackathons</loc><priority>0.9</priority></url>
-<url><loc>https://apnacoding.site/events</loc><priority>0.9</priority></url>
-<url><loc>https://apnacoding.site/jobs</loc><priority>0.9</priority></url>
-<url><loc>https://apnacoding.site/products</loc><priority>0.9</priority></url>
-<url><loc>https://apnacoding.site/news</loc><priority>0.9</priority></url>
-<url><loc>https://apnacoding.site/communities</loc><priority>0.9</priority></url>
-<url><loc>https://apnacoding.site/partnerships</loc><priority>0.8</priority></url>
-<url><loc>https://apnacoding.site/certificates</loc><priority>0.8</priority></url>
-<url><loc>https://apnacoding.site/contact</loc><priority>0.8</priority></url>
-<url><loc>https://apnacoding.site/branding</loc><priority>0.7</priority></url>
-<url><loc>https://apnacoding.site/profile</loc><priority>0.6</priority></url>
-<url><loc>https://apnacoding.site/my-content</loc><priority>0.6</priority></url>
-<url><loc>https://apnacoding.site/privacy</loc><priority>0.5</priority></url>
-<url><loc>https://apnacoding.site/terms</loc><priority>0.5</priority></url>
+<url><loc>https://apnacoding.com/</loc><priority>1.0</priority></url>
+<url><loc>https://apnacoding.com/hackathons</loc><priority>0.9</priority></url>
+<url><loc>https://apnacoding.com/events</loc><priority>0.9</priority></url>
+<url><loc>https://apnacoding.com/jobs</loc><priority>0.9</priority></url>
+<url><loc>https://apnacoding.com/products</loc><priority>0.9</priority></url>
+<url><loc>https://apnacoding.com/news</loc><priority>0.9</priority></url>
+<url><loc>https://apnacoding.com/communities</loc><priority>0.9</priority></url>
+<url><loc>https://apnacoding.com/partnerships</loc><priority>0.8</priority></url>
+<url><loc>https://apnacoding.com/certificates</loc><priority>0.8</priority></url>
+<url><loc>https://apnacoding.com/contact</loc><priority>0.8</priority></url>
+<url><loc>https://apnacoding.com/branding</loc><priority>0.7</priority></url>
+<url><loc>https://apnacoding.com/profile</loc><priority>0.6</priority></url>
+<url><loc>https://apnacoding.com/my-content</loc><priority>0.6</priority></url>
+<url><loc>https://apnacoding.com/privacy</loc><priority>0.5</priority></url>
+<url><loc>https://apnacoding.com/terms</loc><priority>0.5</priority></url>
 ```
 
 **Added**: ✅ Partnerships, Certificates, Contact, Branding, Profile, My Content, Privacy, Terms
@@ -209,7 +209,7 @@ Intentionally blocked in robots.txt:
 
 ### Google Ready
 ✅ XML format follows official sitemap protocol
-✅ All URLs use correct domain (apnacoding.site)
+✅ All URLs use correct domain (apnacoding.com)
 ✅ Robots.txt properly configured
 ✅ Cache headers optimized (1 hour for index, 30 min for dynamic)
 
@@ -219,12 +219,12 @@ Intentionally blocked in robots.txt:
 
 After deployment, verify:
 
-- [ ] Main sitemap loads: `https://apnacoding.site/sitemap.xml`
+- [ ] Main sitemap loads: `https://apnacoding.com/sitemap.xml`
 - [ ] Shows 7 category sitemaps
-- [ ] Static sitemap loads: `https://apnacoding.site/sitemap-static.xml`
+- [ ] Static sitemap loads: `https://apnacoding.com/sitemap-static.xml`
 - [ ] Shows all 15 pages
-- [ ] All page URLs use `apnacoding.site` domain
-- [ ] Robots.txt loads: `https://apnacoding.site/robots.txt`
+- [ ] All page URLs use `apnacoding.com` domain
+- [ ] Robots.txt loads: `https://apnacoding.com/robots.txt`
 - [ ] References main sitemap correctly
 
 **All checks should pass within 5 minutes of deployment!**

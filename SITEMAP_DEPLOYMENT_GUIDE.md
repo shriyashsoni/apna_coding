@@ -11,7 +11,7 @@ Your sitemap system is now fully configured and ready for deployment. This guide
 3. **Automatic Updates** - Sitemaps update in real-time when you publish content
 
 ```
-User Request: https://apnacoding.site/sitemap.xml
+User Request: https://apnacoding.com/sitemap.xml
        ↓
 Vercel Rewrite (vercel.json)
        ↓
@@ -57,17 +57,17 @@ After deployment, test these URLs:
 
 ```bash
 # Main sitemap index
-curl -I https://apnacoding.site/sitemap.xml
+curl -I https://apnacoding.com/sitemap.xml
 
 # Category sitemaps
-curl -I https://apnacoding.site/sitemap-static.xml
-curl -I https://apnacoding.site/sitemap-news.xml
-curl -I https://apnacoding.site/sitemap-events.xml
-curl -I https://apnacoding.site/sitemap-hackathons.xml
-curl -I https://apnacoding.site/sitemap-jobs.xml
+curl -I https://apnacoding.com/sitemap-static.xml
+curl -I https://apnacoding.com/sitemap-news.xml
+curl -I https://apnacoding.com/sitemap-events.xml
+curl -I https://apnacoding.com/sitemap-hackathons.xml
+curl -I https://apnacoding.com/sitemap-jobs.xml
 
 # Robots.txt
-curl -I https://apnacoding.site/robots.txt
+curl -I https://apnacoding.com/robots.txt
 ```
 
 **Expected Response**:
@@ -161,7 +161,7 @@ All active job postings.
 
 1. **Go to Google Search Console**
    - Visit: https://search.google.com/search-console
-   - Select your property: `apnacoding.site`
+   - Select your property: `apnacoding.com`
 
 2. **Submit Sitemap**
    - Left sidebar → **Sitemaps**
@@ -185,7 +185,7 @@ All active job postings.
 For top priority pages, manually request indexing:
 
 1. Go to **URL Inspection** tool
-2. Enter URL (e.g., `https://apnacoding.site/news/latest-article`)
+2. Enter URL (e.g., `https://apnacoding.com/news/latest-article`)
 3. Click **Request Indexing**
 4. Repeat for 10-20 most important pages
 
@@ -231,7 +231,7 @@ For top priority pages, manually request indexing:
 
 ### Sitemap Returns 404
 
-**Problem**: `https://apnacoding.site/sitemap.xml` returns 404
+**Problem**: `https://apnacoding.com/sitemap.xml` returns 404
 
 **Solutions**:
 
@@ -464,8 +464,8 @@ The `vercel.json` includes security headers:
 
 After deployment, verify:
 
-- [ ] `https://apnacoding.site/sitemap.xml` returns XML (not 404)
-- [ ] `https://apnacoding.site/robots.txt` shows correct content
+- [ ] `https://apnacoding.com/sitemap.xml` returns XML (not 404)
+- [ ] `https://apnacoding.com/robots.txt` shows correct content
 - [ ] All category sitemaps load (news, events, hackathons, jobs)
 - [ ] Sitemaps show your actual published content
 - [ ] URLs in sitemaps match your site structure

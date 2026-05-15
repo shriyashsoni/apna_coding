@@ -388,7 +388,7 @@ After successful deployment:
 
 For deployment issues:
 - GitHub Issues: https://github.com/apnacoding/support
-- Email: dev@apnacoding.site
+- Email: dev@apnacoding.com
 - Discord: [Link to Discord]
 
 ---

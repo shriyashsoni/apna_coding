@@ -2,60 +2,43 @@
   "rewrites": [
     {
       "source": "/sitemap.xml",
-      "destination": "https://quiet-meadowlark-706.convex.site/sitemap.xml"
+      "destination": "/api/sitemap-index"
+    },
+    {
+      "source": "/sitemap-static.xml",
+      "destination": "/api/sitemap-static"
+    },
+    {
+      "source": "/sitemap-hackathons.xml",
+      "destination": "/api/sitemap-hackathons"
+    },
+    {
+      "source": "/sitemap-jobs.xml",
+      "destination": "/api/sitemap-jobs"
+    },
+    {
+      "source": "/sitemap-events.xml",
+      "destination": "/api/sitemap-events"
+    },
+    {
+      "source": "/sitemap-news.xml",
+      "destination": "/api/sitemap-news"
+    },
+    {
+      "source": "/sitemap-communities.xml",
+      "destination": "/api/sitemap-communities"
+    },
+    {
+      "source": "/sitemap-products.xml",
+      "destination": "/api/sitemap-products"
     },
     {
       "source": "/robots.txt",
-      "destination": "https://quiet-meadowlark-706.convex.site/robots.txt"
+      "destination": "/robots.txt"
     },
     {
       "source": "/(.*)",
       "destination": "/index.html"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/(.*)",
-      "headers": [
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
-          "key": "X-XSS-Protection",
-          "value": "1; mode=block"
-        }
-      ]
-    },
-    {
-      "source": "/sitemap.xml",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "application/xml"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600, s-maxage=3600"
-        }
-      ]
-    },
-    {
-      "source": "/robots.txt",
-      "headers": [
-        {
-          "key": "Content-Type",
-          "value": "text/plain"
-        },
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=86400, s-maxage=86400"
-        }
-      ]
     }
   ]
 }

@@ -274,7 +274,7 @@ export default function VerifyCertificate() {
                     <Alert>
                       <AlertDescription>
                         Please check the certificate number and try again. If you believe this is an
-                        error, contact support@apnacoding.site
+                        error, contact support@apnacoding.com
                       </AlertDescription>
                     </Alert>
                   </CardContent>

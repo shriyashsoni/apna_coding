@@ -30,7 +30,7 @@ export function SEOHead({
   // Use actual site URL based on environment
   const siteUrl = typeof window !== 'undefined'
     ? window.location.origin
-    : "https://apnacoding.site";
+    : "https://apnacoding.com";
   const siteName = "Apna Coding";
   const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;
   const canonicalUrl = canonical || `${siteUrl}${window.location.pathname}`;

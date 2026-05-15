@@ -78,7 +78,7 @@ export function BulkEmailSender() {
         <li>💼 Find your dream job</li>
         <li>🤝 Connect with other developers</li>
       </ul>
-      <a href="https://apnacoding.site" class="button">Explore Platform</a>
+      <a href="https://apnacoding.com" class="button">Explore Platform</a>
     </div>
   </div>
 </body>
@@ -105,7 +105,7 @@ export function BulkEmailSender() {
       <p>Dear <strong>{{name}}</strong>,</p>
       <p>We're thrilled to invite you to our upcoming event!</p>
       <p>Join us for an amazing experience with fellow developers.</p>
-      <a href="https://apnacoding.site/events" class="button">Register Now</a>
+      <a href="https://apnacoding.com/events" class="button">Register Now</a>
     </div>
   </div>
 </body>

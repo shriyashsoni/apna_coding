@@ -29,13 +29,13 @@ Replace `re_your_api_key_here` with your actual Resend API key.
 By default, emails are sent from `onboarding@resend.dev`. To use your own domain:
 
 1. Go to Resend dashboard → Domains
-2. Add your domain (e.g., `apnacoding.site`)
+2. Add your domain (e.g., `apnacoding.com`)
 3. Add the DNS records they provide
 4. Wait for verification (usually 5-10 minutes)
 5. Update the `from` address in `/src/convex/sendEmailResend.ts`:
 
 ```typescript
-from: "Apna Coding <hello@apnacoding.site>", // Your verified domain
+from: "Apna Coding <hello@apnacoding.com>", // Your verified domain
 ```
 
 ## 📧 How It Works

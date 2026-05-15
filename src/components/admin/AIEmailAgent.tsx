@@ -152,7 +152,7 @@ export function AIEmailAgent() {
         <strong>Email:</strong> <a href="mailto:apnacoding.tech@gmail.com" style="color: #0066cc; text-decoration: none;">apnacoding.tech@gmail.com</a>
       </p>
       <p style="margin: 0 0 5px 0; font-size: 13px; color: #666;">
-        <strong>Website:</strong> <a href="https://apnacoding.site" style="color: #0066cc; text-decoration: none;">apnacoding.site</a>
+        <strong>Website:</strong> <a href="https://apnacoding.com" style="color: #0066cc; text-decoration: none;">apnacoding.com</a>
       </p>
 
       <p style="margin: 15px 0 5px 0; font-size: 13px; color: #666;">

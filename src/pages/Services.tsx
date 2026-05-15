@@ -435,7 +435,7 @@ export default function Services() {
                         📧 Email: <a href="mailto:apnacoding.tech@gmail.com" className="text-primary hover:underline">apnacoding.tech@gmail.com</a>
                       </p>
                       <p className="text-sm text-muted-foreground">
-                        🌐 Website: <a href="https://www.apnacoding.site" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">www.apnacoding.site</a>
+                        🌐 Website: <a href="https://www.apnacoding.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">www.apnacoding.com</a>
                       </p>
                     </div>
                   </div>

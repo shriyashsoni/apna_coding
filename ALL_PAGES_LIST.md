@@ -13,7 +13,7 @@ This document lists **ALL pages** on the Apna Coding website and shows which sit
 
 | Page | URL | Sitemap | Priority | Update Frequency |
 |------|-----|---------|----------|------------------|
-| Homepage | https://apnacoding.site/ | sitemap-static.xml | 1.0 | Daily |
+| Homepage | https://apnacoding.com/ | sitemap-static.xml | 1.0 | Daily |
 
 ---
 
@@ -23,12 +23,12 @@ These are your main content category pages:
 
 | Page | URL | Sitemap | Priority | Update Frequency |
 |------|-----|---------|----------|------------------|
-| Hackathons | https://apnacoding.site/hackathons | sitemap-static.xml | 0.9 | Daily |
-| Events | https://apnacoding.site/events | sitemap-static.xml | 0.9 | Daily |
-| Jobs | https://apnacoding.site/jobs | sitemap-static.xml | 0.9 | Daily |
-| Products | https://apnacoding.site/products | sitemap-static.xml | 0.9 | Daily |
-| News | https://apnacoding.site/news | sitemap-static.xml | 0.9 | Daily |
-| Communities | https://apnacoding.site/communities | sitemap-static.xml | 0.9 | Daily |
+| Hackathons | https://apnacoding.com/hackathons | sitemap-static.xml | 0.9 | Daily |
+| Events | https://apnacoding.com/events | sitemap-static.xml | 0.9 | Daily |
+| Jobs | https://apnacoding.com/jobs | sitemap-static.xml | 0.9 | Daily |
+| Products | https://apnacoding.com/products | sitemap-static.xml | 0.9 | Daily |
+| News | https://apnacoding.com/news | sitemap-static.xml | 0.9 | Daily |
+| Communities | https://apnacoding.com/communities | sitemap-static.xml | 0.9 | Daily |
 
 ---
 
@@ -36,10 +36,10 @@ These are your main content category pages:
 
 | Page | URL | Sitemap | Priority | Update Frequency |
 |------|-----|---------|----------|------------------|
-| Partnerships | https://apnacoding.site/partnerships | sitemap-static.xml | 0.8 | Weekly |
-| Certificates | https://apnacoding.site/certificates | sitemap-static.xml | 0.8 | Weekly |
-| Contact | https://apnacoding.site/contact | sitemap-static.xml | 0.8 | Monthly |
-| Branding Kit | https://apnacoding.site/branding | sitemap-static.xml | 0.7 | Monthly |
+| Partnerships | https://apnacoding.com/partnerships | sitemap-static.xml | 0.8 | Weekly |
+| Certificates | https://apnacoding.com/certificates | sitemap-static.xml | 0.8 | Weekly |
+| Contact | https://apnacoding.com/contact | sitemap-static.xml | 0.8 | Monthly |
+| Branding Kit | https://apnacoding.com/branding | sitemap-static.xml | 0.7 | Monthly |
 
 ---
 
@@ -47,8 +47,8 @@ These are your main content category pages:
 
 | Page | URL | Sitemap | Priority | Update Frequency |
 |------|-----|---------|----------|------------------|
-| Profile | https://apnacoding.site/profile | sitemap-static.xml | 0.6 | Weekly |
-| My Content | https://apnacoding.site/my-content | sitemap-static.xml | 0.6 | Weekly |
+| Profile | https://apnacoding.com/profile | sitemap-static.xml | 0.6 | Weekly |
+| My Content | https://apnacoding.com/my-content | sitemap-static.xml | 0.6 | Weekly |
 
 ---
 
@@ -56,8 +56,8 @@ These are your main content category pages:
 
 | Page | URL | Sitemap | Priority | Update Frequency |
 |------|-----|---------|----------|------------------|
-| Privacy Policy | https://apnacoding.site/privacy | sitemap-static.xml | 0.5 | Monthly |
-| Terms of Service | https://apnacoding.site/terms | sitemap-static.xml | 0.5 | Monthly |
+| Privacy Policy | https://apnacoding.com/privacy | sitemap-static.xml | 0.5 | Monthly |
+| Terms of Service | https://apnacoding.com/terms | sitemap-static.xml | 0.5 | Monthly |
 
 ---
 
@@ -69,9 +69,9 @@ These are your main content category pages:
 **Update Frequency**: Weekly
 
 **Example URLs**:
-- https://apnacoding.site/news/web3-development-guide
-- https://apnacoding.site/news/top-hackathons-2026
-- https://apnacoding.site/news/ethereum-layer-2-explained
+- https://apnacoding.com/news/web3-development-guide
+- https://apnacoding.com/news/top-hackathons-2026
+- https://apnacoding.com/news/ethereum-layer-2-explained
 
 **Auto-updates when**:
 - You publish a new news article (`isPublished: true`)
@@ -90,8 +90,8 @@ These are your main content category pages:
 **Update Frequency**: Daily
 
 **Example URLs**:
-- https://apnacoding.site/events/k12345abc
-- https://apnacoding.site/events/k67890def
+- https://apnacoding.com/events/k12345abc
+- https://apnacoding.com/events/k67890def
 
 **Auto-updates when**:
 - Events are approved (`approvalStatus: "approved"`)
@@ -109,9 +109,9 @@ These are your main content category pages:
 **Update Frequency**: Weekly
 
 **Example URLs**:
-- https://apnacoding.site/hackathons/ethindia-2026
-- https://apnacoding.site/hackathons/build-on-base
-- https://apnacoding.site/hackathons/web3-gaming-hackathon
+- https://apnacoding.com/hackathons/ethindia-2026
+- https://apnacoding.com/hackathons/build-on-base
+- https://apnacoding.com/hackathons/web3-gaming-hackathon
 
 **Auto-updates when**:
 - Hackathons are approved (`status: "approved"`)
@@ -130,8 +130,8 @@ These are your main content category pages:
 **Update Frequency**: Daily
 
 **Example URLs**:
-- https://apnacoding.site/jobs/k98765xyz
-- https://apnacoding.site/jobs/k54321abc
+- https://apnacoding.com/jobs/k98765xyz
+- https://apnacoding.com/jobs/k54321abc
 
 **Auto-updates when**:
 - Jobs are added (`isActive: true`)
@@ -149,9 +149,9 @@ These are your main content category pages:
 **Update Frequency**: Weekly
 
 **Example URLs**:
-- https://apnacoding.site/products/web3-dev-course
-- https://apnacoding.site/products/smart-contract-audit-tool
-- https://apnacoding.site/products/nft-generator-kit
+- https://apnacoding.com/products/web3-dev-course
+- https://apnacoding.com/products/smart-contract-audit-tool
+- https://apnacoding.com/products/nft-generator-kit
 
 **Auto-updates when**:
 - Products are published (`isPublished: true`)
@@ -169,9 +169,9 @@ These are your main content category pages:
 **Update Frequency**: Monthly
 
 **Example URLs**:
-- https://apnacoding.site/community/web3-builders-india
-- https://apnacoding.site/community/defi-enthusiasts
-- https://apnacoding.site/community/nft-creators-hub
+- https://apnacoding.com/community/web3-builders-india
+- https://apnacoding.com/community/defi-enthusiasts
+- https://apnacoding.com/community/nft-creators-hub
 
 **Auto-updates when**:
 - Communities are published (`isPublished: true`)
@@ -206,19 +206,19 @@ Disallow: /verify
 ## 📊 Sitemap Summary
 
 ### Main Sitemap Index
-**URL**: https://apnacoding.site/sitemap.xml
+**URL**: https://apnacoding.com/sitemap.xml
 
 Contains links to all category sitemaps:
 
 | Sitemap File | URL | Content Type | Current Pages |
 |--------------|-----|--------------|---------------|
-| sitemap-static.xml | https://apnacoding.site/sitemap-static.xml | Static pages | 15 pages ✅ |
-| sitemap-news.xml | https://apnacoding.site/sitemap-news.xml | News articles | 0 (ready) |
-| sitemap-events.xml | https://apnacoding.site/sitemap-events.xml | Event details | 0 (ready) |
-| sitemap-hackathons.xml | https://apnacoding.site/sitemap-hackathons.xml | Hackathon details | 0 (ready) |
-| sitemap-jobs.xml | https://apnacoding.site/sitemap-jobs.xml | Job postings | 0 (ready) |
-| sitemap-products.xml | https://apnacoding.site/sitemap-products.xml | Products | 0 (ready) |
-| sitemap-communities.xml | https://apnacoding.site/sitemap-communities.xml | Communities | 0 (ready) |
+| sitemap-static.xml | https://apnacoding.com/sitemap-static.xml | Static pages | 15 pages ✅ |
+| sitemap-news.xml | https://apnacoding.com/sitemap-news.xml | News articles | 0 (ready) |
+| sitemap-events.xml | https://apnacoding.com/sitemap-events.xml | Event details | 0 (ready) |
+| sitemap-hackathons.xml | https://apnacoding.com/sitemap-hackathons.xml | Hackathon details | 0 (ready) |
+| sitemap-jobs.xml | https://apnacoding.com/sitemap-jobs.xml | Job postings | 0 (ready) |
+| sitemap-products.xml | https://apnacoding.com/sitemap-products.xml | Products | 0 (ready) |
+| sitemap-communities.xml | https://apnacoding.com/sitemap-communities.xml | Communities | 0 (ready) |
 
 **Total Current Pages**: 15 static pages
 **Potential Total**: Unlimited (grows with content)
@@ -298,7 +298,7 @@ Contains links to all category sitemaps:
 - [x] Proper priorities assigned
 - [x] Update frequencies configured
 - [x] Robots.txt blocking private pages
-- [x] All pages using correct domain (apnacoding.site)
+- [x] All pages using correct domain (apnacoding.com)
 
 ### 📝 Next Steps
 1. **Deploy to Production**
@@ -309,7 +309,7 @@ Contains links to all category sitemaps:
    ```
 
 2. **Verify Sitemaps Work**
-   - Test: https://apnacoding.site/sitemap.xml
+   - Test: https://apnacoding.com/sitemap.xml
    - Should show all 7 category sitemaps
 
 3. **Submit to Google**
@@ -331,27 +331,27 @@ Contains links to all category sitemaps:
 
 **Main Sitemap Index**:
 ```
-https://apnacoding.site/sitemap.xml
+https://apnacoding.com/sitemap.xml
 ```
 
 **Static Pages** (15 pages):
 ```
-https://apnacoding.site/sitemap-static.xml
+https://apnacoding.com/sitemap-static.xml
 ```
 
 **Dynamic Content** (auto-updates):
 ```
-https://apnacoding.site/sitemap-news.xml
-https://apnacoding.site/sitemap-events.xml
-https://apnacoding.site/sitemap-hackathons.xml
-https://apnacoding.site/sitemap-jobs.xml
-https://apnacoding.site/sitemap-products.xml
-https://apnacoding.site/sitemap-communities.xml
+https://apnacoding.com/sitemap-news.xml
+https://apnacoding.com/sitemap-events.xml
+https://apnacoding.com/sitemap-hackathons.xml
+https://apnacoding.com/sitemap-jobs.xml
+https://apnacoding.com/sitemap-products.xml
+https://apnacoding.com/sitemap-communities.xml
 ```
 
 **Robots.txt**:
 ```
-https://apnacoding.site/robots.txt
+https://apnacoding.com/robots.txt
 ```
 
 ---
@@ -363,21 +363,21 @@ https://apnacoding.site/robots.txt
 After deployment, test these URLs:
 
 ```
-https://apnacoding.site/
-https://apnacoding.site/hackathons
-https://apnacoding.site/events
-https://apnacoding.site/jobs
-https://apnacoding.site/products
-https://apnacoding.site/news
-https://apnacoding.site/communities
-https://apnacoding.site/partnerships
-https://apnacoding.site/certificates
-https://apnacoding.site/contact
-https://apnacoding.site/branding
-https://apnacoding.site/profile
-https://apnacoding.site/my-content
-https://apnacoding.site/privacy
-https://apnacoding.site/terms
+https://apnacoding.com/
+https://apnacoding.com/hackathons
+https://apnacoding.com/events
+https://apnacoding.com/jobs
+https://apnacoding.com/products
+https://apnacoding.com/news
+https://apnacoding.com/communities
+https://apnacoding.com/partnerships
+https://apnacoding.com/certificates
+https://apnacoding.com/contact
+https://apnacoding.com/branding
+https://apnacoding.com/profile
+https://apnacoding.com/my-content
+https://apnacoding.com/privacy
+https://apnacoding.com/terms
 ```
 
 All 15 pages should load successfully!

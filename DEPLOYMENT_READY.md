@@ -79,8 +79,8 @@ Your comprehensive sitemap and SEO system is now fully configured and ready to d
 3. **Verify Sitemaps Work**
    After deployment, test these URLs:
    ```
-   https://apnacoding.site/sitemap.xml
-   https://apnacoding.site/robots.txt
+   https://apnacoding.com/sitemap.xml
+   https://apnacoding.com/robots.txt
    ```
 
 ### Option 2: Manual Deployment
@@ -106,30 +106,30 @@ After deployment, verify everything works:
 
 ```bash
 # Main sitemap index
-curl -I https://apnacoding.site/sitemap.xml
+curl -I https://apnacoding.com/sitemap.xml
 # Should return: 200 OK, Content-Type: application/xml
 
 # Category sitemaps
-curl -I https://apnacoding.site/sitemap-news.xml
-curl -I https://apnacoding.site/sitemap-events.xml
-curl -I https://apnacoding.site/sitemap-hackathons.xml
+curl -I https://apnacoding.com/sitemap-news.xml
+curl -I https://apnacoding.com/sitemap-events.xml
+curl -I https://apnacoding.com/sitemap-hackathons.xml
 
 # Robots.txt
-curl -I https://apnacoding.site/robots.txt
+curl -I https://apnacoding.com/robots.txt
 # Should return: 200 OK, Content-Type: text/plain
 ```
 
 ### 2. View Sitemap Content
 
 Open in browser:
-- https://apnacoding.site/sitemap.xml
+- https://apnacoding.com/sitemap.xml
 
 You should see XML with links to all category sitemaps.
 
 ### 3. Check for Your Content
 
 Open a category sitemap:
-- https://apnacoding.site/sitemap-news.xml
+- https://apnacoding.com/sitemap-news.xml
 
 You should see URLs for all your published news articles.
 
@@ -139,7 +139,7 @@ You should see URLs for all your published news articles.
 
 1. **Go to Google Search Console**
    - Visit: https://search.google.com/search-console
-   - Select property: `apnacoding.site`
+   - Select property: `apnacoding.com`
 
 2. **Submit Sitemap**
    - Left sidebar → **Sitemaps**
@@ -158,7 +158,7 @@ You should see URLs for all your published news articles.
 For your most important pages:
 
 1. Go to **URL Inspection** tool
-2. Enter URL: `https://apnacoding.site/news/your-article`
+2. Enter URL: `https://apnacoding.com/news/your-article`
 3. Click **Request Indexing**
 4. Repeat for 10-20 top pages
 
@@ -305,7 +305,7 @@ Your sitemap system is **100% complete and ready to deploy**.
 **What You Need to Do:**
 1. Push code to git: `git push`
 2. Wait for Vercel deployment (2-3 min)
-3. Verify sitemaps work: `https://apnacoding.site/sitemap.xml`
+3. Verify sitemaps work: `https://apnacoding.com/sitemap.xml`
 4. Submit to Google Search Console
 5. Watch your pages get indexed!
 

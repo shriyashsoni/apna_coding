@@ -10,7 +10,7 @@ The bulk data import system has been successfully added to the admin portal. You
 
 **Admin Dashboard → Bulk Actions Tab**
 
-Access at: `https://apnacoding.site/admin` (Admin Tab → Bulk Actions)
+Access at: `https://apnacoding.com/admin` (Admin Tab → Bulk Actions)
 
 ---
 
@@ -324,7 +324,7 @@ Vercel will auto-deploy in 2-3 minutes.
 
 ### To Use:
 
-1. Go to `https://apnacoding.site/admin`
+1. Go to `https://apnacoding.com/admin`
 2. Click "Bulk Actions" tab
 3. Select content type
 4. Choose import method (URLs or Excel)

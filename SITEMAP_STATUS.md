@@ -9,7 +9,7 @@ All your sitemap XML files have been created and are now live on the Convex serv
 ## 📋 Complete Sitemap List
 
 ### 1. Main Sitemap Index ✅
-**URL**: `https://apnacoding.site/sitemap.xml`
+**URL**: `https://apnacoding.com/sitemap.xml`
 **Convex URL**: `https://quiet-meadowlark-706.convex.site/sitemap.xml`
 **Status**: ✅ LIVE
 **Purpose**: Main index linking to all category sitemaps
@@ -20,7 +20,7 @@ All your sitemap XML files have been created and are now live on the Convex serv
 - Follows sitemap index protocol
 
 ### 2. Static Pages Sitemap ✅
-**URL**: `https://apnacoding.site/sitemap-static.xml`
+**URL**: `https://apnacoding.com/sitemap-static.xml`
 **Status**: ✅ LIVE with 11 pages
 
 **Pages Included**:
@@ -39,7 +39,7 @@ All your sitemap XML files have been created and are now live on the Convex serv
 **Update Frequency**: Weekly for most pages, Daily for listings
 
 ### 3. News Articles Sitemap ✅
-**URL**: `https://apnacoding.site/sitemap-news.xml`
+**URL**: `https://apnacoding.com/sitemap-news.xml`
 **Status**: ✅ LIVE (currently empty)
 
 **Dynamic Content**:
@@ -51,7 +51,7 @@ All your sitemap XML files have been created and are now live on the Convex serv
 **To Add Content**: Publish news articles through your admin dashboard
 
 ### 4. Events Sitemap ✅
-**URL**: `https://apnacoding.site/sitemap-events.xml`
+**URL**: `https://apnacoding.com/sitemap-events.xml`
 **Status**: ✅ LIVE (currently empty)
 
 **Dynamic Content**:
@@ -64,7 +64,7 @@ All your sitemap XML files have been created and are now live on the Convex serv
 **To Add Content**: Approve events through your admin dashboard
 
 ### 5. Hackathons Sitemap ✅
-**URL**: `https://apnacoding.site/sitemap-hackathons.xml`
+**URL**: `https://apnacoding.com/sitemap-hackathons.xml`
 **Status**: ✅ LIVE (currently empty)
 
 **Dynamic Content**:
@@ -77,7 +77,7 @@ All your sitemap XML files have been created and are now live on the Convex serv
 **To Add Content**: Approve hackathons through your admin dashboard
 
 ### 6. Jobs Sitemap ✅
-**URL**: `https://apnacoding.site/sitemap-jobs.xml`
+**URL**: `https://apnacoding.com/sitemap-jobs.xml`
 **Status**: ✅ LIVE (currently empty)
 
 **Dynamic Content**:
@@ -90,7 +90,7 @@ All your sitemap XML files have been created and are now live on the Convex serv
 **To Add Content**: Add jobs through your AI job scraper or admin dashboard
 
 ### 7. Products Sitemap ✅
-**URL**: `https://apnacoding.site/sitemap-products.xml`
+**URL**: `https://apnacoding.com/sitemap-products.xml`
 **Status**: ✅ LIVE (currently empty)
 
 **Dynamic Content**:
@@ -103,7 +103,7 @@ All your sitemap XML files have been created and are now live on the Convex serv
 **To Add Content**: Publish products through your admin dashboard
 
 ### 8. Communities Sitemap ✅
-**URL**: `https://apnacoding.site/sitemap-communities.xml`
+**URL**: `https://apnacoding.com/sitemap-communities.xml`
 **Status**: ✅ LIVE (currently empty)
 
 **Dynamic Content**:
@@ -116,7 +116,7 @@ All your sitemap XML files have been created and are now live on the Convex serv
 **To Add Content**: Publish communities through your admin dashboard
 
 ### 9. Robots.txt ✅
-**URL**: `https://apnacoding.site/robots.txt`
+**URL**: `https://apnacoding.com/robots.txt`
 **Status**: ✅ LIVE
 
 **Configuration**:
@@ -132,7 +132,7 @@ All your sitemap XML files have been created and are now live on the Convex serv
 
 ### Architecture
 ```
-User Request → Vercel (apnacoding.site)
+User Request → Vercel (apnacoding.com)
     ↓
 Vercel Rewrite (vercel.json)
     ↓
@@ -181,10 +181,10 @@ All sitemaps follow the official sitemap protocol:
 
 ### Before Deployment (Current State)
 - ✅ Sitemaps work on Convex URL: `https://quiet-meadowlark-706.convex.site/*`
-- ❌ Not accessible on main domain: `https://apnacoding.site/*`
+- ❌ Not accessible on main domain: `https://apnacoding.com/*`
 
 ### After Deployment (When You Push to Git)
-- ✅ Sitemaps accessible on main domain: `https://apnacoding.site/sitemap.xml`
+- ✅ Sitemaps accessible on main domain: `https://apnacoding.com/sitemap.xml`
 - ✅ Vercel rewrites proxy requests to Convex
 - ✅ Google can discover and crawl all pages
 - ✅ Pages start getting indexed
@@ -199,15 +199,15 @@ git push origin main
 ### Verification After Deploy (2-3 minutes after push)
 ```bash
 # Test main sitemap
-curl -I https://apnacoding.site/sitemap.xml
+curl -I https://apnacoding.com/sitemap.xml
 # Should return: 200 OK
 
 # View sitemap content
-curl https://apnacoding.site/sitemap.xml
+curl https://apnacoding.com/sitemap.xml
 # Should show XML with 7 category sitemaps
 
 # Test static pages
-curl https://apnacoding.site/sitemap-static.xml
+curl https://apnacoding.com/sitemap-static.xml
 # Should show 11 pages
 ```
 
@@ -232,7 +232,7 @@ Your sitemaps are **dynamically generated** from your Convex database. This mean
 3. **Instantly**, the article appears in `/sitemap-news.xml` as:
    ```xml
    <url>
-     <loc>https://apnacoding.site/news/web3-dev-guide</loc>
+     <loc>https://apnacoding.com/news/web3-dev-guide</loc>
      <lastmod>2026-01-16T08:00:00.000Z</lastmod>
      <changefreq>weekly</changefreq>
      <priority>0.7</priority>
@@ -246,7 +246,7 @@ Your sitemaps are **dynamically generated** from your Convex database. This mean
 If you want to force an immediate update:
 ```bash
 # Clear cache and fetch fresh sitemap
-curl -H "Cache-Control: no-cache" https://apnacoding.site/sitemap-news.xml
+curl -H "Cache-Control: no-cache" https://apnacoding.com/sitemap-news.xml
 ```
 
 ---
@@ -257,7 +257,7 @@ curl -H "Cache-Control: no-cache" https://apnacoding.site/sitemap-news.xml
 
 1. **Go to Google Search Console**
    - Visit: https://search.google.com/search-console
-   - Select property: `apnacoding.site`
+   - Select property: `apnacoding.com`
 
 2. **Navigate to Sitemaps**
    - Left sidebar → **Sitemaps**
@@ -299,7 +299,7 @@ After submitting `sitemap.xml`, Google automatically discovers:
 After sitemap submission, manually request indexing for your top pages:
 
 1. **URL Inspection** tool in GSC
-2. Enter URL: `https://apnacoding.site/`
+2. Enter URL: `https://apnacoding.com/`
 3. Click **Request Indexing**
 4. Repeat for top 10-20 pages
 
@@ -339,7 +339,7 @@ Add UTM parameters to track Google traffic:
 
 ### Sitemap Returns 404 on Main Domain
 
-**Problem**: `https://apnacoding.site/sitemap.xml` returns 404
+**Problem**: `https://apnacoding.com/sitemap.xml` returns 404
 
 **Solutions**:
 1. **Check Deployment**
@@ -364,9 +364,9 @@ Add UTM parameters to track Google traffic:
 
 ### Sitemap Has Wrong URLs
 
-**Problem**: URLs point to `convex.site` instead of `apnacoding.site`
+**Problem**: URLs point to `convex.site` instead of `apnacoding.com`
 
-**Solution**: Already fixed! All sitemaps now use `https://apnacoding.site`
+**Solution**: Already fixed! All sitemaps now use `https://apnacoding.com`
 
 ### Sitemap Shows No Content
 
@@ -435,7 +435,7 @@ Before submitting to Google:
 
 - [x] All 8 sitemap files created and live
 - [x] Robots.txt configured correctly
-- [x] URLs point to correct domain (apnacoding.site)
+- [x] URLs point to correct domain (apnacoding.com)
 - [x] Static pages sitemap has 11 pages
 - [x] Dynamic sitemaps ready for content
 - [x] Vercel configuration complete
@@ -463,7 +463,7 @@ Before submitting to Google:
 ✅ **8 XML files created** (1 index + 7 categories)
 ✅ **11 static pages** already in sitemap
 ✅ **Real-time updates** when you publish content
-✅ **Proper SEO URLs** pointing to apnacoding.site
+✅ **Proper SEO URLs** pointing to apnacoding.com
 ✅ **Google-ready** following all best practices
 ✅ **Auto-discovery** of all content types
 ✅ **Comprehensive documentation** for maintenance

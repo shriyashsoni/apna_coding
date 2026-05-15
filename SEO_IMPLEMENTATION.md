@@ -103,7 +103,7 @@ function MyPage() {
 1. **Submit Sitemap to Google Search Console**
    ```
    1. Go to: https://search.google.com/search-console
-   2. Add property: https://apnacoding.site
+   2. Add property: https://apnacoding.com
    3. Submit sitemap: https://your-convex-url/sitemap.xml
    ```
 

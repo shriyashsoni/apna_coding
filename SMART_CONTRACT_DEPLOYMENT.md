@@ -161,7 +161,7 @@ npx hardhat verify --network polygon <CONTRACT_ADDRESS>
 
 ### 4. Test Contract Functions
 
-Visit: `https://apnacoding.site/launch-onchain`
+Visit: `https://apnacoding.com/launch-onchain`
 
 Connect wallet and test:
 - Launch a product

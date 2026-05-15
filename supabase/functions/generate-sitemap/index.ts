@@ -17,7 +17,7 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const baseUrl = "https://apnacoding.site";
+    const baseUrl = "https://apnacoding.com";
     const staticPages = [
       "/", "/hackathons", "/events", "/jobs", "/products", "/news", 
       "/communities", "/partnerships", "/certificates", "/contact", 

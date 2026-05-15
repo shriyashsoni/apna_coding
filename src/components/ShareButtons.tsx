@@ -43,7 +43,7 @@ export function ShareButtons({ url, title, description, hashtags = [] }: ShareBu
   }, [address]);
 
   // Build base URL
-  let baseUrl = url.startsWith('http') ? url : `https://apnacoding.site${url}`;
+  let baseUrl = url.startsWith('http') ? url : `https://apnacoding.com${url}`;
 
   // Add referral code if user has one
   if (referralCode) {

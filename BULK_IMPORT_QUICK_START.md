@@ -2,7 +2,7 @@
 
 ## Access the Feature
 
-1. Go to: `https://apnacoding.site/admin`
+1. Go to: `https://apnacoding.com/admin`
 2. Click the "Bulk Actions" tab
 3. You'll see the Bulk Import interface
 

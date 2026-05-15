@@ -5,7 +5,7 @@ const getSiteUrl = () => {
   if (typeof window !== 'undefined') {
     return window.location.origin;
   }
-  return "https://apnacoding.site";
+  return "https://apnacoding.com";
 };
 
 const siteUrl = getSiteUrl();

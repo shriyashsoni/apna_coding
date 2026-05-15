@@ -201,7 +201,7 @@ npx convex deploy
 Need help? Contact us:
 
 - 📧 Email: apnacoding.tech@gmail.com
-- 🌐 Website: https://apnacoding.site
+- 🌐 Website: https://apnacoding.com
 - 💬 Telegram: https://t.me/apnacodingtech
 - 🐦 Twitter: https://x.com/apna_coding
 
@@ -212,7 +212,7 @@ MIT License - Free to use and modify
 ## 🙏 Credits
 
 Built with ❤️ by Apna Coding
-https://apnacoding.site
+https://apnacoding.com
 
 ---
 
@@ -297,3 +297,4 @@ echo "📍 Location: $OUTPUT_DIR/$ZIP_NAME"
 echo "📏 Size: $FILE_SIZE"
 echo ""
 echo "🎉 Download package is ready!"
+

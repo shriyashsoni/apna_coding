@@ -30,8 +30,8 @@ export function SEO({
   const siteTitle = "Apna Coding - Web3 Opportunity Layer";
   const defaultDescription =
     "India's Premier Web3 Opportunity Layer. Join hackathons, find jobs, build products, and connect with developers. Learn blockchain, smart contracts, DeFi, NFTs & more.";
-  const defaultImage = "https://apnacoding.site/og-image.png";
-  const siteUrl = "https://apnacoding.site";
+  const defaultImage = "https://apnacoding.com/og-image.png";
+  const siteUrl = "https://apnacoding.com";
 
   const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
   const finalDescription = description || defaultDescription;
@@ -141,7 +141,7 @@ export function SEO({
               name: siteTitle,
               logo: {
                 "@type": "ImageObject",
-                url: "https://apnacoding.site/logo.png",
+                url: "https://apnacoding.com/logo.png",
               },
             },
           }),

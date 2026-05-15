@@ -17,11 +17,11 @@
 - ✅ Now using dynamic Convex endpoints at `/sitemap.xml` and `/robots.txt`
 
 ### 2. Fixed Domain Configuration
-**Problem**: Mixed domains (`apnacoding.com` vs `apnacoding.site`) causing canonical URL issues.
+**Problem**: Mixed domains (`apnacoding.com` vs `apnacoding.com`) causing canonical URL issues.
 
 **Solution**:
-- ✅ Updated all sitemaps to use `apnacoding.site` (your actual domain)
-- ✅ Made domain dynamic (reads from `CONVEX_SITE_URL` or defaults to `apnacoding.site`)
+- ✅ Updated all sitemaps to use `apnacoding.com` (your actual domain)
+- ✅ Made domain dynamic (reads from `CONVEX_SITE_URL` or defaults to `apnacoding.com`)
 - ✅ Fixed robots.txt to reference correct sitemap URL
 - ✅ Updated SEO components to use actual site URL
 
@@ -32,7 +32,7 @@
 - ✅ Added comprehensive meta tags to `index.html`
 - ✅ Added JSON-LD structured data (Website + Organization schema)
 - ✅ Added proper robots meta: `index, follow, max-image-preview:large`
-- ✅ Added canonical URL: `https://apnacoding.site/`
+- ✅ Added canonical URL: `https://apnacoding.com/`
 
 ### 4. Fixed Robots.txt
 **Problem**: Incorrect `Disallow` directives blocking pages.
@@ -60,24 +60,24 @@ Open these URLs in your browser to verify they work:
 
 1. **Main Sitemap Index**:
    ```
-   https://apnacoding.site/sitemap.xml
+   https://apnacoding.com/sitemap.xml
    ```
    Should show: XML with links to 5 category sitemaps
 
 2. **Category Sitemaps**:
    ```
-   https://apnacoding.site/sitemap-static.xml
-   https://apnacoding.site/sitemap-news.xml
-   https://apnacoding.site/sitemap-events.xml
-   https://apnacoding.site/sitemap-hackathons.xml
-   https://apnacoding.site/sitemap-jobs.xml
+   https://apnacoding.com/sitemap-static.xml
+   https://apnacoding.com/sitemap-news.xml
+   https://apnacoding.com/sitemap-events.xml
+   https://apnacoding.com/sitemap-hackathons.xml
+   https://apnacoding.com/sitemap-jobs.xml
    ```
 
 3. **Robots.txt**:
    ```
-   https://apnacoding.site/robots.txt
+   https://apnacoding.com/robots.txt
    ```
-   Should show: Sitemap URL with `apnacoding.site` domain
+   Should show: Sitemap URL with `apnacoding.com` domain
 
 ### Step 3: Update Google Search Console
 
@@ -90,7 +90,7 @@ Open these URLs in your browser to verify they work:
 
 #### B) Submit New Sitemap
 1. In **Sitemaps** section
-2. Enter sitemap URL: `https://apnacoding.site/sitemap.xml`
+2. Enter sitemap URL: `https://apnacoding.com/sitemap.xml`
 3. Click **Submit**
 4. Wait 5-10 minutes for Google to process
 
@@ -100,12 +100,12 @@ For the 17 pages that are "Discovered – currently not indexed":
 1. Go to **URL Inspection** tool
 2. Enter each page URL (one at a time):
    ```
-   https://apnacoding.site/
-   https://apnacoding.site/hackathons
-   https://apnacoding.site/events
-   https://apnacoding.site/jobs
-   https://apnacoding.site/news
-   https://apnacoding.site/communities
+   https://apnacoding.com/
+   https://apnacoding.com/hackathons
+   https://apnacoding.com/events
+   https://apnacoding.com/jobs
+   https://apnacoding.com/news
+   https://apnacoding.com/communities
    ... etc
    ```
 3. Click **Test Live URL**
@@ -147,7 +147,7 @@ For the 17 pages that are "Discovered – currently not indexed":
 - Pagination pages pointing to main page
 
 **Solution**:
-- Ensure canonical URL is correct: `<link rel="canonical" href="https://apnacoding.site/page-url" />`
+- Ensure canonical URL is correct: `<link rel="canonical" href="https://apnacoding.com/page-url" />`
 - If it's a duplicate, consolidate content into one page
 - If intentional (like pagination), keep canonical pointing to main page
 
@@ -241,13 +241,13 @@ For the 17 pages that are "Discovered – currently not indexed":
 
 After deployment, verify everything works:
 
-- [ ] Visit `https://apnacoding.site/sitemap.xml` - Shows XML with 5 sitemaps
-- [ ] Visit `https://apnacoding.site/sitemap-static.xml` - Shows all static pages
-- [ ] Visit `https://apnacoding.site/sitemap-news.xml` - Shows all news articles
-- [ ] Visit `https://apnacoding.site/sitemap-events.xml` - Shows all events
-- [ ] Visit `https://apnacoding.site/sitemap-hackathons.xml` - Shows all hackathons
-- [ ] Visit `https://apnacoding.site/sitemap-jobs.xml` - Shows all jobs
-- [ ] Visit `https://apnacoding.site/robots.txt` - Shows correct sitemap URL
+- [ ] Visit `https://apnacoding.com/sitemap.xml` - Shows XML with 5 sitemaps
+- [ ] Visit `https://apnacoding.com/sitemap-static.xml` - Shows all static pages
+- [ ] Visit `https://apnacoding.com/sitemap-news.xml` - Shows all news articles
+- [ ] Visit `https://apnacoding.com/sitemap-events.xml` - Shows all events
+- [ ] Visit `https://apnacoding.com/sitemap-hackathons.xml` - Shows all hackathons
+- [ ] Visit `https://apnacoding.com/sitemap-jobs.xml` - Shows all jobs
+- [ ] Visit `https://apnacoding.com/robots.txt` - Shows correct sitemap URL
 - [ ] Check page source - Has proper `<title>`, `<meta description>`, canonical
 - [ ] Check page source - Has JSON-LD structured data
 - [ ] Submitted sitemap to Search Console
@@ -282,7 +282,7 @@ If pages still aren't indexed after following all steps:
 
 | File | Change | Reason |
 |------|--------|--------|
-| `convex/sitemaps.ts` | Updated domain to `apnacoding.site` | Fix canonical URLs |
+| `convex/sitemaps.ts` | Updated domain to `apnacoding.com` | Fix canonical URLs |
 | `convex/http.ts` | Updated robots.txt domain | Fix sitemap reference |
 | `src/components/SEOHead.tsx` | Dynamic site URL | Auto-detect domain |
 | `src/lib/structuredData.ts` | Dynamic site URL | Fix schema.org URLs |

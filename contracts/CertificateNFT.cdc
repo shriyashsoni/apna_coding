@@ -89,7 +89,7 @@ pub contract ApnaCodingCertificate: NonFungibleToken {
                         name: self.metadata.eventName.concat(" Certificate"),
                         description: "Apna Coding - ".concat(self.metadata.eventType).concat(" certificate for ").concat(self.metadata.recipientName),
                         thumbnail: MetadataViews.HTTPFile(
-                            url: "https://apnacoding.site/certificate/".concat(self.id.toString())
+                            url: "https://apnacoding.com/certificate/".concat(self.id.toString())
                         )
                     )
                 case Type<CertificateMetadata>():
@@ -230,3 +230,4 @@ pub contract ApnaCodingCertificate: NonFungibleToken {
         emit ContractInitialized()
     }
 }
+
