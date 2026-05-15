@@ -67,9 +67,6 @@ export function BulkImport() {
     setIsProcessing(true);
     setResults([]);
 
-    setIsProcessing(true);
-    setResults([]);
-
     try {
       if (importMethod === "urls") {
         const urls = urlList.split('\n').map(u => u.trim()).filter(Boolean);
@@ -88,9 +85,14 @@ export function BulkImport() {
               const insertData: any = {
                 ...result.data,
                 wallet_address: address,
-                is_approved: true,
-                status: 'published'
               };
+
+              // Handle table-specific approval/published fields
+              if (contentType === 'news' || contentType === 'communities') {
+                insertData.is_published = true;
+              } else {
+                insertData.is_approved = true;
+              }
 
               if (contentType === 'events' && selectedEventGroupId) {
                 insertData.event_group_id = selectedEventGroupId;

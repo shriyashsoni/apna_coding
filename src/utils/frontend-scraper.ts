@@ -92,7 +92,7 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
 
     const metadata = extractMetadata();
     const slug = generateSlug(metadata.title);
-    let result: any = { ...metadata, slug };
+    let result: any = {};
 
     const extractSalary = (text: string) => {
       const salaryRegex = /(\$\d{1,3}(?:,\d{3})*(?:\s?-\s?\$\d{1,3}(?:,\d{3})*)|(?:\$\d{1,3}k(?:\s?-\s?\$\d{1,3}k))|(?:\$\d{1,3}(?:,\d{3})*))/i;
@@ -100,10 +100,18 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
       return match ? match[0] : null;
     };
 
+    // Helper: produce an ISO date string N days from now
+    const isoDateFromNow = (daysOffset: number) => {
+      const d = new Date();
+      d.setDate(d.getDate() + daysOffset);
+      return d.toISOString();
+    };
+
     if (contentType === 'jobs') {
       const salary = extractSalary(html);
       result = {
         title: metadata.title,
+        slug,
         company: $('meta[property="og:site_name"]').attr('content') || 
                  $('[class*="company"]').first().text().trim() || 
                  $('a[href*="company"]').first().text().trim() ||
@@ -121,38 +129,44 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
     } else if (contentType === 'hackathons') {
       result = {
         name: metadata.title,
+        slug,
         description: metadata.description,
         prizes: $('[class*="prize"]').first().text().trim() || 
                 $('[class*="reward"]').first().text().trim() || null,
-        start_date: Date.now(),
-        end_date: Date.now() + 7 * 24 * 60 * 60 * 1000,
+        start_date: isoDateFromNow(0),
+        end_date: isoDateFromNow(7),
         location: $('[class*="location"]').first().text().trim() || 
                   $('[class*="venue"]').first().text().trim() || "Online",
+        status: "upcoming",
         registration_link: url || metadata.website,
         image: metadata.image
       };
     } else if (contentType === 'events') {
       result = {
         title: metadata.title,
+        slug,
         description: metadata.description,
-        date: Date.now() + 86400000,
+        date: isoDateFromNow(1),
         location: $('[class*="location"]').first().text().trim() || 
                   $('[class*="venue"]').first().text().trim() || "TBA",
         type: "Meetup",
         registration_link: url || metadata.website,
-        image_url: metadata.image
+        image: metadata.image
       };
     } else if (contentType === 'news') {
       result = {
         title: metadata.title,
-        content: $('article').html() || $('main').html() || html,
+        slug,
+        content: $('article').text() || $('main').text() || metadata.description,
         excerpt: metadata.description,
         category: "News",
-        cover_image: metadata.image
+        cover_image: metadata.image,
+        is_published: true
       };
     } else if (contentType === 'communities') {
       result = {
         name: metadata.title,
+        slug,
         description: metadata.description,
         logo: metadata.image,
         cover_image: metadata.image,
@@ -167,11 +181,11 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
     } else if (contentType === 'products') {
       result = {
         name: metadata.title,
+        slug,
         description: metadata.description,
         website_url: url || metadata.website,
         image_url: metadata.image,
-        category: "Web3",
-        status: "approved"
+        category: "Web3"
       };
     }
 

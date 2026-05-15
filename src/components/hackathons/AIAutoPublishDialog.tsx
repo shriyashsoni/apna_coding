@@ -38,7 +38,6 @@ export function AIAutoPublishDialog({ onSuccess }: AIAutoPublishDialogProps) {
         ...result.data,
         wallet_address: address,
         is_approved: true, // Auto-approve for now
-        slug: (result.data.title || result.data.name).toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now().toString().slice(-4)
       });
 
       if (insertError) throw insertError;

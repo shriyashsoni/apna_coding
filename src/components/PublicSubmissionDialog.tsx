@@ -70,8 +70,8 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
           title: formData.title,
           slug: slug,
           description: formData.description,
-          website_url: formData.link,
-          image_url: formData.image,
+          registration_link: formData.link,
+          image: formData.image,
           wallet_address: authUser?.wallet_address,
           is_approved: true
         };

@@ -663,7 +663,6 @@ export default function AdminDashboard() {
 
       const { error: insertError } = await supabase.from('communities').insert({
         ...result.data,
-        slug: result.data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
         wallet_address: address,
         is_published: true
       });
