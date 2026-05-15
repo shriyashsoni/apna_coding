@@ -114,12 +114,27 @@ serve(async (req) => {
       result = {
         name: metadata.title,
         description: metadata.description,
-        start_date: new Date().toISOString(),
-        end_date: new Date(Date.now() + 7 * 86400000).toISOString(),
+        start_date: Date.now(),
+        end_date: Date.now() + 7 * 86400000,
         location: "Online",
         registration_link: url
       };
-    } else if (contentType === 'communities') {
+    } else if (contentType === 'events' || contentType === 'event') {
+      result = {
+        title: metadata.title,
+        description: metadata.description,
+        date: Date.now() + 86400000, // Default to tomorrow
+        location: "TBA",
+        registration_link: url
+      };
+    } else if (contentType === 'products' || contentType === 'product') {
+      result = {
+        name: metadata.title,
+        description: metadata.description,
+        image_url: metadata.image,
+        website_url: url
+      };
+    } else if (contentType === 'communities' || contentType === 'community') {
       result = {
         name: metadata.title,
         description: metadata.description,

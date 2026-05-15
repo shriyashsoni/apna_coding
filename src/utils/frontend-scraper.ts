@@ -100,11 +100,11 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
       return match ? match[0] : null;
     };
 
-    // Helper: produce an ISO date string N days from now
-    const isoDateFromNow = (daysOffset: number) => {
+    // Helper: produce a numeric timestamp N days from now
+    const numericDateFromNow = (daysOffset: number) => {
       const d = new Date();
       d.setDate(d.getDate() + daysOffset);
-      return d.toISOString();
+      return d.getTime();
     };
 
     if (contentType === 'jobs') {
@@ -133,8 +133,8 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
         description: metadata.description,
         prizes: $('[class*="prize"]').first().text().trim() || 
                 $('[class*="reward"]').first().text().trim() || null,
-        start_date: isoDateFromNow(0),
-        end_date: isoDateFromNow(7),
+        start_date: numericDateFromNow(0),
+        end_date: numericDateFromNow(7),
         location: $('[class*="location"]').first().text().trim() || 
                   $('[class*="venue"]').first().text().trim() || "Online",
         status: "upcoming",
@@ -146,7 +146,7 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
         title: metadata.title,
         slug,
         description: metadata.description,
-        date: isoDateFromNow(1),
+        date: numericDateFromNow(1),
         location: $('[class*="location"]').first().text().trim() || 
                   $('[class*="venue"]').first().text().trim() || "TBA",
         type: "Meetup",
