@@ -640,7 +640,8 @@ export default function AdminDashboard() {
       const { error: insertError } = await supabase.from('news').insert({
         ...result.data,
         wallet_address: address,
-        is_published: true
+        is_published: false,
+        is_approved: false
       });
 
       if (insertError) throw insertError;
@@ -668,7 +669,7 @@ export default function AdminDashboard() {
         ...result.data,
         slug: result.data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
         wallet_address: address,
-        is_published: true
+        is_published: false
       });
 
       if (insertError) throw insertError;

@@ -25,7 +25,7 @@ export default function CommunityPage() {
   const fetchCommunity = async () => {
     try {
       const { data, error } = await supabase
-        .from("community_pages")
+        .from("communities")
         .select("*")
         .eq("slug", slug)
         .single();

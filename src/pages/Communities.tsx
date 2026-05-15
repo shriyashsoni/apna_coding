@@ -24,8 +24,9 @@ export default function Communities() {
   const fetchCommunities = async () => {
     try {
       const { data, error } = await supabase
-        .from("community_pages")
+        .from("communities")
         .select("*")
+        .eq("is_published", true)
         .order("created_at", { ascending: false });
       
       if (error) throw error;
@@ -40,7 +41,7 @@ export default function Communities() {
   const fetchFeaturedCommunities = async () => {
     try {
       const { data, error } = await supabase
-        .from("community_pages")
+        .from("communities")
         .select("*")
         .eq("is_published", true)
         .eq("is_featured", true)

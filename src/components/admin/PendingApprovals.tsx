@@ -22,6 +22,8 @@ export function PendingApprovals() {
   const [events, setEvents] = useState<any[]>([]);
   const [jobs, setJobs] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
+  const [communities, setCommunities] = useState<any[]>([]);
+  const [news, setNews] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
   const [isApprovingAll, setIsApprovingAll] = useState(false);
@@ -37,18 +39,24 @@ export function PendingApprovals() {
         { data: hackathonsData },
         { data: eventsData },
         { data: jobsData },
-        { data: productsData }
+        { data: productsData },
+        { data: communitiesData },
+        { data: newsData }
       ] = await Promise.all([
         supabase.from('hackathons').select('*').eq('is_approved', false),
         supabase.from('events').select('*').eq('is_approved', false),
         supabase.from('jobs').select('*').eq('is_approved', false),
-        supabase.from('products').select('*').eq('status', 'pending')
+        supabase.from('products').select('*').eq('status', 'pending'),
+        supabase.from('communities').select('*').eq('is_published', false),
+        supabase.from('news').select('*').eq('is_approved', false)
       ]);
 
       setHackathons(hackathonsData || []);
       setEvents(eventsData || []);
       setJobs(jobsData || []);
       setProducts(productsData || []);
+      setCommunities(communitiesData || []);
+      setNews(newsData || []);
     } catch (error) {
       console.error("Error fetching pending items:", error);
     } finally {
@@ -56,9 +64,9 @@ export function PendingApprovals() {
     }
   };
 
-  const totalCount = hackathons.length + events.length + jobs.length + products.length;
+  const totalCount = hackathons.length + events.length + jobs.length + products.length + communities.length + news.length;
 
-  const handleApprove = async (type: "hackathon" | "event" | "job" | "product", item: any) => {
+  const handleApprove = async (type: "hackathon" | "event" | "job" | "product" | "community" | "news", item: any) => {
     if (!wallet) {
       toast.error("Please connect your admin wallet");
       return;
@@ -88,9 +96,19 @@ export function PendingApprovals() {
         toast.success("On-chain approval and refund successful!");
       }
 
-      const table = type === "hackathon" ? "hackathons" : type === "event" ? "events" : type === "job" ? "jobs" : "products";
-      const updateData = type === "product" ? { status: 'approved' } : { is_approved: true };
-      
+      const table = 
+        type === "hackathon" ? "hackathons" : 
+        type === "event" ? "events" : 
+        type === "job" ? "jobs" : 
+        type === "community" ? "communities" :
+        type === "news" ? "news" :
+        "products";
+        
+      const updateData = 
+        type === "product" ? { status: 'approved' } : 
+        type === "community" ? { is_published: true } :
+        { is_approved: true };
+
       const { error } = await supabase
         .from(table)
         .update(updateData)
@@ -108,7 +126,7 @@ export function PendingApprovals() {
     }
   };
 
-  const handleReject = async (type: "hackathon" | "event" | "job" | "product", item: any) => {
+  const handleReject = async (type: "hackathon" | "event" | "job" | "product" | "community" | "news", item: any) => {
     if (!wallet) {
       toast.error("Please connect your admin wallet");
       return;
@@ -141,7 +159,13 @@ export function PendingApprovals() {
         toast.success("On-chain rejection successful!");
       }
 
-      const table = type === "hackathon" ? "hackathons" : type === "event" ? "events" : type === "job" ? "jobs" : "products";
+      const table = 
+        type === "hackathon" ? "hackathons" : 
+        type === "event" ? "events" : 
+        type === "job" ? "jobs" : 
+        type === "community" ? "communities" :
+        type === "news" ? "news" :
+        "products";
       const { error } = await supabase
         .from(table)
         .delete()
@@ -199,7 +223,7 @@ export function PendingApprovals() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             <div className="text-center p-4 bg-purple-500/10 rounded-lg">
               <Trophy className="h-6 w-6 mx-auto mb-2 text-purple-500" />
               <p className="text-2xl font-bold">{hackathons.length}</p>
@@ -220,6 +244,16 @@ export function PendingApprovals() {
               <p className="text-2xl font-bold">{products.length}</p>
               <p className="text-sm text-muted-foreground">Products</p>
             </div>
+            <div className="text-center p-4 bg-pink-500/10 rounded-lg">
+              <MessageSquare className="h-6 w-6 mx-auto mb-2 text-pink-500" />
+              <p className="text-2xl font-bold">{communities.length}</p>
+              <p className="text-sm text-muted-foreground">Communities</p>
+            </div>
+            <div className="text-center p-4 bg-yellow-500/10 rounded-lg">
+              <Newspaper className="h-6 w-6 mx-auto mb-2 text-yellow-500" />
+              <p className="text-2xl font-bold">{news.length}</p>
+              <p className="text-sm text-muted-foreground">News</p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -230,8 +264,10 @@ export function PendingApprovals() {
           { title: "Hackathons", data: hackathons, type: "hackathon", icon: Trophy, color: "text-purple-500" },
           { title: "Events", data: events, type: "event", icon: Calendar, color: "text-blue-500" },
           { title: "Jobs", data: jobs, type: "job", icon: Briefcase, color: "text-green-500" },
-          { title: "Products", data: products, type: "product", icon: Package, color: "text-orange-500" }
-        ].map((section) => section.data.length > 0 && (
+          { title: "Products", data: products, type: "product", icon: Package, color: "text-orange-500" },
+          { title: "Communities", data: communities, type: "community", icon: MessageSquare, color: "text-pink-500" },
+          { title: "News", data: news, type: "news", icon: Newspaper, color: "text-yellow-500" }
+        ] as const}.map((section) => section.data.length > 0 && (
           <Card key={section.type}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
