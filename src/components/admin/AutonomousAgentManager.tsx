@@ -40,29 +40,62 @@ export function AutonomousAgentManager() {
     activeHours: 0
   });
 
-  // Mock activity simulation
+  const fetchLogs = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('autonomous_agent_logs')
+        .select('*')
+        .order('timestamp', { ascending: false })
+        .limit(20);
+      
+      if (error) throw error;
+      setLogs(data || []);
+      
+      // Update stats based on logs
+      const published = data?.filter(l => l.action_type === 'publish').length || 0;
+      setStats(s => ({ ...s, autoPublished: published, itemsFound: data?.length || 0 }));
+    } catch (err) {
+      console.error("Error fetching logs:", err);
+    }
+  };
+
+  const triggerAgentCycle = async () => {
+    if (!isActive) return;
+    try {
+      setScanningStatus("Initiating Web Search...");
+      const { data, error } = await supabase.functions.invoke('autonomous-master-agent');
+      if (error) throw error;
+      
+      fetchLogs();
+      toast.success(`Cycle complete: ${data.published} new items published!`);
+    } catch (err: any) {
+      console.error("Agent cycle failed:", err);
+      toast.error("Agent cycle encountered an error.");
+    } finally {
+      setScanningStatus("Idle - Monitoring Industry");
+    }
+  };
+
+  useEffect(() => {
+    fetchLogs();
+    const interval = setInterval(fetchLogs, 10000); // Poll logs every 10s
+    return () => clearInterval(interval);
+  }, []);
+
+  // Mock activity simulation for the UI progress bar
   useEffect(() => {
     if (isActive) {
-      const interval = setInterval(() => {
-        setProgress(prev => {
-          if (prev >= 100) {
-            addLog("Finished scan cycle. Found 2 new hackathons.", "success");
-            setStats(s => ({ ...s, itemsFound: s.itemsFound + 2, autoPublished: s.autoPublished + 2 }));
-            return 0;
-          }
-          return prev + 5;
-        });
+      triggerAgentCycle();
+      const cycleInterval = setInterval(triggerAgentCycle, 1000 * 60 * 60); // Run every hour
+      
+      const progressInterval = setInterval(() => {
+        setProgress(prev => (prev >= 100 ? 0 : prev + 1));
+      }, 5000);
 
-        const statuses = [
-          "Searching Twitter for #Web3Hackathon...",
-          "Analyzing Devpost for upcoming events...",
-          "Scanning CryptoNews for industry trends...",
-          "Drafting Telegram announcement...",
-          "Verifying event dates on Ethereum.org..."
-        ];
-        setScanningStatus(statuses[Math.floor(Math.random() * statuses.length)]);
-      }, 3000);
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(cycleInterval);
+        clearInterval(progressInterval);
+      };
     }
   }, [isActive]);
 
