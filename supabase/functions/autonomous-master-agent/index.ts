@@ -31,13 +31,14 @@ serve(async (req) => {
     await supabase.from('autonomous_agent_logs').insert({
       action_type: 'info',
       message: 'Global Intelligence Cycle Started: Scanning for Hackathons, Jobs, and News...',
-      status: 'info'
+      status: 'info',
+      timestamp: Date.now()
     });
 
     const queries = [
-      { q: "upcoming web3 hackathons 2024 2025", type: "hackathon" },
-      { q: "remote web3 developer jobs blockchain", type: "job" },
-      { q: "latest web3 news blockchain industry", type: "news" }
+      { q: "web3 hackathons open for registration", type: "hackathon" },
+      { q: "blockchain developer jobs remote", type: "job" },
+      { q: "web3 industry news crypto", type: "news" }
     ];
 
     let totalPublished = 0;
@@ -118,7 +119,8 @@ serve(async (req) => {
                 action_type: 'publish',
                 message: `Auto-published ${queryObj.type}: ${extractedData.name || extractedData.title}`,
                 status: 'success',
-                metadata: { url: result.link, type: queryObj.type }
+                metadata: { url: result.link, type: queryObj.type },
+                timestamp: Date.now()
               });
 
               // Social Notifications (simplified for brevity)
