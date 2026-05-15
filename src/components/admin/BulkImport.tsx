@@ -89,9 +89,12 @@ export function BulkImport() {
 
               // Handle table-specific approval/published fields
               if (contentType === 'news' || contentType === 'communities') {
-                insertData.is_published = true;
+                insertData.is_published = false; // Send to approval
+              } else if (contentType === 'products') {
+                insertData.status = 'pending';
+                insertData.is_approved = false;
               } else {
-                insertData.is_approved = true;
+                insertData.is_approved = false;
               }
 
               if (contentType === 'events' && selectedEventGroupId) {

@@ -462,6 +462,7 @@ export default function AdminDashboard() {
         .from('communities')
         .insert({
           name: newCommunity.name,
+          slug: newCommunity.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
           description: newCommunity.description,
           logo: newCommunity.logo,
           website: newCommunity.website,
@@ -551,7 +552,7 @@ export default function AdminDashboard() {
           await supabase.from('jobs').insert({
             ...result.data,
             wallet_address: address,
-            is_approved: true
+            is_approved: false
           });
         }
       }
@@ -581,7 +582,7 @@ export default function AdminDashboard() {
           await supabase.from('events').insert({
             ...result.data,
             wallet_address: address,
-            is_approved: true
+            is_approved: false
           });
         }
       }
@@ -611,7 +612,8 @@ export default function AdminDashboard() {
           await supabase.from('products').insert({
             ...result.data,
             wallet_address: address,
-            is_approved: true
+            is_approved: false,
+            status: 'pending'
           });
         }
       }
@@ -663,6 +665,7 @@ export default function AdminDashboard() {
 
       const { error: insertError } = await supabase.from('communities').insert({
         ...result.data,
+        slug: result.data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
         wallet_address: address,
         is_published: true
       });

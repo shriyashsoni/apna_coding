@@ -73,10 +73,23 @@ serve(async (req) => {
     else if (job.job_type === "hackathon") targetTable = "hackathons";
     else targetTable = "jobs";
 
-    // 4. Create the item in the target table
+    // 4. Create the item in the target table with pending status
+    const slug = (extractedData.name || extractedData.title || "untitled")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    const insertPayload = {
+      ...extractedData,
+      slug,
+      wallet_address: job.wallet_address,
+      is_approved: false, // Ensure it goes to approval section
+      status: job.job_type === "product" ? "pending" : "published" // Products use 'status', others use 'is_approved'
+    };
+
     const { data: newItem, error: createError } = await supabaseClient
       .from(targetTable)
-      .insert(extractedData)
+      .insert(insertPayload)
       .select()
       .single();
 

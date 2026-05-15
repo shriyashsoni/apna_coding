@@ -22,121 +22,109 @@ serve(async (req) => {
     }
 
     let html = "";
+    let cleanText = "";
+
     if (url) {
-      const response = await fetch(url, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      console.log(`Scraping URL: ${url}`);
+      // Use Jina Reader for robust scraping (bypasses most bots and cleans HTML)
+      const jinaUrl = `https://r.jina.ai/${url}`;
+      try {
+        const response = await fetch(jinaUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          }
+        });
+        if (response.ok) {
+          cleanText = await response.text();
+          console.log("Successfully scraped with Jina Reader");
+        } else {
+          throw new Error("Jina Reader failed");
         }
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to fetch URL: ${response.statusText}`);
+      } catch (e) {
+        console.warn("Jina Reader failed, falling back to direct fetch");
+        const response = await fetch(url, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+          }
+        });
+        if (!response.ok) throw new Error(`Failed to fetch URL: ${response.statusText}`);
+        html = await response.text();
       }
-      html = await response.text();
     } else {
-      // If it's just text, we can't really use Cheerio for it, but let's assume we treat it as HTML
-      html = textContent;
+      cleanText = textContent;
     }
 
-    const $ = cheerio.load(html);
+    // Extraction Logic
+    let result: any = {};
 
-    // Extraction logic based on Cheerio (No AI)
+    // If we have an AI key, use it! (Placeholder for real AI call)
+    const AI_KEY = Deno.env.get("OPENAI_API_KEY") || Deno.env.get("GROQ_API_KEY");
+    
+    if (AI_KEY && cleanText) {
+      console.log("Using AI for extraction...");
+      // For now, we'll still use the robust fallback but this is where you'd call GPT/Groq
+      // Implementation would be: const aiResult = await callAI(cleanText, contentType);
+    }
+
+    const $ = cheerio.load(html || `<html><body>${cleanText}</body></html>`);
+
     const extractMetadata = () => {
       const title = $('meta[property="og:title"]').attr('content') ||
                     $('meta[name="twitter:title"]').attr('content') ||
                     $('h1').first().text().trim() ||
                     $('title').text().trim() ||
+                    (cleanText.split('\n')[0].substring(0, 100)) ||
                     "Untitled Content";
 
       const description = $('meta[property="og:description"]').attr('content') ||
                           $('meta[name="description"]').attr('content') ||
-                          $('meta[name="twitter:description"]').attr('content') ||
+                          $('.description').first().text().trim() ||
                           $('p').first().text().trim().substring(0, 500) ||
+                          (cleanText.substring(0, 500)) ||
                           "No description available";
 
       const image = $('meta[property="og:image"]').attr('content') ||
                     $('meta[name="twitter:image"]').attr('content') ||
                     $('img[src*="logo"]').attr('src') ||
-                    $('img[src*="banner"]').attr('src') ||
                     $('img').first().attr('src');
 
-      const website = $('meta[property="og:url"]').attr('content') || url;
-
-      return { title, description, image, website };
+      return { title, description, image };
     };
 
     const metadata = extractMetadata();
-    let result: any = { ...metadata };
+    result = { ...metadata };
 
-    // Regex helpers
-    const extractSalary = (text: string) => {
-      const salaryRegex = /(\$\d{1,3}(?:,\d{3})*(?:\s?-\s?\$\d{1,3}(?:,\d{3})*)|(?:\$\d{1,3}k(?:\s?-\s?\$\d{1,3}k))|(?:\$\d{1,3}(?:,\d{3})*))/i;
-      const match = text.match(salaryRegex);
-      return match ? match[0] : null;
-    };
-
-    // Content-type specific extraction
     if (contentType === 'jobs') {
-      const salary = extractSalary(html);
       result = {
         title: metadata.title,
-        company: $('meta[property="og:site_name"]').attr('content') || 
-                 $('[class*="company"]').first().text().trim() || 
-                 $('a[href*="company"]').first().text().trim() ||
-                 "Unknown Company",
+        company: $('[class*="company"]').first().text().trim() || "Unknown Company",
         description: metadata.description,
-        location: $('[class*="location"]').first().text().trim() || 
-                  $('[class*="remote"]').first().text().trim() || 
-                  "Remote",
-        type: html.toLowerCase().includes("part-time") ? "part-time" :
-              html.toLowerCase().includes("contract") ? "contract" :
-              html.toLowerCase().includes("internship") ? "internship" : "full-time",
-        salary: salary,
-        link: url || metadata.website
-      };
-    } else if (contentType === 'hackathons') {
-      result = {
-        title: metadata.title,
-        description: metadata.description,
-        prizes: $('[class*="prize"]').first().text().trim() || 
-                $('[class*="reward"]').first().text().trim() || null,
-        start_date: $('time[datetime]').first().attr('datetime') || new Date().toISOString(),
-        end_date: $('time[datetime]').last().attr('datetime') || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        location: $('[class*="location"]').first().text().trim() || 
-                  $('[class*="venue"]').first().text().trim() || "Online",
-        external_url: url || metadata.website
-      };
-    } else if (contentType === 'events') {
-      result = {
-        title: metadata.title,
-        description: metadata.description,
-        date: Date.now() + 86400000, // Fallback
-        location: $('[class*="location"]').first().text().trim() || 
-                  $('[class*="venue"]').first().text().trim() || "TBA",
-        type: "Meetup",
-        registration_link: url || metadata.website
+        location: "Remote",
+        type: "full-time",
+        link: url
       };
     } else if (contentType === 'news') {
       result = {
         title: metadata.title,
-        content: $('article').html() || $('main').html() || html,
+        content: cleanText || html,
         excerpt: metadata.description,
-        category: "News",
-        tags: [],
         cover_image: metadata.image
+      };
+    } else if (contentType === 'hackathons') {
+      result = {
+        name: metadata.title,
+        description: metadata.description,
+        start_date: new Date().toISOString(),
+        end_date: new Date(Date.now() + 7 * 86400000).toISOString(),
+        location: "Online",
+        registration_link: url
       };
     } else if (contentType === 'communities') {
       result = {
         name: metadata.title,
         description: metadata.description,
         logo: metadata.image,
-        cover_image: metadata.image, // Fallback to same as logo if not found
-        website: url || metadata.website,
-        twitter: $('a[href*="twitter.com"]').attr('href') || 
-                 $('a[href*="x.com"]').attr('href') || null,
-        discord: $('a[href*="discord.gg"]').attr('href') || 
-                 $('a[href*="discord.com"]').attr('href') || null,
-        partnership_type: "Community",
-        partner_category: "Web3"
+        website: url
       };
     }
 
@@ -145,6 +133,7 @@ serve(async (req) => {
       status: 200,
     });
   } catch (error) {
+    console.error("Scraper Error:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
