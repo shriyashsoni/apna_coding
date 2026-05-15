@@ -494,9 +494,13 @@ export default function HackathonDetail() {
         description={metaDescription}
         image={metaImage || undefined}
         url={currentUrl}
-        type="article"
+        type="event"
         keywords={hackathon.tags || []}
-        publishedTime={new Date(hackathon.start_date || hackathon.startDate || Date.now()).toISOString()}
+        publishedTime={new Date(hackathon.created_at || Date.now()).toISOString()}
+        startDate={hackathon.start_date}
+        endDate={hackathon.end_date}
+        location={hackathon.location || hackathon.mode}
+        organization={hackathon.organizer_name || hackathon.organized_by}
       />
       <Navbar />
       

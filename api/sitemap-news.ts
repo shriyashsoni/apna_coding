@@ -9,16 +9,21 @@ export default async function handler(req: any, res: any) {
   try {
     const { data: news } = await supabase
       .from('news')
-      .select('slug, updated_at');
+      .select('slug, created_at, title, image, image_url');
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   ${(news || []).map(n => `
   <url>
     <loc>${siteUrl}/news/${n.slug}</loc>
-    <lastmod>${new Date(n.updated_at || Date.now()).toISOString()}</lastmod>
+    <lastmod>${new Date(n.created_at || Date.now()).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    ${(n.image || n.image_url) ? `
+    <image:image>
+      <image:loc>${n.image || n.image_url}</image:loc>
+      <image:title>${n.title}</image:title>
+    </image:image>` : ''}
   </url>`).join('')}
 </urlset>`;
 

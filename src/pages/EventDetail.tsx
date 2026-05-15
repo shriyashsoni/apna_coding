@@ -116,10 +116,13 @@ export default function EventDetail() {
       <SEO
         title={event.title}
         description={event.description}
-        image={event.image || undefined}
-        url={`/events/${event.id}`}
-        type="article"
-        publishedTime={new Date(event.date || Date.now()).toISOString()}
+        image={event.image || event.image_url || undefined}
+        url={`/events/${event.slug || event.id}`}
+        type="event"
+        publishedTime={new Date(event.created_at || Date.now()).toISOString()}
+        startDate={event.date}
+        location={event.location}
+        organization={event.organizer_name}
       />
       <Navbar />
 

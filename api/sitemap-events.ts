@@ -11,25 +11,35 @@ export default async function handler(req: any, res: any) {
       { data: events },
       { data: eventGroups }
     ] = await Promise.all([
-      supabase.from('events').select('slug, updated_at'),
-      supabase.from('event_groups').select('slug, updated_at')
+      supabase.from('events').select('id, slug, created_at, title, image, image_url'),
+      supabase.from('event_groups').select('id, slug, created_at, title, image_url')
     ]);
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   ${(events || []).map(e => `
   <url>
-    <loc>${siteUrl}/events/${e.slug}</loc>
-    <lastmod>${new Date(e.updated_at || Date.now()).toISOString()}</lastmod>
+    <loc>${siteUrl}/events/${e.slug || e.id}</loc>
+    <lastmod>${new Date(e.created_at || Date.now()).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
+    ${(e.image || e.image_url) ? `
+    <image:image>
+      <image:loc>${e.image || e.image_url}</image:loc>
+      <image:title>${(e.title || 'Event').replace(/[<>&"']/g, '')}</image:title>
+    </image:image>` : ''}
   </url>`).join('')}
   ${(eventGroups || []).map(eg => `
   <url>
-    <loc>${siteUrl}/event-groups/${eg.slug}</loc>
-    <lastmod>${new Date(eg.updated_at || Date.now()).toISOString()}</lastmod>
+    <loc>${siteUrl}/event-groups/${eg.slug || eg.id}</loc>
+    <lastmod>${new Date(eg.created_at || Date.now()).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
+    ${eg.image_url ? `
+    <image:image>
+      <image:loc>${eg.image_url}</image:loc>
+      <image:title>${(eg.title || 'Event Group').replace(/[<>&"']/g, '')}</image:title>
+    </image:image>` : ''}
   </url>`).join('')}
 </urlset>`;
 

@@ -6,12 +6,19 @@ interface SEOProps {
   keywords?: string[];
   image?: string;
   url?: string;
-  type?: "website" | "article" | "product";
+  type?: "website" | "article" | "product" | "event" | "job";
   author?: string;
   publishedTime?: string;
   modifiedTime?: string;
   section?: string;
   tags?: string[];
+  // Event & Job specific fields
+  location?: string;
+  startDate?: string;
+  endDate?: string;
+  organization?: string;
+  salary?: string;
+  jobType?: string;
 }
 
 export function SEO({
@@ -26,6 +33,12 @@ export function SEO({
   modifiedTime,
   section,
   tags = [],
+  location,
+  startDate,
+  endDate,
+  organization,
+  salary,
+  jobType,
 }: SEOProps) {
   const siteTitle = "Apna Coding - Web3 Opportunity Layer";
   const defaultDescription =
@@ -134,6 +147,52 @@ export function SEO({
             },
             datePublished: publishedTime,
             dateModified: modifiedTime,
+          }),
+          ...(type === "event" && {
+            "@type": "Event",
+            location: {
+              "@type": "Place",
+              name: location || "Online",
+              address: location || "Online",
+            },
+            startDate: startDate || publishedTime,
+            endDate: endDate || publishedTime,
+            organizer: {
+              "@type": "Organization",
+              name: organization || "Apna Coding",
+              url: siteUrl,
+            },
+          }),
+          ...(type === "job" && {
+            "@type": "JobPosting",
+            title: title,
+            description: finalDescription,
+            datePosted: publishedTime,
+            validThrough: endDate,
+            employmentType: jobType || "FULL_TIME",
+            hiringOrganization: {
+              "@type": "Organization",
+              name: organization || "Apna Coding",
+              sameAs: siteUrl,
+              logo: "https://apnacoding.com/logo.png",
+            },
+            jobLocation: {
+              "@type": "Place",
+              address: {
+                "@type": "PostalAddress",
+                addressLocality: location || "Remote",
+                addressCountry: "IN",
+              },
+            },
+            baseSalary: salary ? {
+              "@type": "MonetaryAmount",
+              currency: "INR",
+              value: {
+                "@type": "QuantitativeValue",
+                value: salary,
+                unitText: "YEAR",
+              },
+            } : undefined,
           }),
           ...(type === "website" && {
             publisher: {
