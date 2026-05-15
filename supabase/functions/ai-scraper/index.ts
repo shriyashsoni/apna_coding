@@ -6,6 +6,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper to ensure dates are numeric timestamps (bigint safe)
+const sanitizeDate = (val: any, fallback: number = Date.now()): number => {
+  if (!val) return fallback;
+  const d = new Date(val);
+  return isNaN(d.getTime()) ? fallback : d.getTime();
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -102,7 +109,7 @@ serve(async (req) => {
         location: "Remote",
         type: "full-time",
         link: url,
-        date: Date.now()
+        date: sanitizeDate(metadata.date || Date.now())
       };
     } else if (contentType === 'news') {
       result = {
@@ -116,8 +123,8 @@ serve(async (req) => {
       result = {
         name: metadata.title,
         description: metadata.description,
-        start_date: Date.now(),
-        end_date: Date.now() + 7 * 86400000,
+        start_date: sanitizeDate(metadata.start_date || Date.now()),
+        end_date: sanitizeDate(metadata.end_date || (Date.now() + 7 * 86400000)),
         location: "Online",
         registration_link: url,
         slug: (metadata.title || "hackathon").toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now()
@@ -126,7 +133,7 @@ serve(async (req) => {
       result = {
         title: metadata.title,
         description: metadata.description,
-        date: Date.now() + 86400000, // Default to tomorrow
+        date: sanitizeDate(metadata.date || (Date.now() + 86400000)), // Default to tomorrow
         location: "TBA",
         registration_link: url,
         slug: (metadata.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now()

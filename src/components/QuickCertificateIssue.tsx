@@ -57,11 +57,7 @@ export function QuickCertificateIssue({
           event_id: eventId || eventName.toLowerCase().replace(/\s+/g, "-"),
           event_type: eventType,
           event_name: eventName,
-          event_date: eventDate || new Date().toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
+          event_date: eventDate ? (isNaN(Date.parse(eventDate)) ? Date.now() : new Date(eventDate).getTime()) : Date.now(),
           certificate_type: form.certificateType,
           achievement_level: form.achievementLevel,
           achievement: form.achievement || null,

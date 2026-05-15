@@ -436,11 +436,11 @@ export function AIAgentManager() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <span>
-                            Created: {new Date(job.initiated_at).toLocaleString()}
+                            Created: {new Date(Number(job.initiated_at)).toLocaleString()}
                           </span>
                           {job.completed_at && (
                             <span>
-                              Completed: {new Date(job.completed_at).toLocaleString()}
+                              Completed: {new Date(Number(job.completed_at)).toLocaleString()}
                             </span>
                           )}
                           {job.processing_time && (

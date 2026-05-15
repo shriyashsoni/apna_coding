@@ -65,7 +65,7 @@ export function CertificateManager() {
         event_id: certificateForm.eventId || certificateForm.eventName.toLowerCase().replace(/\s/g, "-"),
         event_type: certificateForm.eventType,
         event_name: certificateForm.eventName,
-        event_date: certificateForm.eventDate || new Date().toLocaleDateString(),
+        event_date: certificateForm.eventDate ? new Date(certificateForm.eventDate).getTime() : Date.now(),
         certificate_type: certificateForm.certificateType,
         achievement_level: certificateForm.achievementLevel,
         achievement: certificateForm.achievement || null,

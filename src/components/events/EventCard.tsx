@@ -29,8 +29,9 @@ export function EventCard({ event, index, showDelete = false, onDelete }: EventC
   const { user } = useAuth();
   const { mutate: deleteEventMutate } = useSupabaseMutation('events');
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toLocaleDateString("en-US", {
+  const formatDate = (timestamp: any) => {
+    if (!timestamp) return "TBA";
+    return new Date(Number(timestamp)).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
       day: "numeric",

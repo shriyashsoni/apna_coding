@@ -6,6 +6,13 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper to ensure dates are numeric timestamps (bigint safe)
+const sanitizeDate = (val: any, fallback: number = Date.now()): number => {
+  if (!val) return fallback;
+  const d = new Date(val);
+  return isNaN(d.getTime()) ? fallback : d.getTime();
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
@@ -116,6 +123,11 @@ serve(async (req) => {
             }
             if (contentType === 'hackathons') {
               insertData.status = 'upcoming';
+              if (insertData.start_date) insertData.start_date = sanitizeDate(insertData.start_date);
+              if (insertData.end_date) insertData.end_date = sanitizeDate(insertData.end_date);
+            }
+            if ((contentType === 'events' || contentType === 'jobs') && insertData.date) {
+              insertData.date = sanitizeDate(insertData.date);
             }
           }
 

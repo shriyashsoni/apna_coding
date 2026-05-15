@@ -65,11 +65,7 @@ export default function IssueCertificate() {
           event_id: form.eventId || form.eventName.toLowerCase().replace(/\s+/g, "-"),
           event_type: form.eventType,
           event_name: form.eventName,
-          event_date: form.eventDate || new Date().toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
+          event_date: form.eventDate ? new Date(form.eventDate).getTime() : Date.now(),
           certificate_type: form.certificateType,
           achievement_level: form.achievementLevel,
           achievement: form.achievement || null,

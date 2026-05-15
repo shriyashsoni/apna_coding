@@ -30,9 +30,9 @@ export function HackathonCard({ hackathon, index, showDelete = true, onDelete }:
   const { user } = useAuth();
   const { mutate: deleteHackathonMutate } = useSupabaseMutation('hackathons');
 
-  const formatDateLabel = (value?: number) => {
-    if (typeof value !== "number") return "Date TBA";
-    const date = new Date(value);
+  const formatDateLabel = (value?: any) => {
+    if (!value) return "Date TBA";
+    const date = new Date(Number(value));
     if (Number.isNaN(date.getTime())) return "Date TBA";
     return date.toLocaleDateString();
   };
