@@ -27,142 +27,121 @@ serve(async (req) => {
 
     console.log("Autonomous Super Agent: Cycle Started");
 
-    // Log cycle start to DB for UI visibility
+    // 1. Log cycle start
     await supabase.from('autonomous_agent_logs').insert({
       action_type: 'info',
-      message: 'Autonomous Cycle Started: Scanning for new industry content...',
+      message: 'Global Intelligence Cycle Started: Scanning for Hackathons, Jobs, and News...',
       status: 'info'
     });
 
-    // 1. SEARCH FOR CONTENT
-    const searchQuery = "upcoming web3 hackathons 2024 2025";
-    const searchResponse = await fetch(SERPER_API_URL, {
-      method: "POST",
-      headers: {
-        "X-API-KEY": SEARCH_API_KEY || "",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ q: searchQuery, num: 5 })
-    });
+    const queries = [
+      { q: "upcoming web3 hackathons 2024 2025", type: "hackathon" },
+      { q: "remote web3 developer jobs blockchain", type: "job" },
+      { q: "latest web3 news blockchain industry", type: "news" }
+    ];
 
-    const searchResults = await searchResponse.json();
-    const organicResults = searchResults.organic || [];
-    
-    let processedCount = 0;
-    let publishedCount = 0;
+    let totalPublished = 0;
 
-    // 2. PROCESS EACH RESULT WITH GEMINI
-    for (const result of organicResults) {
-      console.log(`Analyzing: ${result.title}`);
+    for (const queryObj of queries) {
+      console.log(`Searching for: ${queryObj.q}`);
       
-      const prompt = `
-        You are a Web3 Data Extraction Agent. 
-        I found this search result for a hackathon:
-        Title: ${result.title}
-        Snippet: ${result.snippet}
-        URL: ${result.link}
-
-        Extract the following details in JSON format. If a detail is missing, provide a logical guess or leave null.
-        Fields: name, description, start_date (UNIX timestamp in ms), end_date (UNIX timestamp in ms), location (e.g. Online or City), prize_pool (string), tags (array of strings), logo (URL), website (URL).
-        
-        Rules:
-        - name should be concise.
-        - description should be 2-3 sentences.
-        - start_date must be a number (ms).
-        - output ONLY the JSON.
-      `;
-
-      const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
+      const searchResponse = await fetch(SERPER_API_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        })
+        headers: {
+          "X-API-KEY": SEARCH_API_KEY || "",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ q: queryObj.q, num: 5 })
       });
 
-      const aiData = await aiResponse.json();
-      const rawJson = aiData.candidates?.[0]?.content?.parts?.[0]?.text?.replace(/```json|```/g, "").trim();
+      const searchResults = await searchResponse.json();
+      const organicResults = searchResults.organic || [];
       
-      if (!rawJson) continue;
+      console.log(`Found ${organicResults.length} potential sources for ${queryObj.type}`);
 
-      try {
-        const hackathonData = JSON.parse(rawJson);
-        processedCount++;
+      for (const result of organicResults) {
+        try {
+          const prompt = `
+            You are a Web3 Data Extraction Agent. 
+            I found this search result for a ${queryObj.type}:
+            Title: ${result.title}
+            Snippet: ${result.snippet}
+            URL: ${result.link}
 
-        // Check if it already exists by name or URL
-        const { data: existing } = await supabase
-          .from('hackathons')
-          .select('id')
-          .or(`name.eq."${hackathonData.name}",website.eq."${hackathonData.website}"`)
-          .single();
+            Extract details in JSON format. If a detail is missing, provide a logical guess or leave null.
+            
+            If type is 'hackathon': name, description, start_date (UNIX ms), end_date (UNIX ms), location, prize_pool, website.
+            If type is 'job': title, company, description, location, type (full-time/contract), salary, link.
+            If type is 'news': title, content (3-4 paragraphs), excerpt, category, tags (array).
 
-        if (!existing) {
-          // 3. AUTO-PUBLISH
-          const { error: insertError } = await supabase.from('hackathons').insert({
-            ...hackathonData,
-            slug: hackathonData.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
-            is_published: true, // AUTO-APPROVE
-            is_featured: false,
-            created_at: Date.now()
+            Output ONLY valid JSON.
+          `;
+
+          const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: prompt }] }]
+            })
           });
 
-          if (!insertError) {
-            publishedCount++;
-            
-            // 4. TELEGRAM NOTIFICATION
-            if (TELEGRAM_BOT_TOKEN) {
-              const message = `🚀 *New Hackathon Discovered!*\n\n🏆 *${hackathonData.name}*\n💰 Prize: ${hackathonData.prize_pool || "N/A"}\n📍 Location: ${hackathonData.location}\n\n🔗 [View on Apna Coding](https://apnacoding.com/hackathons/${hackathonData.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")})`;
-              
-              await fetch(`${TELEGRAM_API_URL}${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  chat_id: TELEGRAM_CHAT_ID,
-                  text: message,
-                  parse_mode: "Markdown"
-                })
-              });
-            }
+          const aiData = await aiResponse.json();
+          const rawJson = aiData.candidates?.[0]?.content?.parts?.[0]?.text?.replace(/```json|```/g, "").trim();
+          
+          if (!rawJson) continue;
 
-            // 5. TWITTER (X) NOTIFICATION
-            const TWITTER_BEARER_TOKEN = Deno.env.get('TWITTER_BEARER_TOKEN');
-            if (TWITTER_BEARER_TOKEN) {
-              try {
-                const tweetText = `🚀 New Web3 Hackathon Discovered!\n\n🏆 ${hackathonData.name}\n💰 Prize: ${hackathonData.prize_pool || "N/A"}\n\nCheck it out here: https://apnacoding.com/hackathons/${hackathonData.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")} #Web3 #Hackathon #ApnaCoding`;
-                
-                await fetch("https://api.twitter.com/2/tweets", {
+          const extractedData = JSON.parse(rawJson);
+          const slug = (extractedData.name || extractedData.title).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+          // Check for duplicates
+          const tableName = queryObj.type === 'hackathon' ? 'hackathons' : queryObj.type === 'job' ? 'jobs' : 'news';
+          const { data: existing } = await supabase
+            .from(tableName)
+            .select('id')
+            .eq('slug', slug)
+            .single();
+
+          if (!existing) {
+            const insertData = {
+              ...extractedData,
+              slug,
+              is_published: true,
+              is_approved: true,
+              created_at: new Date().toISOString()
+            };
+
+            const { error: insertError } = await supabase.from(tableName).insert(insertData);
+
+            if (!insertError) {
+              totalPublished++;
+              await supabase.from('autonomous_agent_logs').insert({
+                action_type: 'publish',
+                message: `Auto-published ${queryObj.type}: ${extractedData.name || extractedData.title}`,
+                status: 'success',
+                metadata: { url: result.link, type: queryObj.type }
+              });
+
+              // Social Notifications (simplified for brevity)
+              if (TELEGRAM_BOT_TOKEN) {
+                const text = `🚀 *Auto-Published ${queryObj.type}*\n\n*${extractedData.name || extractedData.title}*\n\n🔗 [View on Platform](https://apnacoding.com/${tableName}/${slug})`;
+                await fetch(`${TELEGRAM_API_URL}${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                   method: "POST",
-                  headers: {
-                    "Authorization": `Bearer ${TWITTER_BEARER_TOKEN}`,
-                    "Content-Type": "application/json"
-                  },
-                  body: JSON.stringify({ text: tweetText })
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "Markdown" })
                 });
-              } catch (twitterErr) {
-                console.error("Twitter post failed:", twitterErr);
               }
             }
-
-            // 6. LOG THE ACTION
-            await supabase.from('autonomous_agent_logs').insert({
-              action_type: 'publish',
-              message: `Auto-published hackathon: ${hackathonData.name}`,
-              status: 'success',
-              metadata: { url: hackathonData.website }
-            });
           }
+        } catch (err) {
+          console.error(`Error processing ${queryObj.type}:`, err);
         }
-      } catch (err) {
-        console.error("Failed to parse AI output:", err);
       }
     }
 
     return new Response(
       JSON.stringify({ 
         message: "Cycle completed",
-        scanned: organicResults.length,
-        processed: processedCount,
-        published: publishedCount
+        published: totalPublished
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )

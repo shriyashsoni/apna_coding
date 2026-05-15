@@ -21,7 +21,7 @@ while($true) {
         Write-Error "[$timestamp] Agent cycle failed: $_"
     }
     
-    # Wait for 1 hour before next cycle
-    Write-Host "Waiting 1 hour for next cycle..."
-    Start-Sleep -Seconds 3600
+    # Wait for 5 minutes before next cycle
+    Write-Host "Waiting 5 minutes for next cycle..."
+    Start-Sleep -Seconds 300
 }
