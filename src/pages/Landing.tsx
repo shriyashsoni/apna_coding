@@ -253,192 +253,263 @@ export default function Landing() {
       />
       <Navbar />
       
-      {/* Hero Section */}
-      <section className="relative pt-20 pb-32 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
+      {/* Hero Section — Premium Blockchain-Tier */}
+      <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden">
+        {/* Animated gradient background */}
+        <div className="absolute inset-0 hero-gradient-bg bg-gradient-to-br from-background via-[oklch(0.08_0.02_200)] to-background" />
 
+        {/* Subtle grid overlay */}
+        <div
+          className="absolute inset-0 hero-grid-animated pointer-events-none"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)`,
+            backgroundSize: '60px 60px',
+          }}
+        />
+
+        {/* Floating gradient orbs */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] rounded-full bg-primary/10 blur-[120px] hero-orb pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-secondary/10 blur-[100px] hero-orb-reverse pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-primary/5 blur-[80px] hero-orb pointer-events-none" style={{ animationDelay: '2s' }} />
+
+        {/* Pulse rings — centre decoration */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none hidden md:block">
+          <div className="w-[600px] h-[600px] rounded-full border border-primary/10 hero-pulse-ring" />
+          <div className="absolute inset-0 w-[600px] h-[600px] rounded-full border border-secondary/10 hero-pulse-ring" style={{ animationDelay: '1s' }} />
+          <div className="absolute inset-0 w-[600px] h-[600px] rounded-full border border-primary/5 hero-pulse-ring" style={{ animationDelay: '2s' }} />
+        </div>
+
+        {/* Content */}
         <div className="container mx-auto px-4 relative z-10">
-          <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+          <div className="flex flex-col items-center text-center max-w-5xl mx-auto">
+
+            {/* Tag */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
-              <span className="inline-block py-1 px-3 rounded-full bg-primary/10 text-primary border border-primary/50 text-sm font-mono mb-6">
-                Open Source Web3 Opportunity layer
+              <span className="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-primary/5 border border-primary/20 text-primary text-sm font-mono tracking-wider backdrop-blur-sm">
+                <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                Open Source Web3 Opportunity Layer
               </span>
             </motion.div>
-            
+
+            {/* Headline */}
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-5xl md:text-7xl font-bold tracking-tighter mb-6"
+              initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+              className="text-6xl md:text-8xl lg:text-9xl font-bold tracking-[-0.04em] mt-10 mb-8 leading-[0.9]"
             >
-              Build the <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary via-accent to-secondary cyber-glitch" data-text="Future">Future</span> of Web3
+              <span className="block text-foreground">Build the</span>
+              <span className="block mt-2 hero-shimmer-text text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary via-50% to-primary">
+                Future
+              </span>
             </motion.h1>
-            
+
+            {/* Subheadline */}
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-muted-foreground mb-10 max-w-2xl"
+              initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              className="text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed mb-12"
             >
-              A decentralized platform where anyone can post hackathons, jobs, and events. Community-to-community support through our platform.
+              A decentralized platform where anyone can post hackathons, jobs, and events.
+              Community-to-community support — powered by the people, for the people.
             </motion.p>
-            
+
+            {/* CTAs */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
+              initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.8, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
               className="flex flex-col sm:flex-row gap-4"
             >
               <Link to="/hackathons">
-                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(255,255,255,0.4)] text-lg h-12 px-8">
-                  Post Hackathon <ArrowRight className="ml-2 h-5 w-5" />
+                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 text-base h-13 px-10 rounded-full shadow-[0_0_30px_rgba(120,200,255,0.25)] hover:shadow-[0_0_40px_rgba(120,200,255,0.4)] transition-all duration-300">
+                  Explore Hackathons <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
               <Link to="/products">
-                <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/10 text-lg h-12 px-8">
-                  Explore Products
+                <Button size="lg" variant="outline" className="border-primary/30 text-foreground hover:bg-primary/5 hover:border-primary/60 text-base h-13 px-10 rounded-full transition-all duration-300">
+                  Discover Products
                 </Button>
               </Link>
             </motion.div>
-          </div>
-        </div>
-        
-        {/* Code Snippet Decoration - VS Code Style */}
-        <div className="absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/3 opacity-30 hidden lg:block pointer-events-none">
-          <div className="bg-[#1e1e1e] rounded-lg border border-primary/40 shadow-[0_8px_30px_rgba(255,255,255,0.15)] backdrop-blur-sm overflow-hidden" style={{ width: '320px' }}>
-            {/* VS Code Title Bar */}
-            <div className="bg-[#1a1a1a] px-4 py-2 flex items-center gap-2 border-b border-[#333333]">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-[#444444]"></div>
-                <div className="w-3 h-3 rounded-full bg-[#444444]"></div>
-                <div className="w-3 h-3 rounded-full bg-[#444444]"></div>
-              </div>
-              <span className="text-[#888888] text-xs font-mono ml-2">web3Platform.ts</span>
-            </div>
-            {/* VS Code Editor Content */}
-            <pre className="text-xs font-mono p-6 leading-relaxed">
-              <code>
-                <span className="text-[#ffffff]">const</span>
-                <span className="text-[#cccccc]"> web3Platform</span>
-                <span className="text-[#888888]"> = {'{'}</span>
-                {'\n'}
-                <span className="text-[#cccccc]">  openSource</span>
-                <span className="text-[#888888]">: </span>
-                <span className="text-[#ffffff]">true</span>
-                <span className="text-[#888888]">,</span>
-                {'\n'}
-                <span className="text-[#cccccc]">  postHackathons</span>
-                <span className="text-[#888888]">: </span>
-                <span className="text-[#aaaaaa]">'Anyone'</span>
-                <span className="text-[#888888]">,</span>
-                {'\n'}
-                <span className="text-[#cccccc]">  postJobs</span>
-                <span className="text-[#888888]">: </span>
-                <span className="text-[#aaaaaa]">'Anyone'</span>
-                <span className="text-[#888888]">,</span>
-                {'\n'}
-                <span className="text-[#cccccc]">  postEvents</span>
-                <span className="text-[#888888]">: </span>
-                <span className="text-[#aaaaaa]">'Anyone'</span>
-                <span className="text-[#888888]">,</span>
-                {'\n'}
-                <span className="text-[#cccccc]">  community</span>
-                <span className="text-[#888888]">: </span>
-                <span className="text-[#aaaaaa]">'Decentralized'</span>
-                {'\n'}
-                <span className="text-[#888888]">{'};'}</span>
-                {'\n'}
-                <span className="text-[#666666]">// Community-powered ✨</span>
-              </code>
-            </pre>
+
+            {/* Scroll indicator */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5, duration: 1 }}
+              className="mt-20 flex flex-col items-center gap-2 text-muted-foreground/50"
+            >
+              <span className="text-xs uppercase tracking-[0.3em]">Scroll</span>
+              <motion.div
+                animate={{ y: [0, 8, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="w-5 h-8 rounded-full border border-muted-foreground/30 flex items-start justify-center pt-1.5"
+              >
+                <div className="w-1 h-1.5 rounded-full bg-muted-foreground/50" />
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
+
 
       {/* Latest News & Products Section */}
-      <section className="py-20 border-y border-primary/10 bg-card/30">
-        <div className="container mx-auto px-4">
+      <section className="py-28 border-t border-border/50 bg-gradient-to-b from-background to-card/20 relative">
+        <div className="absolute inset-0 pointer-events-none" style={{
+          backgroundImage: `radial-gradient(circle at 20% 50%, oklch(0.75 0.15 200 / 0.04) 0%, transparent 50%), radial-gradient(circle at 80% 50%, oklch(0.7 0.2 330 / 0.04) 0%, transparent 50%)`
+        }} />
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center mb-16"
+          >
+            <span className="text-sm font-medium text-primary uppercase tracking-[0.2em] mb-4 block">What's New</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Latest from the Ecosystem</h2>
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">Stay ahead with the latest news and freshly launched products from our community.</p>
+          </motion.div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Latest News Box */}
-            <LatestNewsBox />
-
-            {/* Latest Products Box */}
-            <LatestProductsBox />
+            <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.1 }}>
+              <LatestNewsBox />
+            </motion.div>
+            <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.7, delay: 0.2 }}>
+              <LatestProductsBox />
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Stats Section - Real-time data only */}
-      <section className="py-20 bg-background">
+      {/* Stats Section - Modern Performance Style */}
+      <section className="py-28 bg-background border-t border-border/50">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { label: "Active Developers", value: "20,000+" },
-              { label: "Hackathons Listed", value: stats?.hackathons || "0" },
-              { label: "Events Listed", value: stats?.events || "0" },
-              { label: "Jobs Listed", value: stats?.jobs || "0" },
-            ].map((stat, i) => (
-              <div key={i} className="text-center p-6 border border-primary/20 rounded-lg bg-card/20 hover:bg-card/40 transition-colors hover:border-primary/50">
-                <div className="text-3xl md:text-4xl font-bold text-primary mb-2">{stat.value}</div>
-                <div className="text-sm text-muted-foreground uppercase tracking-wider">{stat.label}</div>
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="max-w-4xl mb-16"
+          >
+            <span className="text-sm font-medium text-muted-foreground uppercase tracking-[0.2em] mb-4 block">Network</span>
+            <h2 className="text-5xl md:text-7xl font-serif mb-8 text-foreground leading-[1.1]">Powered by performance</h2>
+            <p className="text-xl text-muted-foreground leading-relaxed max-w-2xl">
+              Apna Coding is a decentralized, public opportunity layer that gives anyone the tools to create 
+              experiences that are more like growth than just networking. The platform is faster, more inclusive, 
+              and far more energy-efficient than most traditional systems.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="grid grid-cols-1 md:grid-cols-3 border border-border divide-y md:divide-y-0 md:divide-x divide-border rounded-sm overflow-hidden"
+          >
+            <div className="p-10 bg-muted/30 flex flex-col justify-between min-h-[320px] group hover:bg-muted/40 transition-colors duration-500">
+              <div>
+                <span className="text-sm font-semibold uppercase tracking-wider text-foreground">Global Reach</span>
+                <div className="text-7xl md:text-8xl font-serif mt-6 text-foreground tracking-tighter group-hover:text-primary transition-colors duration-500">20,000+</div>
               </div>
-            ))}
-          </div>
+              <div className="text-sm text-muted-foreground">Active Developers</div>
+            </div>
+            
+            <div className="p-10 bg-muted/10 flex flex-col justify-between min-h-[320px] group hover:bg-muted/20 transition-colors duration-500">
+              <div>
+                <span className="text-sm font-semibold uppercase tracking-wider text-foreground">Ecosystem</span>
+                <div className="text-7xl md:text-8xl font-serif mt-6 text-foreground tracking-tighter group-hover:text-primary transition-colors duration-500">{stats?.hackathons || "0"}</div>
+              </div>
+              <div className="text-sm text-muted-foreground">Hackathons Listed</div>
+            </div>
+
+            <div className="p-10 bg-foreground flex flex-col justify-between min-h-[320px] group hover:bg-foreground/90 transition-colors duration-500">
+              <div>
+                <span className="text-sm font-semibold uppercase tracking-wider text-background/80">Response Time</span>
+                <div className="text-7xl md:text-8xl font-serif mt-6 text-background tracking-tighter group-hover:text-primary transition-colors duration-500">{stats?.events || "0"}</div>
+              </div>
+              <div className="text-sm text-background/60">Events Listed</div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
       {/* Hackathons Section */}
-      <section className="py-20 bg-card/10 relative">
+      <section className="py-28 bg-card/5 relative border-t border-border/50">
         <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="flex flex-col md:flex-row justify-between items-start md:items-end mb-14 gap-4"
+          >
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold mb-2">Featured Hackathons</h2>
-              <p className="text-sm md:text-base text-muted-foreground">Join the most exciting coding competitions</p>
+              <span className="text-sm font-medium text-primary uppercase tracking-[0.2em] mb-3 block">Compete & Win</span>
+              <h2 className="text-4xl md:text-5xl font-bold mb-3">Featured Hackathons</h2>
+              <p className="text-muted-foreground text-lg">Join the most exciting coding competitions in Web3</p>
             </div>
             <Link to="/hackathons" className="w-full md:w-auto">
-              <Button variant="outline" className="border-primary text-primary hover:bg-primary/10 w-full md:w-auto">
-                View All Hackathons
+              <Button variant="outline" className="border-primary/30 text-foreground hover:bg-primary/5 hover:border-primary/60 rounded-full px-8 w-full md:w-auto transition-all duration-300">
+                View All Hackathons <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </Link>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {featuredHackathons && featuredHackathons.length > 0 ? (
-              featuredHackathons.map((hackathon: any) => (
-                <Link key={hackathon.id} to={`/hackathons/${hackathon.slug}`} className="group relative bg-card border border-primary/20 rounded-lg overflow-hidden hover:border-primary transition-all hover:shadow-[0_0_20px_rgba(255,255,255,0.2)] cursor-pointer">
-                  <div className="h-40 bg-muted/50 relative">
-                    {hackathon.image ? (
-                      <img src={hackathon.image} alt={hackathon.title} className="w-full h-full object-cover" />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/20 to-secondary/20">
-                        <Trophy className="h-12 w-12 text-primary/50" />
+              featuredHackathons.map((hackathon: any, idx: number) => (
+                <motion.div
+                  key={hackathon.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.6, delay: idx * 0.1 }}
+                >
+                  <Link to={`/hackathons/${hackathon.slug}`} className="group relative bg-card border border-border/80 rounded-xl overflow-hidden hover:border-primary/60 transition-all duration-300 hover:shadow-[0_8px_40px_rgba(120,200,255,0.1)] cursor-pointer block h-full">
+                    <div className="h-44 bg-muted/50 relative overflow-hidden">
+                      {hackathon.image ? (
+                        <img src={hackathon.image} alt={hackathon.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
+                          <Trophy className="h-12 w-12 text-primary/30" />
+                        </div>
+                      )}
+                      <div className="absolute top-3 right-3 bg-background/90 backdrop-blur-sm text-primary text-xs px-3 py-1 rounded-full border border-primary/20 font-medium">
+                        {hackathon.status}
                       </div>
-                    )}
-                    <div className="absolute top-2 right-2 bg-black/80 text-primary text-xs px-2 py-1 rounded border border-primary/30">
-                      {hackathon.status}
                     </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{hackathon.title}</h3>
-                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{hackathon.description}</p>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-accent">{hackathon.prizes}</span>
-                      <Button size="sm" variant="ghost" className="hover:text-primary p-0">Details <ArrowRight className="ml-1 h-4 w-4" /></Button>
+                    <div className="p-6">
+                      <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors duration-300">{hackathon.title}</h3>
+                      <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{hackathon.description}</p>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className="text-primary/80 font-mono">{hackathon.prizes}</span>
+                        <span className="text-muted-foreground group-hover:text-primary transition-colors flex items-center gap-1">Details <ArrowRight className="h-3 w-3" /></span>
+                      </div>
                     </div>
-                  </div>
-                </Link>
+                  </Link>
+                </motion.div>
               ))
             ) : (
               [1, 2, 3].map((i) => (
-                <div key={i} className="bg-card border border-primary/20 rounded-lg overflow-hidden p-8 text-center flex flex-col items-center justify-center min-h-[300px]">
-                  <Code className="h-12 w-12 text-muted-foreground mb-4" />
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  className="bg-card border border-border/50 rounded-xl overflow-hidden p-8 text-center flex flex-col items-center justify-center min-h-[300px]"
+                >
+                  <Code className="h-12 w-12 text-muted-foreground/40 mb-4" />
                   <h3 className="text-lg font-bold mb-2">Coming Soon</h3>
-                  <p className="text-muted-foreground text-sm">Check back for exciting upcoming events!</p>
-                </div>
+                  <p className="text-muted-foreground text-sm">Check back for exciting upcoming hackathons!</p>
+                </motion.div>
               ))
             )}
           </div>
@@ -448,18 +519,24 @@ export default function Landing() {
       {/* Interactive Features Section */}
       <InteractiveFeaturesSection />
 
-      {/* Featured Events & Communities Section - Side by Side */}
-      <section className="py-20 border-y border-primary/10 bg-card/30">
+      {/* Featured Events & Communities Section */}
+      <section className="py-28 border-t border-border/50 bg-gradient-to-b from-card/10 to-background relative">
         <div className="container mx-auto px-4">
-          {/* Section Header with Rotating Animation */}
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-3">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-16"
+          >
+            <span className="text-sm font-medium text-secondary uppercase tracking-[0.2em] mb-4 block">Discover</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">
               Featured <RotatingWeb3Activities />
             </h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-lg max-w-xl mx-auto">
               Discover opportunities across the Web3 ecosystem
             </p>
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Featured Events Box */}
@@ -585,17 +662,25 @@ export default function Landing() {
       </section>
 
       {/* Built with the Global Web3 Community */}
-      <section className="py-20 border-t border-border bg-gradient-to-b from-background to-card/50 overflow-hidden">
+      <section className="py-28 border-t border-border/50 bg-gradient-to-b from-background to-card/30 overflow-hidden">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold mb-3">🌐 Built with the Global Web3 Community</h2>
-            <p className="text-muted-foreground text-lg mb-2">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-16"
+          >
+            <span className="text-sm font-medium text-primary uppercase tracking-[0.2em] mb-4 block">Ecosystem</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Built with the Global Web3 Community</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto mb-3">
               Connecting developers and innovators across blockchain ecosystems
             </p>
-            <p className="text-sm font-semibold text-primary">
-              🔹 Engaging with 80+ Web3 Communities Worldwide
-            </p>
-          </div>
+            <span className="inline-flex items-center gap-2 text-sm font-medium text-primary bg-primary/5 border border-primary/20 rounded-full px-4 py-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              Engaging with 80+ Web3 Communities Worldwide
+            </span>
+          </motion.div>
           
           {/* Row 1: Core L1s & Ethereum Stack - Scroll Left */}
           <div className="mb-6 relative">
@@ -722,61 +807,25 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Why Choose Section - Modern Web3 Style */}
-      <section className="py-20 bg-gradient-to-b from-background via-card/20 to-background relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-50" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-secondary/10 via-transparent to-transparent opacity-50" />
-        
-        <div className="absolute top-1/4 left-0 w-80 h-48 opacity-20 pointer-events-none">
-          <div className="space-y-2">
-            {[...Array(15)].map((_, i) => (
-              <div
-                key={`why-left-${i}`}
-                className="h-1 rounded-full bg-gradient-to-r from-primary via-accent to-transparent"
-                style={{
-                  width: `${Math.random() * 50 + 30}%`,
-                  opacity: Math.random() * 0.6 + 0.2,
-                }}
-              />
-            ))}
-          </div>
-        </div>
-        
-        <div className="absolute bottom-1/4 right-0 w-80 h-48 opacity-20 pointer-events-none">
-          <div className="space-y-2">
-            {[...Array(15)].map((_, i) => (
-              <div
-                key={`why-right-${i}`}
-                className="h-1 rounded-full bg-gradient-to-l from-secondary via-primary to-transparent ml-auto"
-                style={{
-                  width: `${Math.random() * 50 + 30}%`,
-                  opacity: Math.random() * 0.6 + 0.2,
-                }}
-              />
-            ))}
-          </div>
-        </div>
+      {/* Why Choose Section */}
+      <section className="py-28 bg-gradient-to-b from-background via-card/10 to-background relative overflow-hidden border-t border-border/50">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent opacity-60" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,_var(--tw-gradient-stops))] from-secondary/5 via-transparent to-transparent opacity-60" />
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="text-center mb-16">
-            <motion.h2 
-              initial={{ opacity: 0, y: 20 }}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-4xl md:text-5xl font-bold mb-4"
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
             >
-              Why Choose Apna Coding?
-            </motion.h2>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="text-muted-foreground text-lg max-w-2xl mx-auto"
-            >
-              Connect with a global Web3 developer community, discover cutting-edge products, and land your dream job in tech.
-            </motion.p>
+              <span className="text-sm font-medium text-primary uppercase tracking-[0.2em] mb-4 block">Why Us</span>
+              <h2 className="text-4xl md:text-5xl font-bold mb-4">Why Choose Apna Coding?</h2>
+              <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+                Connect with a global Web3 developer community, discover cutting-edge products, and land your dream job in tech.
+              </p>
+            </motion.div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -840,55 +889,36 @@ export default function Landing() {
       <FeaturedPartnersCarousel />
 
       {/* CTA */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-primary/5" />
+      <section className="py-32 relative overflow-hidden border-t border-border/50">
+        <div className="absolute inset-0 hero-gradient-bg bg-gradient-to-br from-primary/5 via-background to-secondary/5" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-[150px] pointer-events-none" />
         
-        <div className="absolute top-0 left-1/4 w-96 h-32 opacity-25 pointer-events-none">
-          <div className="space-y-2">
-            {[...Array(12)].map((_, i) => (
-              <div
-                key={`cta-top-${i}`}
-                className="h-1 rounded-full bg-gradient-to-r from-transparent via-primary to-accent"
-                style={{
-                  width: `${Math.random() * 70 + 30}%`,
-                  opacity: Math.random() * 0.5 + 0.3,
-                }}
-              />
-            ))}
-          </div>
-        </div>
-        
-        <div className="absolute bottom-0 right-1/4 w-96 h-32 opacity-25 pointer-events-none">
-          <div className="space-y-2">
-            {[...Array(12)].map((_, i) => (
-              <div
-                key={`cta-bottom-${i}`}
-                className="h-1 rounded-full bg-gradient-to-l from-transparent via-secondary to-primary ml-auto"
-                style={{
-                  width: `${Math.random() * 70 + 30}%`,
-                  opacity: Math.random() * 0.5 + 0.3,
-                }}
-              />
-            ))}
-          </div>
-        </div>
-        <div className="container mx-auto px-4 relative z-10 text-center">
-          <h2 className="text-4xl font-bold mb-6">Ready to Transform Your Career?</h2>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Join thousands of developers who are already building the future. Start your journey today.
-          </p>
-          <div className="flex justify-center gap-4">
-            <Link to="/events">
-              <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(255,255,255,0.4)]">
-                Explore Events
-              </Button>
-            </Link>
-            <Link to="/community">
-              <Button size="lg" variant="outline" className="border-primary text-primary hover:bg-primary/10">
-                Find Web3 Jobs
-              </Button>
-            </Link>
-          </div>
+        <div className="container mx-auto px-4 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="text-center max-w-3xl mx-auto"
+          >
+            <span className="text-sm font-medium text-primary uppercase tracking-[0.2em] mb-6 block">Get Started</span>
+            <h2 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">Ready to Transform Your Career?</h2>
+            <p className="text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+              Join thousands of developers who are already building the future. Start your journey today.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Link to="/events">
+                <Button size="lg" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full px-10 h-13 text-base shadow-[0_0_30px_rgba(120,200,255,0.25)] hover:shadow-[0_0_40px_rgba(120,200,255,0.4)] transition-all duration-300">
+                  Explore Events <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+              <Link to="/jobs">
+                <Button size="lg" variant="outline" className="border-primary/30 text-foreground hover:bg-primary/5 hover:border-primary/60 rounded-full px-10 h-13 text-base transition-all duration-300">
+                  Find Web3 Jobs
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </section>
 

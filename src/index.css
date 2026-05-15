@@ -156,3 +156,70 @@
 .animate-scroll-left-slow {
   animation: scroll-left 50s linear infinite;
 }
+
+/* Hero Section Animations */
+@keyframes hero-gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes hero-orb-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(30px, -40px) scale(1.1); }
+  50% { transform: translate(-20px, -60px) scale(0.95); }
+  75% { transform: translate(40px, -20px) scale(1.05); }
+}
+
+@keyframes hero-orb-float-reverse {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-40px, 30px) scale(1.05); }
+  50% { transform: translate(30px, 50px) scale(0.9); }
+  75% { transform: translate(-20px, -30px) scale(1.1); }
+}
+
+@keyframes hero-grid-pulse {
+  0%, 100% { opacity: 0.03; }
+  50% { opacity: 0.08; }
+}
+
+@keyframes hero-line-draw {
+  0% { stroke-dashoffset: 1000; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes hero-pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 0; }
+  100% { transform: scale(0.8); opacity: 0; }
+}
+
+@keyframes hero-text-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.hero-gradient-bg {
+  background-size: 300% 300%;
+  animation: hero-gradient-shift 12s ease-in-out infinite;
+}
+
+.hero-orb {
+  animation: hero-orb-float 8s ease-in-out infinite;
+}
+
+.hero-orb-reverse {
+  animation: hero-orb-float-reverse 10s ease-in-out infinite;
+}
+
+.hero-grid-animated {
+  animation: hero-grid-pulse 4s ease-in-out infinite;
+}
+
+.hero-shimmer-text {
+  background-size: 200% auto;
+  animation: hero-text-shimmer 4s linear infinite;
+}
+
+.hero-pulse-ring {
+  animation: hero-pulse-ring 3s ease-out infinite;
+}

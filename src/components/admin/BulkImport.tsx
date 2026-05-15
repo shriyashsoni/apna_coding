@@ -85,13 +85,18 @@ export function BulkImport() {
                             contentType === 'news' ? 'news' : 
                             contentType === 'products' ? 'products' : 'communities';
               
-              const { error: insertError } = await supabase.from(table).insert({
+              const insertData: any = {
                 ...result.data,
-                event_group_id: contentType === 'events' ? (selectedEventGroupId || null) : undefined,
                 wallet_address: address,
                 is_approved: true,
                 status: 'published'
-              });
+              };
+
+              if (contentType === 'events' && selectedEventGroupId) {
+                insertData.event_group_id = selectedEventGroupId;
+              }
+
+              const { error: insertError } = await supabase.from(table).insert(insertData);
               
               if (insertError) throw insertError;
               newResults.push({ url, status: "success", message: "Imported successfully" });
