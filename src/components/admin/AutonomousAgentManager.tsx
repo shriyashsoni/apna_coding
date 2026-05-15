@@ -69,7 +69,7 @@ export function AutonomousAgentManager() {
       const { data, error } = await supabase.functions.invoke('autonomous-master-agent');
       if (error) throw error;
       
-      fetchLogs();
+      fetchStats();
       toast.success(`Cycle complete: ${data.published} new items published!`);
     } catch (err: any) {
       console.error("Agent cycle failed:", err);
