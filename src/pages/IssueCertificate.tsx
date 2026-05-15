@@ -76,7 +76,7 @@ export default function IssueCertificate() {
           project_name: form.projectName || null,
           team_name: form.teamName || null,
           skills: form.skills ? form.skills.split(",").map(s => s.trim()) : [],
-          issued_at: new Date().toISOString()
+          issued_at: Date.now()
         })
         .select()
         .single();

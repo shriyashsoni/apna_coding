@@ -106,7 +106,7 @@ export function AIAgentManager() {
           source_type: sourceType,
           source_data: sourceData,
           status: 'pending',
-          initiated_at: new Date().toISOString(),
+          initiated_at: Date.now(),
           wallet_address: address
         })
         .select()

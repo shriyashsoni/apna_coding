@@ -39,7 +39,7 @@ serve(async (req) => {
     // 2. Update status to processing
     await supabaseClient
       .from("ai_agent_jobs")
-      .update({ status: "processing", initiated_at: new Date().toISOString() })
+      .update({ status: "processing", initiated_at: Date.now() })
       .eq("id", job_id);
 
     const startTime = Date.now();
@@ -56,7 +56,9 @@ serve(async (req) => {
         textContent: job.source_type === 'text' ? job.source_data : null,
         contentType: job.job_type === 'community' ? 'communities' : 
                      job.job_type === 'news' ? 'news' : 
-                     job.job_type === 'hackathon' ? 'hackathons' : 'jobs'
+                     job.job_type === 'hackathon' ? 'hackathons' : 
+                     job.job_type === 'event' ? 'events' : 
+                     job.job_type === 'product' ? 'products' : 'jobs'
       }),
     });
 
@@ -71,6 +73,8 @@ serve(async (req) => {
     if (job.job_type === "community") targetTable = "communities";
     else if (job.job_type === "news") targetTable = "news";
     else if (job.job_type === "hackathon") targetTable = "hackathons";
+    else if (job.job_type === "event") targetTable = "events";
+    else if (job.job_type === "product") targetTable = "products";
     else targetTable = "jobs";
 
     // 4. Create the item in the target table with pending status
@@ -103,7 +107,7 @@ serve(async (req) => {
       .from("ai_agent_jobs")
       .update({
         status: "completed",
-        completed_at: new Date().toISOString(),
+        completed_at: Date.now(),
         processing_time: processingTime,
         tokens_used: 1000, // Simulated
         created_item_id: newItem.id,

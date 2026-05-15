@@ -94,30 +94,33 @@ serve(async (req) => {
     const metadata = extractMetadata();
     result = { ...metadata };
 
-    if (contentType === 'jobs') {
+    if (contentType === 'jobs' || contentType === 'job') {
       result = {
         title: metadata.title,
         company: $('[class*="company"]').first().text().trim() || "Unknown Company",
         description: metadata.description,
         location: "Remote",
         type: "full-time",
-        link: url
+        link: url,
+        date: Date.now()
       };
     } else if (contentType === 'news') {
       result = {
         title: metadata.title,
         content: cleanText || html,
         excerpt: metadata.description,
-        cover_image: metadata.image
+        cover_image: metadata.image,
+        slug: (metadata.title || "news").toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now()
       };
-    } else if (contentType === 'hackathons') {
+    } else if (contentType === 'hackathons' || contentType === 'hackathon') {
       result = {
         name: metadata.title,
         description: metadata.description,
         start_date: Date.now(),
         end_date: Date.now() + 7 * 86400000,
         location: "Online",
-        registration_link: url
+        registration_link: url,
+        slug: (metadata.title || "hackathon").toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now()
       };
     } else if (contentType === 'events' || contentType === 'event') {
       result = {
@@ -125,21 +128,24 @@ serve(async (req) => {
         description: metadata.description,
         date: Date.now() + 86400000, // Default to tomorrow
         location: "TBA",
-        registration_link: url
+        registration_link: url,
+        slug: (metadata.title || "event").toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now()
       };
     } else if (contentType === 'products' || contentType === 'product') {
       result = {
         name: metadata.title,
         description: metadata.description,
         image_url: metadata.image,
-        website_url: url
+        website_url: url,
+        slug: (metadata.title || "product").toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now()
       };
     } else if (contentType === 'communities' || contentType === 'community') {
       result = {
         name: metadata.title,
         description: metadata.description,
         logo: metadata.image,
-        website: url
+        website: url,
+        slug: (metadata.title || "community").toLowerCase().replace(/[^a-z0-9]+/g, "-") + "-" + Date.now()
       };
     }
 
