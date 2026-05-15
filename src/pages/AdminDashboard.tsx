@@ -37,6 +37,7 @@ import { BackupRestore } from "@/components/admin/BackupRestore";
 import { SettingsManager } from "@/components/admin/SettingsManager";
 import { BulkImport } from "@/components/admin/BulkImport";
 import { BulkEmailSender } from "@/components/admin/BulkEmailSender";
+import { GlobalContentExplorer } from "@/components/admin/GlobalContentExplorer";
 import { scrapeContentDirectly } from "@/utils/frontend-scraper";
 
 export default function AdminDashboard() {
@@ -808,6 +809,18 @@ export default function AdminDashboard() {
                 <div className="text-xs opacity-80">Check Authenticity</div>
               </div>
             </Button>
+
+            <Button
+              variant="outline"
+              className="h-auto py-4 flex flex-col items-center gap-2 border-primary/40 bg-primary/5"
+              onClick={() => setActiveTab("library")}
+            >
+              <Database className="h-6 w-6 text-primary" />
+              <div className="text-center">
+                <div className="font-semibold">Master Manager</div>
+                <div className="text-xs opacity-80">All Content Library</div>
+              </div>
+            </Button>
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
@@ -828,6 +841,10 @@ export default function AdminDashboard() {
                     {approvalStats.pending}
                   </Badge>
                 )}
+              </TabsTrigger>
+              <TabsTrigger value="library" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem] bg-primary/5">
+                <Database className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">Content Library</span>
               </TabsTrigger>
               <TabsTrigger value="bulk" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
                 <Package className="h-4 w-4 flex-shrink-0" />
@@ -936,6 +953,11 @@ export default function AdminDashboard() {
             {/* Approvals Tab */}
             <TabsContent value="approvals" className="space-y-6">
               <PendingApprovals />
+            </TabsContent>
+
+            {/* Content Library Tab */}
+            <TabsContent value="library" className="space-y-6">
+              <GlobalContentExplorer />
             </TabsContent>
 
             {/* Bulk Actions Tab */}
