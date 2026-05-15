@@ -269,7 +269,7 @@ export function AutonomousAgentManager() {
                     <p className="text-[10px] text-muted-foreground">Pending Setup</p>
                   </div>
                 </div>
-                <Button size="xs" variant="ghost" className="text-[10px]">Setup</Button>
+                <Button size="sm" variant="ghost" className="text-[10px]">Setup</Button>
               </div>
 
               <div className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50 transition-colors">
@@ -282,7 +282,7 @@ export function AutonomousAgentManager() {
                     <p className="text-[10px] text-muted-foreground">Pending Setup</p>
                   </div>
                 </div>
-                <Button size="xs" variant="ghost" className="text-[10px]">Setup</Button>
+                <Button size="sm" variant="ghost" className="text-[10px]">Setup</Button>
               </div>
             </CardContent>
           </Card>
