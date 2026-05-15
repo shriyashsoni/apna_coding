@@ -260,14 +260,14 @@ export function PendingApprovals() {
 
       {/* Pending Items List */}
       <div className="space-y-4">
-        {[
-          { title: "Hackathons", data: hackathons, type: "hackathon", icon: Trophy, color: "text-purple-500" },
-          { title: "Events", data: events, type: "event", icon: Calendar, color: "text-blue-500" },
-          { title: "Jobs", data: jobs, type: "job", icon: Briefcase, color: "text-green-500" },
-          { title: "Products", data: products, type: "product", icon: Package, color: "text-orange-500" },
-          { title: "Communities", data: communities, type: "community", icon: MessageSquare, color: "text-pink-500" },
-          { title: "News", data: news, type: "news", icon: Newspaper, color: "text-yellow-500" }
-        ] as const}.map((section) => section.data.length > 0 && (
+        {([
+          { title: "Hackathons", data: hackathons, type: "hackathon" as const, icon: Trophy, color: "text-purple-500" },
+          { title: "Events", data: events, type: "event" as const, icon: Calendar, color: "text-blue-500" },
+          { title: "Jobs", data: jobs, type: "job" as const, icon: Briefcase, color: "text-green-500" },
+          { title: "Products", data: products, type: "product" as const, icon: Package, color: "text-orange-500" },
+          { title: "Communities", data: communities, type: "community" as const, icon: MessageSquare, color: "text-pink-500" },
+          { title: "News", data: news, type: "news" as const, icon: Newspaper, color: "text-yellow-500" }
+        ]).map((section) => section.data.length > 0 && (
           <Card key={section.type}>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -321,7 +321,7 @@ export function PendingApprovals() {
                           size="sm"
                           variant="default"
                           className="bg-green-600 hover:bg-green-700"
-                          onClick={() => handleApprove(section.type as any, item)}
+                          onClick={() => handleApprove(section.type, item)}
                           disabled={processing === `${section.type}-${item.id}`}
                         >
                           {processing === `${section.type}-${item.id}` ? (
@@ -336,7 +336,7 @@ export function PendingApprovals() {
                         <Button
                           size="sm"
                           variant="destructive"
-                          onClick={() => handleReject(section.type as any, item)}
+                          onClick={() => handleReject(section.type, item)}
                           disabled={processing === `${section.type}-${item.id}`}
                         >
                           {processing === `${section.type}-${item.id}` ? (
