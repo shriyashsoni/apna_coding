@@ -1,5 +1,5 @@
 
-# Autonomous Master Agent - Premium & Upcoming Only
+# Autonomous Master Agent - Premium Intelligence v3
 $supabaseUrl = 'https://yjgjfurrvyvhncjxqcre.supabase.co'
 $serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqZ2pmdXJydnl2aG5janhxY3JlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODY4OTM2NCwiZXhwIjoyMDk0MjY1MzY0fQ.PYPJCngMS_p3pJNoLYqUCqoVg3Wmdtjif2-EKQXQDns'
 $googleAiKey = 'AIzaSyAOH0U-UXTpXynDzv4ihsc-2GkCsHMlN8w'
@@ -14,17 +14,15 @@ function Log-To-DB ($msg, $type, $status) {
     } catch { Write-Host "Log failed" }
 }
 
-Write-Host "--- PREMIUM AGENT STARTING (UPCOMING WEB3 ONLY) ---"
-Log-To-DB "Agent Mode: Upcoming Web3 Discovery Activated" "info" "success"
+Write-Host "--- PREMIUM AGENT ONLINE ---"
 
 while($true) {
     $nowMs = [DateTimeOffset]::Now.ToUnixTimeMilliseconds()
     Write-Host "Cycle Start: $(Get-Date)"
     
     $queries = @(
-        @{ q = 'upcoming web3 hackathons 2024 2025 registration open'; type = 'hackathon' },
-        @{ q = 'latest blockchain events global 2024'; type = 'event' },
-        @{ q = 'breaking web3 news technology trends'; type = 'news' }
+        @{ q = 'upcoming web3 hackathons 2024 global'; type = 'hackathon' },
+        @{ q = 'major blockchain crypto news events 2024'; type = 'news' }
     )
 
     foreach ($queryObj in $queries) {
@@ -33,82 +31,65 @@ while($true) {
             $searchResp = Invoke-RestMethod -Uri 'https://google.serper.dev/search' -Method Post -Headers @{'X-API-KEY' = $searchApiKey; 'Content-Type' = 'application/json'} -Body $searchBody
             
             foreach ($res in $searchResp.organic) {
-                Write-Host "Discovered: $($res.title). Analyzing..."
+                Write-Host "Processing: $($res.title)..."
                 
-                # 1. SCRAPE
+                # 1. Scrape full content
                 $scraped = $res.snippet 
                 try {
                     $jinaUrl = "https://r.jina.ai/" + $res.link
                     $scraped = (Invoke-WebRequest -Uri $jinaUrl -UseBasicParsing -TimeoutSec 15).Content
-                } catch { Write-Host "Scrape error" }
+                } catch { }
 
                 try {
                     if ($scraped.Length -gt 15000) { $scraped = $scraped.Substring(0, 15000) }
                     
-                    $prompt = "Act as a specialized Web3 Data Analyst. 
+                    $prompt = "Act as a premium Web3 journalist. 
                     SOURCE: $scraped
                     
-                    TASK: Create a PREMIUM $($queryObj.type) entry. 
-                    CRITICAL: If the event/hackathon is ALREADY FINISHED or EXPIRED, return 'EXPIRED'.
-                    ONLY focus on Blockchain, Crypto, and Web3 content.
+                    Create a high-quality $($queryObj.type) entry.
+                    Output ONLY valid JSON.
                     
-                    Output ONLY valid JSON or 'EXPIRED'.
-                    
-                    JSON Fields:
+                    REQUIREMENTS:
                     - title: Professional headline.
-                    - content: (For news) 500-word humanized detailed article.
-                    - description: (For events/hackathons) 300-word detailed guide.
+                    - content: (For news) 600-word humanized detailed article.
+                    - description: (For hackathons) 400-word comprehensive guide.
                     - start_date (ms): Start timestamp.
-                    - end_date (ms): End timestamp. MUST BE IN THE FUTURE.
-                    - image_url: High-quality relevant image URL.
-                    - registration_link: $($res.link)"
+                    - end_date (ms): End timestamp (MUST BE IN FUTURE).
+                    - image_url: A high-resolution image URL. If not found, use a crypto-relevant Unsplash URL.
+                    - registration_link: $($res.link)
+                    "
 
                     $aiBody = @{ contents = @(@{ parts = @(@{ text = $prompt }) }) } | ConvertTo-Json -Depth 10
-                    
-                    $aiResp = $null
-                    $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$googleAiKey"
-                    try {
-                        $aiResp = Invoke-RestMethod -Uri $url -Method Post -Headers @{'Content-Type' = 'application/json'} -Body $aiBody
-                    } catch { 
-                        $urlV1 = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$googleAiKey"
-                        try { $aiResp = Invoke-RestMethod -Uri $urlV1 -Method Post -Headers @{'Content-Type' = 'application/json'} -Body $aiBody } catch {}
-                    }
+                    $url = "https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=$googleAiKey"
+                    $aiResp = Invoke-RestMethod -Uri $url -Method Post -Headers @{'Content-Type' = 'application/json'} -Body $aiBody
 
                     if (!$aiResp) { continue }
 
                     $rawText = $aiResp.candidates[0].content.parts[0].text.Trim()
-                    if ($rawText -eq "EXPIRED") { 
-                        Write-Host "Skipping: Event is expired."
-                        continue 
-                    }
-
                     $rawJson = $rawText -replace '```json|```', ''
                     $extracted = $rawJson.Trim() | ConvertFrom-Json
                     
-                    # Double check date in script
-                    if ($extracted.end_date -and $extracted.end_date -lt $nowMs) {
-                        Write-Host "Skipping: End date $($extracted.end_date) is in the past."
-                        continue
-                    }
+                    if ($extracted.end_date -and $extracted.end_date -lt $nowMs) { continue }
 
-                    $tbl = if ($queryObj.type -eq 'hackathon') { "hackathons" } elseif ($queryObj.type -eq 'event') { "events" } else { "news" }
+                    $tbl = if ($queryObj.type -eq 'hackathon') { "hackathons" } else { "news" }
                     $name = if ($extracted.name) { $extracted.name } else { $extracted.title }
                     $slug = (($name.ToLower() -replace '[^a-z0-9]+', '-') + "-" + ([DateTimeOffset]::Now.ToUnixTimeSeconds()))
                     
                     $dbData = @{ slug = $slug; is_published = $true; is_approved = $true; created_at = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ') }
                     $extracted.PSObject.Properties | ForEach-Object { $dbData[$_.Name] = $_.Value }
                     
-                    if ($tbl -eq "news") { $dbData['author'] = "Web3 Intelligence Agent" }
-                    if (!$dbData['registration_link']) { $dbData['registration_link'] = $res.link }
+                    # Ensure image_url is high quality
+                    if (!$dbData['image_url']) { $dbData['image_url'] = "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200" }
+                    if ($tbl -eq "hackathons") { $dbData['title'] = $name; $dbData['registration_link'] = $res.link }
+                    if ($tbl -eq "news") { $dbData['author'] = "Global AI Analyst" }
 
                     Invoke-RestMethod -Uri "$supabaseUrl/rest/v1/$tbl" -Method Post -Headers $headers -Body ($dbData | ConvertTo-Json -Depth 10)
-                    Write-Host "PUBLISHED PREMIUM: $name to $tbl"
-                    Log-To-DB "Published Upcoming Web3 Content: $name" "publish" "success"
+                    Log-To-DB "Published Premium Content: $name" "publish" "success"
 
-                } catch { Write-Host "AI/Processing Error" }
+                } catch { }
             }
-        } catch { Write-Host "Search Error" }
+        } catch { }
     }
-    Write-Host "Cycle Complete. Resting 30m..."
-    Start-Sleep -Seconds 1800
+    Write-Host "Cycle Complete. Resting 20m..."
+    Start-Sleep -Seconds 1200
 }

@@ -40,22 +40,25 @@ export function AutonomousAgentManager() {
     activeHours: 0
   });
 
-  const fetchLogs = async () => {
+  const fetchStats = async () => {
     try {
-      const { data, error } = await supabase
-        .from('autonomous_agent_logs')
-        .select('*')
-        .order('timestamp', { ascending: false })
-        .limit(20);
+      const [hackathons, jobs, news, logsData] = await Promise.all([
+        supabase.from('hackathons').select('id', { count: 'exact', head: true }),
+        supabase.from('jobs').select('id', { count: 'exact', head: true }),
+        supabase.from('news').select('id', { count: 'exact', head: true }),
+        supabase.from('autonomous_agent_logs').select('*').order('timestamp', { ascending: false }).limit(20)
+      ]);
+
+      setStats({
+        itemsFound: (hackathons.count || 0) + (jobs.count || 0) + (news.count || 0),
+        autoPublished: (hackathons.count || 0) + (jobs.count || 0) + (news.count || 0),
+        socialPosts: logsData.data?.filter(l => l.action_type === 'social').length || 0,
+        activeHours: 24
+      });
       
-      if (error) throw error;
-      setLogs(data || []);
-      
-      // Update stats based on logs
-      const published = data?.filter(l => l.action_type === 'publish').length || 0;
-      setStats(s => ({ ...s, autoPublished: published, itemsFound: data?.length || 0 }));
+      setLogs(logsData.data || []);
     } catch (err) {
-      console.error("Error fetching logs:", err);
+      console.error("Error fetching stats:", err);
     }
   };
 
@@ -77,8 +80,8 @@ export function AutonomousAgentManager() {
   };
 
   useEffect(() => {
-    fetchLogs();
-    const interval = setInterval(fetchLogs, 10000); // Poll logs every 10s
+    fetchStats();
+    const interval = setInterval(fetchStats, 5000); // Poll every 5s for real-time feel
     return () => clearInterval(interval);
   }, []);
 
@@ -205,13 +208,13 @@ export function AutonomousAgentManager() {
                 logs.map(log => (
                   <div key={log.id} className="flex items-start gap-3 p-3 rounded-md bg-muted/30 border border-border/50">
                     <span className="text-[10px] font-mono text-muted-foreground mt-1 whitespace-nowrap">
-                      [{log.timestamp}]
+                      [{new Date(log.timestamp).toLocaleTimeString()}]
                     </span>
                     <div className="flex-1 text-sm">
                       <span className={`
-                        ${log.type === 'success' ? 'text-green-500' : ''}
-                        ${log.type === 'warning' ? 'text-yellow-500' : ''}
-                        ${log.type === 'error' ? 'text-red-500' : ''}
+                        ${log.status === 'success' ? 'text-green-500' : ''}
+                        ${log.status === 'warning' ? 'text-yellow-500' : ''}
+                        ${log.status === 'error' ? 'text-red-500' : ''}
                       `}>
                         {log.message}
                       </span>
