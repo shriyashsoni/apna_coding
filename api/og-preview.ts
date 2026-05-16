@@ -1,4 +1,17 @@
-import { getMetadataForPath } from './utils/metadata-engine';
+import { getMetadataForPath } from './utils/metadata-engine.js';
+
+/**
+ * Helper to sanitize strings for HTML attributes
+ */
+const safeAttr = (str: string) => {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+};
 
 /**
  * Dynamic OG Preview & SEO Generator
@@ -61,16 +74,6 @@ export default async function handler(req: any, res: any) {
       jsonLd["headline"] = metadata.title;
       jsonLd["datePublished"] = metadata.data?.created_at || new Date().toISOString();
     }
-
-    const safeAttr = (str: string) => {
-      if (!str) return '';
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
-    };
 
     const html = `<!DOCTYPE html>
 <html lang="en">
