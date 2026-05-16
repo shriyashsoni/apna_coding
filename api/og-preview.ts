@@ -26,18 +26,11 @@ export default async function handler(req: any, res: any) {
   try {
     const metadata = await getMetadataForPath(path);
     
-    // Construct dynamic OG image URL as a fallback or enhancement
-    const dynamicImageUrl = new URL(`${siteUrl}/api/og-image`);
-    dynamicImageUrl.searchParams.set('title', metadata.title.split(' | ')[0]);
-    dynamicImageUrl.searchParams.set('subtitle', metadata.description);
-    
-    const parts = path.split('/').filter(Boolean);
-    const label = parts[0]?.replace(/-/g, ' ').toUpperCase() || 'OPPORTUNITY';
-    dynamicImageUrl.searchParams.set('label', label);
-
-    // If the metadata has a valid absolute image URL, use it; otherwise, use our dynamic generator
-    const hasValidImage = metadata.image && metadata.image.startsWith('http') && !metadata.image.includes('logo_bg.png');
-    const finalOgImage = hasValidImage ? metadata.image : dynamicImageUrl.toString();
+    // Use the actual image from the database (hackathon banner, event image, etc.)
+    // Fallback to the default site banner only if no specific image is found.
+    const finalOgImage = metadata.image && metadata.image.startsWith('http') 
+      ? metadata.image 
+      : `${siteUrl}/logo_bg.png`;
 
     // Prepare Structured Data (JSON-LD)
     const jsonLd: any = {
