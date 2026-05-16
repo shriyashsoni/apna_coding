@@ -65,7 +65,7 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
           registration_link: formData.link,
           image: formData.image,
           location: formData.location || "Online",
-          start_date: formData.date ? new Date(formData.date).toISOString() : new Date().toISOString(),
+          start_date: formData.date ? new Date(formData.date).getTime() : Date.now(),
           wallet_address: authUser?.wallet_address,
           is_approved: true
         };
@@ -77,7 +77,7 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
           registration_link: formData.link,
           image: formData.image,
           location: formData.location || "TBA",
-          date: formData.date ? new Date(formData.date).toISOString() : new Date().toISOString(),
+          date: formData.date ? new Date(formData.date).getTime() : Date.now(),
           wallet_address: authUser?.wallet_address,
           is_approved: true
         };
