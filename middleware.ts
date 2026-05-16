@@ -1,12 +1,11 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { next, rewrite } from '@vercel/edge';
 
 /**
  * Middleware to handle social media crawler previews for a Vite SPA.
  * Detects bots (WhatsApp, Telegram, Twitter, etc.) and rewrites their requests
  * to an API route that serves server-rendered Open Graph meta tags.
  */
-export function middleware(request: NextRequest) {
+export default function middleware(request: Request) {
   const userAgent = request.headers.get('user-agent') || '';
   
   // List of common social media and search engine crawlers
@@ -21,12 +20,12 @@ export function middleware(request: NextRequest) {
     'Pinterestbot',
     'Googlebot',
     'Bingbot',
-    'SkypeUriPreview',
-    'X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36' // Some bots use generic UA
+    'SkypeUriPreview'
   ];
 
   const isBot = bots.some(bot => userAgent.includes(bot));
-  const { pathname } = request.nextUrl;
+  const url = new URL(request.url);
+  const pathname = url.pathname;
 
   // Define paths that have dynamic content (hackathons, jobs, news, etc.)
   const dynamicPaths = [
@@ -44,14 +43,13 @@ export function middleware(request: NextRequest) {
 
   // If it's a bot hitting a dynamic path, rewrite to the OG preview generator
   if (isBot && isDynamicPath) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/api/og-preview';
-    url.searchParams.set('path', pathname);
-    return NextResponse.rewrite(url);
+    const previewUrl = new URL('/api/og-preview', request.url);
+    previewUrl.searchParams.set('path', pathname);
+    return rewrite(previewUrl);
   }
 
   // Otherwise, continue as normal (Vite SPA handles the rest)
-  return NextResponse.next();
+  return next();
 }
 
 // Optimization: Only run middleware on relevant paths
