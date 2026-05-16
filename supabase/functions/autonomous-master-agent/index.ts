@@ -74,8 +74,8 @@ serve(async (req) => {
         try {
           const prompt = `Return JSON ONLY for this 2026 ${queryObj.type}. 
           Content: ${result.title} - ${result.snippet}
-          Rules: 1. Must be 2026 or later. 2. If past, set is_expired: true. 3. Extract rich description, dates (ms), and search_keyword for images.
-          JSON keys: is_hackathon, title, description, start_date_ms, end_date_ms, is_expired, search_keyword`;
+          Rules: 1. Must be 2026 or later. 2. If past, set is_expired: true. 3. Extract rich description, dates (ms), location (city/country or Online), and search_keyword for images.
+          JSON keys: is_hackathon, title, description, start_date_ms, end_date_ms, location, is_expired, search_keyword`;
 
           const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
             method: "POST",
@@ -115,11 +115,13 @@ serve(async (req) => {
             insertData.name = extracted.title;
             insertData.start_date = extracted.start_date_ms || nowMs;
             insertData.end_date = extracted.end_date_ms || (nowMs + 604800000);
+            insertData.location = extracted.location || "Online";
           } else if (queryObj.type === 'job') {
             insertData.company = extracted.company || "Web3 Stealth";
             insertData.location = extracted.location || "Remote";
           } else {
             insertData.date = extracted.start_date_ms || nowMs;
+            insertData.location = extracted.location || "TBA";
           }
 
           const { error: insertError } = await supabase.from(tableName).insert(insertData);

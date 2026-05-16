@@ -121,8 +121,12 @@ serve(async (req) => {
             if (contentType === 'events' && eventGroupId) {
               insertData.group_id = eventGroupId;
             }
+            if (contentType === 'events' && !insertData.location) {
+              insertData.location = "TBA";
+            }
             if (contentType === 'hackathons') {
               insertData.status = 'upcoming';
+              if (!insertData.location) insertData.location = "Online";
               if (insertData.start_date) insertData.start_date = sanitizeDate(insertData.start_date);
               if (insertData.end_date) insertData.end_date = sanitizeDate(insertData.end_date);
             }

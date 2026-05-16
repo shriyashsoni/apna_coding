@@ -33,6 +33,8 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
     description: "",
     link: "",
     image: "",
+    location: "",
+    date: "",
   });
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -62,6 +64,8 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
           description: formData.description,
           registration_link: formData.link,
           image: formData.image,
+          location: formData.location || "Online",
+          start_date: formData.date ? new Date(formData.date).toISOString() : new Date().toISOString(),
           wallet_address: authUser?.wallet_address,
           is_approved: true
         };
@@ -72,6 +76,8 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
           description: formData.description,
           registration_link: formData.link,
           image: formData.image,
+          location: formData.location || "TBA",
+          date: formData.date ? new Date(formData.date).toISOString() : new Date().toISOString(),
           wallet_address: authUser?.wallet_address,
           is_approved: true
         };
@@ -141,7 +147,7 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
   };
 
   const resetForm = () => {
-    setFormData({ title: "", description: "", link: "", image: "" });
+    setFormData({ title: "", description: "", link: "", image: "", location: "", date: "" });
     setStep(1);
     setSubmittedId(null);
   };
@@ -204,8 +210,32 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
                   rows={4}
                 />
               </div>
+              {(type === "event" || type === "hackathon") && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location *</Label>
+                    <Input
+                      id="location"
+                      placeholder="City, Country or Online"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="date">{type === "event" ? "Event Date" : "Start Date"} *</Label>
+                    <Input
+                      id="date"
+                      type="date"
+                      value={formData.date}
+                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      required
+                    />
+                  </div>
+                </>
+              )}
               <div className="space-y-2">
-                <Label htmlFor="link">Website/Link</Label>
+                <Label htmlFor="link">{type === "product" ? "Website URL" : "Registration Link"}</Label>
                 <Input
                   id="link"
                   type="url"
