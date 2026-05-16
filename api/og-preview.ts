@@ -1,136 +1,68 @@
-import { createClient } from '@supabase/supabase-js';
+import { getMetadataForPath } from './utils/metadata-engine';
 
 /**
- * Dynamic OG Preview Generator for Social Media Crawlers.
- * Fetches real-time data from Supabase and serves a minimal HTML page 
- * with accurate Open Graph and Twitter meta tags.
+ * Dynamic OG Preview & SEO Generator
+ * Servers as a proxy for social media crawlers to provide rich, dynamic meta tags.
  */
 export default async function handler(req: any, res: any) {
   const { path } = req.query;
   if (!path) return res.status(400).send('Path required');
 
-  // Supabase Configuration (using fallbacks from existing sitemap code)
-  const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://yjgjfurrvyvhncjxqcre.supabase.co';
-  const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqZ2pmdXJydnl2aG5janhxY3JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2ODkzNjQsImV4cCI6MjA5NDI2NTM2NH0.6n15TfLnuAfWCRF8oT2P0F5TooeiLHi3P79XpLF3o1I';
-  const supabase = createClient(supabaseUrl, supabaseAnonKey);
-
   const siteUrl = 'https://apnacoding.com';
-  const defaultTitle = "Apna Coding - India's Premier Web3 Opportunity Layer";
-  const defaultDesc = "Join India's fastest-growing Web3 & AI community. Discover hackathons, jobs, events, and build products. Learn blockchain, smart contracts, DeFi, NFTs & more.";
-  const defaultImage = `${siteUrl}/logo_bg.png`;
-
-  let title = defaultTitle;
-  let description = defaultDesc;
-  let image = defaultImage;
-
+  
   try {
-    // Parse path: /hackathons/my-slug -> parts = ['hackathons', 'my-slug']
+    const metadata = await getMetadataForPath(path);
+    
+    // Construct dynamic OG image URL as a fallback or enhancement
+    const dynamicImageUrl = new URL(`${siteUrl}/api/og-image`);
+    dynamicImageUrl.searchParams.set('title', metadata.title.split(' | ')[0]);
+    dynamicImageUrl.searchParams.set('subtitle', metadata.description);
+    
     const parts = path.split('/').filter(Boolean);
-    const type = parts[0];
-    const slug = parts[1];
+    const label = parts[0]?.replace(/-/g, ' ').toUpperCase() || 'OPPORTUNITY';
+    dynamicImageUrl.searchParams.set('label', label);
 
-    if (slug) {
-      if (type === 'hackathons') {
-        const { data } = await supabase
-          .from('hackathons')
-          .select('*')
-          .or(`slug.eq."${slug}",id.eq."${slug}"`)
-          .single();
-        
-        if (data) {
-          title = `${data.title} | Hackathon | Apna Coding`;
-          description = data.short_description || data.tagline || data.description?.substring(0, 160) || defaultDesc;
-          image = data.banner_image || data.image || data.poster_image || defaultImage;
-        }
-      } else if (type === 'events') {
-        const { data } = await supabase
-          .from('events')
-          .select('*')
-          .or(`slug.eq."${slug}",id.eq."${slug}"`)
-          .single();
-        
-        if (data) {
-          title = `${data.title} | Event | Apna Coding`;
-          description = data.description?.substring(0, 160) || defaultDesc;
-          image = data.image_url || data.banner_image || defaultImage;
-        }
-      } else if (type === 'jobs') {
-        const { data } = await supabase
-          .from('jobs')
-          .select('*')
-          .or(`slug.eq."${slug}",id.eq."${slug}"`)
-          .single();
-        
-        if (data) {
-          title = `${data.title} at ${data.company} | Job | Apna Coding`;
-          description = data.description?.substring(0, 160) || defaultDesc;
-          image = data.image_url || defaultImage;
-        }
-      } else if (type === 'news') {
-        const { data } = await supabase
-          .from('news')
-          .select('*')
-          .eq('slug', slug)
-          .single();
-        
-        if (data) {
-          title = `${data.title} | News | Apna Coding`;
-          description = data.excerpt || data.content?.replace(/<[^>]*>/g, '').substring(0, 160) || defaultDesc;
-          image = data.cover_image || defaultImage;
-        }
-      } else if (type === 'products') {
-        const { data } = await supabase
-          .from('products')
-          .select('*')
-          .eq('slug', slug)
-          .single();
-        
-        if (data) {
-          title = `${data.title} | Product | Apna Coding`;
-          description = data.description?.substring(0, 160) || defaultDesc;
-          image = data.image_url || defaultImage;
-        }
-      } else if (type === 'community') {
-        const { data } = await supabase
-          .from('communities')
-          .select('*')
-          .eq('slug', slug)
-          .single();
-        
-        if (data) {
-          title = `${data.name} | Community | Apna Coding`;
-          description = data.description?.substring(0, 160) || defaultDesc;
-          image = data.logo || defaultImage;
-        }
-      } else if (type === 'event-groups') {
-        const { data } = await supabase
-          .from('event_groups')
-          .select('*')
-          .eq('slug', slug)
-          .single();
-        
-        if (data) {
-          title = `${data.group_name} | Event Group | Apna Coding`;
-          description = data.description?.substring(0, 160) || defaultDesc;
-          image = data.banner_image || defaultImage;
-        }
-      } else if (type === 'verify') {
-        const { data } = await supabase
-          .from('certificates')
-          .select('*')
-          .eq('certificate_number', slug)
-          .single();
-        
-        if (data) {
-          title = `Verified: ${data.participant_name}'s Certificate | Apna Coding`;
-          description = `Official certificate for ${data.event_name} (${data.certificate_type}). Achievement: ${data.achievement || 'N/A'}. Verified on Flow Blockchain.`;
-          image = `${siteUrl}/logo_bg.png`; // Certificates usually don't have images in DB, using site logo
+    // If the metadata has a valid absolute image URL, use it; otherwise, use our dynamic generator
+    const hasValidImage = metadata.image && metadata.image.startsWith('http') && !metadata.image.includes('logo_bg.png');
+    const finalOgImage = hasValidImage ? metadata.image : dynamicImageUrl.toString();
+
+    // Prepare Structured Data (JSON-LD)
+    const jsonLd: any = {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      "name": metadata.title,
+      "description": metadata.description,
+      "url": metadata.url,
+      "image": finalOgImage,
+      "publisher": {
+        "@type": "Organization",
+        "name": "Apna Coding",
+        "logo": {
+          "@type": "ImageObject",
+          "url": `${siteUrl}/logo.png`
         }
       }
+    };
+
+    // Specialize Structured Data based on type
+    if (metadata.type === 'event') {
+      jsonLd["@type"] = "Event";
+      jsonLd["startDate"] = metadata.data?.start_date || metadata.data?.date || new Date().toISOString();
+      jsonLd["location"] = {
+        "@type": "Place",
+        "name": metadata.data?.location || "Online",
+        "address": metadata.data?.location || "Online"
+      };
+    } else if (metadata.type === 'product') {
+      jsonLd["@type"] = "Product";
+      jsonLd["brand"] = { "@type": "Brand", "name": "Apna Coding" };
+    } else if (metadata.type === 'article') {
+      jsonLd["@type"] = "Article";
+      jsonLd["headline"] = metadata.title;
+      jsonLd["datePublished"] = metadata.data?.created_at || new Date().toISOString();
     }
 
-    // Helper to sanitize strings for HTML attributes
-    const escapeAttr = (str: string) => {
+    const safeAttr = (str: string) => {
       if (!str) return '';
       return str
         .replace(/&/g, '&amp;')
@@ -140,56 +72,60 @@ export default async function handler(req: any, res: any) {
         .replace(/'/g, '&#039;');
     };
 
-    const safeTitle = escapeAttr(title);
-    const safeDescription = escapeAttr(description);
-    const safeImage = escapeAttr(image);
-    const safeUrl = escapeAttr(`${siteUrl}${path}`);
-
-    // Serve a minimal HTML shell with the correct metadata
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${safeTitle}</title>
-  <meta name="description" content="${safeDescription}">
+  <title>${safeAttr(metadata.title)}</title>
+  <meta name="description" content="${safeAttr(metadata.description)}">
+  <link rel="canonical" href="${safeAttr(metadata.url)}">
   
   <!-- Primary Meta Tags -->
-  <meta name="title" content="${safeTitle}">
-  
+  <meta name="title" content="${safeAttr(metadata.title)}">
+  <meta name="robots" content="index, follow">
+
   <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="${safeUrl}">
-  <meta property="og:title" content="${safeTitle}">
-  <meta property="og:description" content="${safeDescription}">
-  <meta property="og:image" content="${safeImage}">
+  <meta property="og:type" content="${metadata.type === 'website' ? 'website' : 'article'}">
+  <meta property="og:url" content="${safeAttr(metadata.url)}">
+  <meta property="og:title" content="${safeAttr(metadata.title)}">
+  <meta property="og:description" content="${safeAttr(metadata.description)}">
+  <meta property="og:image" content="${safeAttr(finalOgImage)}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="Apna Coding">
-  <meta property="og:locale" content="en_IN">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:url" content="${safeUrl}">
-  <meta name="twitter:title" content="${safeTitle}">
-  <meta name="twitter:description" content="${safeDescription}">
-  <meta name="twitter:image" content="${safeImage}">
+  <meta name="twitter:url" content="${safeAttr(metadata.url)}">
+  <meta name="twitter:title" content="${safeAttr(metadata.title)}">
+  <meta name="twitter:description" content="${safeAttr(metadata.description)}">
+  <meta name="twitter:image" content="${safeAttr(finalOgImage)}">
   <meta name="twitter:site" content="@apnacoding">
-  <meta name="twitter:creator" content="@apnacoding">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="${siteUrl}/logo.png">
 
-  <!-- In case a human visits this URL directly, redirect them to the real page -->
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+    ${JSON.stringify(jsonLd)}
+  </script>
+
+  <!-- Fallback Redirect -->
   <script>
-    window.location.href = "${escapeAttr(path)}";
+    window.location.href = "${safeAttr(path)}";
   </script>
 </head>
-<body style="background: #000; color: #fff; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0;">
-  <div style="text-align: center;">
-    <img src="${siteUrl}/logo.png" alt="Logo" style="width: 80px; margin-bottom: 20px;">
-    <h1>${safeTitle}</h1>
-    <p>Redirecting you to Apna Coding...</p>
-    <p style="font-size: 0.8rem; color: #666;">If you are not redirected, <a href="${escapeAttr(path)}" style="color: #00ffff;">click here</a>.</p>
+<body style="background: #000; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; padding: 20px; text-align: center;">
+  <img src="${siteUrl}/logo.png" alt="Logo" style="width: 100px; margin-bottom: 24px; border-radius: 50%;">
+  <h1 style="font-size: 2.5rem; margin-bottom: 16px;">${safeAttr(metadata.title)}</h1>
+  <p style="font-size: 1.2rem; color: #aaa; max-width: 600px; margin-bottom: 32px;">${safeAttr(metadata.description)}</p>
+  <div style="padding: 12px 24px; background: rgba(0,255,255,0.1); border: 1px solid rgba(0,255,255,0.2); borderRadius: 8px; color: #00ffff;">
+    Redirecting to Apna Coding...
   </div>
+  <p style="margin-top: 40px; font-size: 0.9rem; color: #444;">
+    If you are not redirected, <a href="${safeAttr(path)}" style="color: #00ffff;">click here</a>.
+  </p>
 </body>
 </html>`;
 
@@ -198,8 +134,7 @@ export default async function handler(req: any, res: any) {
     res.status(200).send(html);
 
   } catch (error) {
-    console.error("OG Preview Error for path:", path, error);
-    // On error, just return a basic shell that redirects
-    res.status(200).send(`<!DOCTYPE html><html><head><script>window.location.href="${escapeAttr(path)}";</script></head><body></body></html>`);
+    console.error("OG Preview Error:", error);
+    res.status(200).send(`<!DOCTYPE html><html><head><script>window.location.href="${safeAttr(path)}";</script></head><body></body></html>`);
   }
 }
