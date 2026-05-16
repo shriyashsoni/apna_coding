@@ -14,6 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
+import { OnChainFlow } from "@/components/OnChainFlow";
+import { SmartWorkflow } from "@/components/SmartWorkflow";
 
 // Rotating Web3 Activities Component
 function RotatingWeb3Activities() {
@@ -294,7 +296,7 @@ export default function Landing() {
                 Open Source Web3 Opportunity Layer
               </span>
             </motion.div>
-
+            
             {/* Headline */}
             <motion.h1
               initial={{ opacity: 0, y: 40, filter: 'blur(10px)' }}
@@ -518,6 +520,9 @@ export default function Landing() {
 
       {/* Interactive Features Section */}
       <InteractiveFeaturesSection />
+
+      {/* Animated On-Chain Workflow Diagram */}
+      <SmartWorkflow />
 
       {/* Featured Events & Communities Section */}
       <section className="py-28 border-t border-border/50 bg-gradient-to-b from-card/10 to-background relative">

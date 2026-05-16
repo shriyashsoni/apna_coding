@@ -175,7 +175,14 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
           <DialogDescription>
             {step === 1 
               ? `Fill in the details for your ${type}. Once saved, you'll need to stake 0.01 ETH.`
-              : "To prevent spam, a small stake of 0.01 ETH is required. It will be refunded once an admin approves your submission."}
+              : (
+                <div className="space-y-2">
+                  <p>To prevent spam, a small stake of 0.01 ETH is required. It will be refunded once an admin approves your submission.</p>
+                  <p className="text-xs text-primary font-medium">
+                    Don't have Sepolia ETH? <a href="https://sepoliafaucet.com/" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary/80 transition-colors">Claim free test tokens here</a>
+                  </p>
+                </div>
+              )}
           </DialogDescription>
         </DialogHeader>
 
