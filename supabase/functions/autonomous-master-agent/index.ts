@@ -7,7 +7,22 @@ const corsHeaders = {
 }
 
 const SERPER_API_URL = "https://google.serper.dev/search";
+const SERPER_IMAGE_URL = "https://google.serper.dev/images";
 const TELEGRAM_API_URL = "https://api.telegram.org/bot";
+
+async function fetchImage(query: string, apiKey: string) {
+  try {
+    const response = await fetch(SERPER_IMAGE_URL, {
+      method: "POST",
+      headers: { "X-API-KEY": apiKey, "Content-Type": "application/json" },
+      body: JSON.stringify({ q: query, num: 1 })
+    });
+    const data = await response.json();
+    return data.images?.[0]?.imageUrl || "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200";
+  } catch (err) {
+    return "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?q=80&w=1200";
+  }
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -23,130 +38,122 @@ serve(async (req) => {
     const GOOGLE_AI_KEY = Deno.env.get('GOOGLE_AI_KEY');
     const SEARCH_API_KEY = Deno.env.get('SEARCH_API_KEY');
     const TELEGRAM_BOT_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN');
-    const TELEGRAM_CHAT_ID = Deno.env.get('TELEGRAM_CHAT_ID') || "@ApnaCoding_Updates"; // Fallback to a channel name if ID is missing
+    const TELEGRAM_CHAT_ID = Deno.env.get('TELEGRAM_CHAT_ID') || "@ApnaCoding_Updates";
 
-    console.log("Autonomous Super Agent: Cycle Started");
+    console.log("Autonomous Master Agent v9.2 [DEPLOYED]: Cycle Started");
 
-    // 1. Log cycle start
     await supabase.from('autonomous_agent_logs').insert({
       action_type: 'info',
-      message: 'Global Intelligence Cycle Started: Scanning for Hackathons, Jobs, and News...',
+      message: 'Autonomous 2026 Intelligence Cycle Started',
       status: 'info',
       timestamp: Date.now()
     });
 
     const queries = [
-      { q: "web3 hackathons open for registration", type: "hackathon" },
-      { q: "blockchain developer jobs remote", type: "job" },
-      { q: "web3 industry news crypto", type: "news" }
+      { q: "new web3 hackathons 2026 global", type: "hackathon" },
+      { q: "upcoming blockchain conferences 2026", type: "event" },
+      { q: "latest crypto developer jobs May 2026", type: "job" }
     ];
 
     let totalPublished = 0;
+    const nowMs = Date.now();
 
     for (const queryObj of queries) {
-      console.log(`Searching for: ${queryObj.q}`);
-      
       const searchResponse = await fetch(SERPER_API_URL, {
         method: "POST",
-        headers: {
-          "X-API-KEY": SEARCH_API_KEY || "",
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ q: queryObj.q, num: 5 })
+        headers: { "X-API-KEY": SEARCH_API_KEY || "", "Content-Type": "application/json" },
+        body: JSON.stringify({ q: queryObj.q, num: 8 })
       });
 
-      const searchResults = await searchResponse.json();
-      const organicResults = searchResults.organic || [];
-      
-      console.log(`Found ${organicResults.length} potential sources for ${queryObj.type}`);
+      const { organic: results = [] } = await searchResponse.json();
 
-      for (const result of organicResults) {
+      for (const result of results) {
+        // Quick year filter
+        if (result.title.includes("2024") || result.title.includes("2025")) continue;
+
         try {
-          const prompt = `
-            You are a Web3 Data Extraction Agent. 
-            I found this search result for a ${queryObj.type}:
-            Title: ${result.title}
-            Snippet: ${result.snippet}
-            URL: ${result.link}
+          const prompt = `Return JSON ONLY for this 2026 ${queryObj.type}. 
+          Content: ${result.title} - ${result.snippet}
+          Rules: 1. Must be 2026 or later. 2. If past, set is_expired: true. 3. Extract rich description, dates (ms), and search_keyword for images.
+          JSON keys: is_hackathon, title, description, start_date_ms, end_date_ms, is_expired, search_keyword`;
 
-            Extract details in JSON format. If a detail is missing, provide a logical guess or leave null.
-            
-            If type is 'hackathon': name, description, start_date (UNIX ms), end_date (UNIX ms), location, prize_pool, website.
-            If type is 'job': title, company, description, location, type (full-time/contract), salary, link.
-            If type is 'news': title, content (3-4 paragraphs), excerpt, category, tags (array).
-
-            Output ONLY valid JSON.
-          `;
-
-          const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
+          const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [{ parts: [{ text: prompt }] }]
-            })
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
           });
 
           const aiData = await aiResponse.json();
           const rawJson = aiData.candidates?.[0]?.content?.parts?.[0]?.text?.replace(/```json|```/g, "").trim();
-          
           if (!rawJson) continue;
 
-          const extractedData = JSON.parse(rawJson);
-          const slug = (extractedData.name || extractedData.title).toLowerCase().replace(/[^a-z0-9]+/g, "-");
+          const extracted = JSON.parse(rawJson);
+          if (extracted.is_expired || (extracted.end_date_ms && extracted.end_date_ms < nowMs)) continue;
 
-          // Check for duplicates
-          const tableName = queryObj.type === 'hackathon' ? 'hackathons' : queryObj.type === 'job' ? 'jobs' : 'news';
-          const { data: existing } = await supabase
-            .from(tableName)
-            .select('id')
-            .eq('slug', slug)
-            .single();
+          const tableName = queryObj.type === 'hackathon' ? 'hackathons' : queryObj.type === 'job' ? 'jobs' : 'events';
+          const slug = `${extracted.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Math.floor(Date.now()/1000)}`;
 
-          if (!existing) {
-            const insertData = {
-              ...extractedData,
-              slug,
-              is_published: true,
-              is_approved: true,
-              created_at: new Date().toISOString()
-            };
+          // Check duplicate
+          const { data: existing } = await supabase.from(tableName).select('id').eq('title', extracted.title).single();
+          if (existing) continue;
 
-            const { error: insertError } = await supabase.from(tableName).insert(insertData);
+          // Fetch real image
+          const imageUrl = await fetchImage(`${extracted.search_keyword || extracted.title} 2026 event`, SEARCH_API_KEY || "");
 
-            if (!insertError) {
-              totalPublished++;
-              await supabase.from('autonomous_agent_logs').insert({
-                action_type: 'publish',
-                message: `Auto-published ${queryObj.type}: ${extractedData.name || extractedData.title}`,
-                status: 'success',
-                metadata: { url: result.link, type: queryObj.type },
-                timestamp: Date.now()
+          const insertData: any = {
+            slug,
+            title: extracted.title,
+            description: extracted.description,
+            image_url: imageUrl,
+            is_published: true,
+            is_approved: true,
+            registration_link: result.link,
+            created_at: new Date().toISOString()
+          };
+
+          if (queryObj.type === 'hackathon') {
+            insertData.name = extracted.title;
+            insertData.start_date = extracted.start_date_ms || nowMs;
+            insertData.end_date = extracted.end_date_ms || (nowMs + 604800000);
+          } else if (queryObj.type === 'job') {
+            insertData.company = extracted.company || "Web3 Stealth";
+            insertData.location = extracted.location || "Remote";
+          } else {
+            insertData.date = extracted.start_date_ms || nowMs;
+          }
+
+          const { error: insertError } = await supabase.from(tableName).insert(insertData);
+
+          if (!insertError) {
+            totalPublished++;
+            await supabase.from('autonomous_agent_logs').insert({
+              action_type: 'publish',
+              message: `Auto-published 2026 ${queryObj.type}: ${extracted.title}`,
+              status: 'success',
+              timestamp: Date.now()
+            });
+
+            if (TELEGRAM_BOT_TOKEN) {
+              const text = `🚀 *New 2026 Opportunity*\n\n*${extracted.title}*\n\n🔗 [View Details](https://apnacoding.com/${tableName}/${slug})`;
+              await fetch(`${TELEGRAM_API_URL}${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "Markdown" })
               });
-
-              // Social Notifications (simplified for brevity)
-              if (TELEGRAM_BOT_TOKEN) {
-                const text = `🚀 *Auto-Published ${queryObj.type}*\n\n*${extractedData.name || extractedData.title}*\n\n🔗 [View on Platform](https://apnacoding.com/${tableName}/${slug})`;
-                await fetch(`${TELEGRAM_API_URL}${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text, parse_mode: "Markdown" })
-                });
-              }
             }
           }
+          
+          // Small delay to prevent rate limits
+          await new Promise(r => setTimeout(r, 1000));
         } catch (err) {
-          console.error(`Error processing ${queryObj.type}:`, err);
+          console.error("Agent process error:", err);
         }
       }
     }
 
-    return new Response(
-      JSON.stringify({ 
-        message: "Cycle completed",
-        published: totalPublished
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({ success: true, published: totalPublished }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
 
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {

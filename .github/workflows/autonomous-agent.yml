@@ -1,0 +1,23 @@
+name: Autonomous 2026 Agent
+
+on:
+  schedule:
+    - cron: '0 * * * *' # Runs every hour
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  run-agent:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Autonomous Agent
+        shell: powershell
+        run: |
+          # Set the execution policy for the session
+          Set-ExecutionPolicy Bypass -Scope Process -Force
+          # Run the agent script
+          # Note: We exit after one cycle in CI mode to avoid infinite loop
+          $env:CI_MODE = "true"
+          .\scripts\run-agent.ps1
