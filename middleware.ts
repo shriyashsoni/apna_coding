@@ -9,6 +9,9 @@ export default function middleware(request: Request) {
   const userAgent = request.headers.get('user-agent') || '';
   
   // Comprehensive list of crawlers across all major platforms
+  // NOTE: Search engines (Googlebot, Bingbot, YandexBot, Baiduspider) are INTENTIONALLY EXCLUDED here.
+  // Search engines can execute JavaScript and need to see the actual React app to index the content.
+  // This middleware is only for social media bots that need static Open Graph tags.
   const bots = [
     'WhatsApp',
     'TelegramBot',
@@ -18,13 +21,9 @@ export default function middleware(request: Request) {
     'Discordbot',
     'LinkedInBot',
     'Pinterestbot',
-    'Googlebot',
-    'Bingbot',
     'SkypeUriPreview',
     'Instagram',
-    'AppleNewsBot',
-    'Baiduspider',
-    'YandexBot'
+    'AppleNewsBot'
   ];
 
   const isBot = bots.some(bot => userAgent.toLowerCase().includes(bot.toLowerCase()));
