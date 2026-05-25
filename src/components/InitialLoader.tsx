@@ -60,26 +60,11 @@ export function InitialLoader({ children }: { children: React.ReactNode }) {
               <motion.img 
                 src="/apna-logo-transparent.png" 
                 alt="Apna Coding" 
-                className="w-28 h-28 md:w-40 md:h-40 object-contain mb-10 drop-shadow-2xl"
+                className="w-28 h-28 md:w-40 md:h-40 object-contain drop-shadow-2xl"
                 initial={{ opacity: 0, scale: 0.8, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ duration: 0.8, ease: "easeOut" }}
               />
-
-              <div className="flex flex-col items-center gap-5 w-64 md:w-80">
-                <div className="text-white text-5xl md:text-6xl font-mono font-bold tracking-widest tabular-nums drop-shadow-lg">
-                  {progress}%
-                </div>
-                
-                <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden relative shadow-inner">
-                  <motion.div 
-                    className="absolute top-0 left-0 bottom-0 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 rounded-full"
-                    initial={{ width: "0%" }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.1, ease: "linear" }}
-                  />
-                </div>
-              </div>
             </div>
           </motion.div>
         )}
