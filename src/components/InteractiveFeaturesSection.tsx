@@ -1,114 +1,254 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { supabase } from "@/lib/supabase";
+import { 
+  BarChart, 
+  ArrowRight,
+  Eye,
+  Heart,
+  MapPin,
+  Building,
+  Users
+} from "lucide-react";
 
-const hashtags = [
-  { tag: "#OpenSource", desc: "Fully open-source platform built by the community, for the community" },
-  { tag: "#Web3Native", desc: "Built on Web3 principles with decentralized architecture" },
-  { tag: "#CommunityFirst", desc: "Community-driven platform where everyone can contribute" },
-  { tag: "#GlobalReach", desc: "Connect with developers and opportunities worldwide" },
-  { tag: "#AIpowered", desc: "AI-enhanced discovery and personalized recommendations" },
-  { tag: "#FreeForAll", desc: "No fees, no barriers - post hackathons, jobs, and events freely" },
-  { tag: "#Verified", desc: "Community-verified content for trust and quality" },
-  { tag: "#Certificates", desc: "Earn Web3 certificates and badges for achievements" },
-  { tag: "#CrossChain", desc: "Support for all major blockchain ecosystems" },
-  { tag: "#Decentralized", desc: "No single point of control - truly decentralized platform" },
+const tabs = [
+  { id: "news", label: "News", link: "/news" },
+  { id: "jobs", label: "Jobs", link: "/jobs" },
+  { id: "communities", label: "Community", link: "/communities" },
+  { id: "products", label: "Products", link: "/products" },
 ];
 
+const typeWords = ["ECOSYSTEM", "NEWS", "JOBS", "COMMUNITIES", "PRODUCTS"];
+
 export function InteractiveFeaturesSection() {
-  const [selectedHashtag, setSelectedHashtag] = useState<typeof hashtags[0] | null>(null);
+  const [activeTab, setActiveTab] = useState(tabs[0].id);
+  const [dataMap, setDataMap] = useState<Record<string, any[]>>({
+    products: [],
+    jobs: [],
+    news: [],
+    communities: [],
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Typing effect state
+  const [typeText, setTypeText] = useState("");
+  const [wordIndex, setWordIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [
+          { data: pData },
+          { data: jData },
+          { data: nData },
+          { data: cData }
+        ] = await Promise.all([
+          supabase.from("products").select("*").order("created_at", { ascending: false }).limit(3),
+          supabase.from("jobs").select("*").order("created_at", { ascending: false }).limit(3),
+          supabase.from("news").select("*").order("created_at", { ascending: false }).limit(3),
+          supabase.from("communities").select("*").eq("is_published", true).order("created_at", { ascending: false }).limit(3),
+        ]);
+        
+        setDataMap({
+          products: pData || [],
+          jobs: jData || [],
+          news: nData || [],
+          communities: cData || [],
+        });
+      } catch (error) {
+        console.error("Error fetching ecosystem data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // Typing effect hook
+  useEffect(() => {
+    const currentWord = typeWords[wordIndex];
+    let timeout: NodeJS.Timeout;
+
+    if (isDeleting) {
+      timeout = setTimeout(() => {
+        setTypeText(currentWord.substring(0, typeText.length - 1));
+        if (typeText.length === 0) {
+          setIsDeleting(false);
+          setWordIndex((prev) => (prev + 1) % typeWords.length);
+        }
+      }, 50); // Fast deletion speed
+    } else {
+      timeout = setTimeout(() => {
+        setTypeText(currentWord.substring(0, typeText.length + 1));
+        if (typeText.length === currentWord.length) {
+          timeout = setTimeout(() => setIsDeleting(true), 2000); // Pause before deleting
+        }
+      }, 100); // Typing speed
+    }
+
+    return () => clearTimeout(timeout);
+  }, [typeText, isDeleting, wordIndex]);
+
+  const activeLink = tabs.find(t => t.id === activeTab)?.link || "/";
+  const activeData = dataMap[activeTab] || [];
 
   return (
-    <section className="py-20 bg-background relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
-      
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-16">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="inline-block py-2 px-4 rounded-full bg-primary/10 text-primary border border-primary/30 text-sm font-mono mb-6"
-          >
-            VALUES
-          </motion.div>
-          <motion.h2
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1 }}
-            className="text-4xl md:text-5xl font-bold mb-4"
-          >
-            Open Source Web3 Opportunity layer
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-            className="text-muted-foreground text-lg max-w-3xl mx-auto"
-          >
-            A decentralized platform where anyone can post hackathons, jobs, and events. Community-to-community support through our platform.
-          </motion.p>
-        </div>
+    <section className="py-20 bg-black text-white font-sans">
+      <div className="container mx-auto px-4 max-w-7xl">
+        
+        {/* Header matching screenshot */}
+        <div className="mb-12">
+          <div className="h-12 mb-8 flex items-center">
+            <h2 className="text-3xl md:text-4xl font-mono tracking-widest font-bold uppercase">
+              EXPLORE {typeText}<span className="animate-pulse">|</span>
+            </h2>
+          </div>
 
-        {/* Animated Hashtags Carousel */}
-        <div className="mb-12 overflow-hidden">
-          <div className="flex gap-4 animate-scroll-left">
-            {[...hashtags, ...hashtags].map((item, index) => (
-              <motion.button
-                key={`hashtag-${index}`}
-                onClick={() => setSelectedHashtag(item)}
-                className="flex-shrink-0 px-6 py-3 rounded-full bg-primary/10 border border-primary/30 text-primary hover:bg-primary/20 hover:border-primary/50 transition-all duration-300 font-mono text-sm hover:shadow-[0_0_15px_rgba(255,255,255,0.3)]"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                {item.tag}
-              </motion.button>
-            ))}
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-white/5 pb-4 gap-4">
+            <div className="flex flex-wrap gap-2">
+              {tabs.map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                      isActive 
+                        ? "bg-[#2a2a2a] text-white" 
+                        : "text-gray-400 hover:text-gray-200"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+            
+            <Link 
+              to={activeLink} 
+              className="text-gray-400 hover:text-white text-sm font-medium flex items-center transition-colors"
+            >
+              More <ArrowRight className="ml-1 w-4 h-4" />
+            </Link>
           </div>
         </div>
-      </div>
 
-      {/* Hashtag Detail Modal */}
-      <AnimatePresence>
-        {selectedHashtag && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            onClick={() => setSelectedHashtag(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-card border border-primary/30 rounded-2xl p-8 max-w-lg w-full relative"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <button
-                onClick={() => setSelectedHashtag(null)}
-                className="absolute top-4 right-4 text-muted-foreground hover:text-primary transition-colors"
+        {/* Content Cards matching screenshot */}
+        <div className="min-h-[300px]">
+          {loading ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-[280px] bg-[#1c1c1c] rounded-2xl animate-pulse" />
+              ))}
+            </div>
+          ) : activeData.length === 0 ? (
+            <div className="text-center py-20 text-gray-500">
+              No data found for this category yet.
+            </div>
+          ) : (
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.2 }}
+                className="grid grid-cols-1 md:grid-cols-3 gap-6"
               >
-                <X className="h-6 w-6" />
-              </button>
-              
-              <div className="text-center">
-                <h3 className="text-3xl font-bold mb-4 text-primary font-mono">{selectedHashtag.tag}</h3>
-                <p className="text-lg text-muted-foreground leading-relaxed">{selectedHashtag.desc}</p>
-              </div>
+                {activeData.map((item: any, i: number) => {
+                  
+                  // Map data fields based on category
+                  let title = "";
+                  let description = "";
+                  let label1 = "";
+                  let url = "";
 
-              <div className="mt-6 flex justify-center">
-                <Button onClick={() => setSelectedHashtag(null)} className="bg-primary text-primary-foreground">
-                  Got it
-                </Button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                  if (activeTab === "products") {
+                    title = item.name;
+                    description = item.description;
+                    label1 = item.category || "PRODUCT";
+                    url = `/products/${item.slug}`;
+                  } else if (activeTab === "jobs") {
+                    title = item.title;
+                    description = item.description;
+                    label1 = item.type || "JOB";
+                    url = `/jobs/${item.slug || item.id}`;
+                  } else if (activeTab === "news") {
+                    title = item.title;
+                    description = item.excerpt || item.description || "Read latest news update.";
+                    label1 = item.category || "NEWS";
+                    url = `/news/${item.slug}`;
+                  } else if (activeTab === "communities") {
+                    title = item.name;
+                    description = item.description;
+                    label1 = item.category || "COMMUNITY";
+                    url = `/community/${item.slug}`;
+                  }
+
+                  return (
+                    <Link to={url} key={item.id || i} className="block group">
+                      <div className="bg-[#1c1c1c] border border-transparent group-hover:border-white/10 rounded-2xl p-6 h-[280px] flex flex-col transition-colors">
+                        <h3 className="text-xl font-bold text-white mb-4 line-clamp-2">
+                          {title}
+                        </h3>
+                        
+                        <p className="text-gray-400 text-sm leading-relaxed flex-grow line-clamp-4 mb-6">
+                          {description}
+                        </p>
+
+                        <div className="flex items-center gap-4 text-xs font-medium text-gray-400 mt-auto pt-4 border-t border-transparent group-hover:border-white/5 transition-colors">
+                          <div className="flex items-center gap-1.5 uppercase">
+                            <BarChart className="w-3.5 h-3.5 text-gray-500" />
+                            {label1}
+                          </div>
+                          
+                          <div className="flex items-center gap-2 ml-auto">
+                            <span className="text-gray-500">From</span>
+                            <div className="flex -space-x-1">
+                              {activeTab === "products" && (
+                                <>
+                                  <div className="w-5 h-5 rounded-full bg-blue-500/20 border border-[#1c1c1c] flex items-center justify-center"><Eye className="w-2.5 h-2.5 text-blue-400" /></div>
+                                  <div className="w-5 h-5 rounded-full bg-pink-500/20 border border-[#1c1c1c] flex items-center justify-center"><Heart className="w-2.5 h-2.5 text-pink-400" /></div>
+                                </>
+                              )}
+                              {activeTab === "jobs" && (
+                                <>
+                                  <div className="w-5 h-5 rounded-full bg-green-500/20 border border-[#1c1c1c] flex items-center justify-center"><Building className="w-2.5 h-2.5 text-green-400" /></div>
+                                  <div className="w-5 h-5 rounded-full bg-orange-500/20 border border-[#1c1c1c] flex items-center justify-center"><MapPin className="w-2.5 h-2.5 text-orange-400" /></div>
+                                </>
+                              )}
+                              {activeTab === "communities" && (
+                                <>
+                                  {item.logo ? (
+                                    <div className="w-5 h-5 rounded-full overflow-hidden border border-[#1c1c1c] flex items-center justify-center bg-white/5 relative z-10">
+                                      <img src={item.logo} alt={item.name} className="w-full h-full object-cover" />
+                                    </div>
+                                  ) : (
+                                    <div className="w-5 h-5 rounded-full bg-purple-500/20 border border-[#1c1c1c] flex items-center justify-center relative z-10"><Users className="w-2.5 h-2.5 text-purple-400" /></div>
+                                  )}
+                                </>
+                              )}
+                              {activeTab === "news" && (
+                                <>
+                                  <div className="w-5 h-5 rounded-full bg-indigo-500/20 border border-[#1c1c1c] flex items-center justify-center"><Eye className="w-2.5 h-2.5 text-indigo-400" /></div>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+                  );
+                })}
+              </motion.div>
+            </AnimatePresence>
+          )}
+        </div>
+      </div>
     </section>
   );
 }
+

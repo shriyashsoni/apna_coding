@@ -95,7 +95,7 @@ export default function Events() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <MetaTags
         title="Tech Events | Apna Coding"
         description="Discover and share tech events, meetups, and conferences. Paste any event link and share it with the community instantly."
@@ -104,7 +104,7 @@ export default function Events() {
       />
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12">
+      <main className="flex-1 container mx-auto px-4 pt-32 pb-12">
         <div className="max-w-4xl mx-auto mb-12">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-2 cyber-glitch" data-text="Events">Events</h1>

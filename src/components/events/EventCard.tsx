@@ -66,9 +66,9 @@ export function EventCard({ event, index, showDelete = false, onDelete }: EventC
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: index * 0.1 }}
-        className="group bg-card border border-border rounded-lg overflow-hidden hover:border-primary transition-all hover:shadow-lg cursor-pointer"
+        className="group liquid-glass rounded-2xl overflow-hidden transition-all cursor-pointer h-full flex flex-col"
       >
-        <div className="h-48 bg-muted/50 relative">
+        <div className="h-48 bg-muted/50 relative shrink-0">
         {event.image ? (
           <img
             src={event.image}
@@ -90,23 +90,23 @@ export function EventCard({ event, index, showDelete = false, onDelete }: EventC
         </div>
       </div>
       
-      <div className="p-6">
+      <div className="p-6 flex flex-col flex-1 h-[240px]">
         <div className="flex justify-between items-start mb-2">
-          <h3 className="text-xl font-bold group-hover:text-primary transition-colors">
+          <h3 className="text-xl font-bold group-hover:text-primary transition-colors line-clamp-2" title={event.title}>
             {event.title}
           </h3>
         </div>
         
-        <p className="text-muted-foreground mb-4 line-clamp-2">{event.description}</p>
+        <p className="text-muted-foreground mb-4 line-clamp-2 flex-1">{event.description}</p>
         
-        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground items-center pt-4 border-t border-border">
-          <div className="flex items-center">
+        <div className="flex items-center justify-between text-sm text-muted-foreground pt-4 border-t border-white/10 mt-auto">
+          <div className="flex items-center shrink-0 mr-4">
             <Calendar className="h-4 w-4 mr-2 text-primary" />
             {formatDate(event.date)}
           </div>
-          <div className="flex items-center">
-            <MapPin className="h-4 w-4 mr-2 text-primary" />
-            {event.location}
+          <div className="flex items-center min-w-0 flex-1 justify-end" title={event.location}>
+            <MapPin className="h-4 w-4 mr-2 text-primary shrink-0" />
+            <span className="truncate">{event.location}</span>
           </div>
           
           {canDelete && (

@@ -180,10 +180,10 @@ export default function Jobs() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12">
+      <main className="flex-1 container mx-auto px-4 pt-32 pb-12">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
           <div>
             <h1 className="text-3xl md:text-4xl font-bold mb-2 cyber-glitch" data-text="Career Hub">Career Hub</h1>

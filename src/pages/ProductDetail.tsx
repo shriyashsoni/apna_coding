@@ -205,7 +205,7 @@ export default function ProductDetail() {
 
   if (product === undefined) {
     return (
-      <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
         <Navbar />
         <main className="flex-1 pt-24 pb-16">
           <div className="container mx-auto px-4 text-center">
@@ -219,7 +219,7 @@ export default function ProductDetail() {
 
   if (product === null) {
     return (
-      <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
         <Navbar />
         <main className="flex-1 pt-24 pb-16">
           <div className="container mx-auto px-4 text-center">
@@ -241,7 +241,7 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <SEO
         title={product.name}
         description={product.description}

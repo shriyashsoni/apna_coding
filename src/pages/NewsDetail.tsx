@@ -172,7 +172,7 @@ export default function NewsDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
         <Navbar />
         <main className="flex-1 pt-24 pb-16">
           <div className="container mx-auto px-4">
@@ -188,7 +188,7 @@ export default function NewsDetail() {
 
   if (!post) {
     return (
-      <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
         <Navbar />
         <main className="flex-1 pt-24 pb-16">
           <div className="container mx-auto px-4">
@@ -212,7 +212,7 @@ export default function NewsDetail() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <SEO
         title={post.title}
         description={post.excerpt || post.content?.substring(0, 160) || ""}

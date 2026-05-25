@@ -488,7 +488,7 @@ export default function HackathonDetail() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <SEO
         title={hackathon.title}
         description={metaDescription}
@@ -564,7 +564,7 @@ export default function HackathonDetail() {
         </div>
 
         {/* Content Tabs */}
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-4 pt-32 pb-12">
           <Tabs defaultValue="overview" className="w-full">
             <div className="w-full overflow-x-auto mb-8 -mx-4 px-4 md:mx-0 md:px-0">
               <TabsList className="inline-flex w-auto min-w-full md:min-w-0 md:grid md:w-full md:grid-cols-5 lg:w-auto">

@@ -41,3 +41,10 @@ temp/
 artifacts/
 scratch/
 browser/
+
+# Large files
+public/videos/
+video for it/
+webiste logo and branding kit/
+*.mp4
+*.woff2

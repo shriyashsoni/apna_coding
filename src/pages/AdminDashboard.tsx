@@ -746,7 +746,7 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <Navbar />
       
       <main className="flex-1 container mx-auto px-4 py-12 max-w-7xl">

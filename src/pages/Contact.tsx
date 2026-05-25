@@ -95,10 +95,10 @@ Sent from Apna Coding Contact Form
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <Navbar />
 
-      <main className="flex-1 container mx-auto px-4 py-12">
+      <main className="flex-1 container mx-auto px-4 pt-32 pb-12">
         <div className="max-w-4xl mx-auto">
           {/* Header */}
           <motion.div

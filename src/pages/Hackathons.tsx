@@ -94,7 +94,7 @@ export default function Hackathons() {
   });
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <MetaTags
         title="Hackathons | Apna Coding"
         description="Discover Web3 hackathons, win prizes, and build the future. Submit any hackathon link and our AI will automatically publish all details."
@@ -103,7 +103,7 @@ export default function Hackathons() {
       />
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12">
+      <main className="flex-1 container mx-auto px-4 pt-32 pb-12">
         <div className="max-w-4xl mx-auto mb-12">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold mb-2 cyber-glitch" data-text="Hackathons">Hackathons</h1>

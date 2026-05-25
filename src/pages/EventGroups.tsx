@@ -61,7 +61,7 @@ export default function EventGroups() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <MetaTags
         title="Event Groups | Apna Coding"
         description="Discover major tech event groups like Consensus Hong Kong, ETHIndia Week, and Token2049 Dubai with all their side events in one place."

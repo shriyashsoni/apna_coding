@@ -64,7 +64,7 @@ export function HackathonCard({ hackathon, index, showDelete = true, onDelete }:
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.1 }}
-      className="group flex flex-col md:flex-row bg-card border border-border rounded-lg overflow-hidden hover:border-primary transition-all hover:shadow-lg"
+      className="group flex flex-col md:flex-row liquid-glass rounded-2xl overflow-hidden transition-all"
     >
       <div className="md:w-64 h-48 md:h-auto bg-muted/50 relative">
         {(hackathon.bannerImage || hackathon.posterImage || hackathon.image) ? (
@@ -112,13 +112,12 @@ export function HackathonCard({ hackathon, index, showDelete = true, onDelete }:
             {startLabel} - {endLabel}
           </div>
           <div className="flex items-center gap-2 ml-auto">
-            <Button
-              size="sm"
-              variant="outline"
+            <button
               onClick={() => navigate(`/hackathons/${hackathon.slug || hackathon.id}`)}
+              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium px-4 py-2 rounded-xl transition-all text-sm"
             >
               View Details
-            </Button>
+            </button>
             {canDelete && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>

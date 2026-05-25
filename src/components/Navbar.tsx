@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Terminal } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { WalletConnect } from "@/components/WalletConnect";
@@ -12,88 +12,81 @@ export function Navbar() {
   const { authenticated } = usePrivy();
 
   const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "Events", path: "/events" },
-    { name: "Hackathons", path: "/hackathons" },
-    { name: "Products", path: "/products" },
-    { name: "News", path: "/news" },
+    { name: "HOME", path: "/" },
+    { name: "EVENTS", path: "/events" },
+    { name: "HACKATHONS", path: "/hackathons" },
+    { name: "JOBS", path: "/jobs" },
+    { name: "PRODUCTS", path: "/products" },
+    { name: "NEWS", path: "/news" },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-primary/30 bg-background/80 backdrop-blur-md">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 group">
-          <img 
-            src="https://harmless-tapir-303.convex.cloud/api/storage/1afb27dd-9d64-48c2-be2e-ada93b76526a" 
-            alt="Apna Coding Logo" 
-            className="h-10 w-auto"
-          />
-          <span className="font-bold text-xl tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">
-            Apna Coding
+    <nav className="fixed top-0 z-50 w-full px-6 md:px-10 py-6 md:py-8 flex justify-between items-center pointer-events-none">
+      
+      {/* Left: Original Logo */}
+      <div className="pointer-events-auto">
+        <Link to="/" className="flex items-center gap-3 group">
+          <img src="/apna-logo-transparent.png" alt="Apna Coding Logo" className="h-10 w-auto object-contain drop-shadow-md" />
+          <span className="font-semibold text-[17px] tracking-tight text-white flex items-start gap-0.5">
+            Apna Coding<sup className="text-[10px] mt-1">TM</sup>
           </span>
         </Link>
-
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-6">
-          <Link to="/" className="text-sm font-medium hover:text-primary transition-colors">
-            Home
-          </Link>
-          <Link to="/events" className="text-sm font-medium hover:text-primary transition-colors">
-            Events
-          </Link>
-          <Link to="/hackathons" className="text-sm font-medium hover:text-primary transition-colors">
-            Hackathons
-          </Link>
-          <Link to="/products" className="text-sm font-medium hover:text-primary transition-colors">
-            Products
-          </Link>
-          <Link to="/news" className="text-sm font-medium hover:text-primary transition-colors">
-            News
-          </Link>
-          {authenticated && <LogoDropdown />}
-          <WalletConnect />
-        </div>
-
-        {/* Mobile Menu Button */}
-        <button
-          className="md:hidden p-2 text-primary"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <X /> : <Menu />}
-        </button>
       </div>
+
+      {/* Center: Desktop Nav Links */}
+      <div className="hidden md:block absolute left-1/2 -translate-x-1/2 pointer-events-auto">
+        <nav className="nav-liquid-glass rounded-full px-2 py-2 flex items-center gap-1">
+          {navLinks.map((link) => (
+            <Link
+              key={link.path}
+              to={link.path}
+              className="text-[11px] font-medium tracking-[0.12em] text-white/90 hover:text-white hover:bg-white/10 px-4 py-1.5 rounded-full transition-colors duration-200"
+            >
+              {link.name}
+            </Link>
+          ))}
+        </nav>
+      </div>
+
+      {/* Right: Actions */}
+      <div className="hidden md:flex items-center gap-4 pointer-events-auto">
+        {authenticated && <LogoDropdown />}
+        <WalletConnect />
+      </div>
+
+      {/* Mobile Menu Button */}
+      <button
+        className="md:hidden p-2 text-white nav-liquid-glass rounded-full w-10 h-10 flex items-center justify-center pointer-events-auto"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </button>
 
       {/* Mobile Nav */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-b border-primary/30 bg-background"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="md:hidden absolute top-24 left-4 right-4 rounded-2xl nav-liquid-glass overflow-hidden pointer-events-auto shadow-2xl"
           >
-            <div className="flex flex-col p-4 gap-4">
+            <div className="flex flex-col p-6 gap-2 bg-black/40">
               {navLinks.map((link) => (
                 <Link
                   key={link.path}
                   to={link.path}
-                  className="text-sm font-medium text-foreground hover:text-primary"
+                  className="text-sm font-medium tracking-[0.12em] text-white/90 hover:text-white py-3 border-b border-white/10 last:border-0"
                   onClick={() => setIsOpen(false)}
                 >
                   {link.name}
                 </Link>
               ))}
 
-              <div className="pt-2 border-t border-primary/20">
+              <div className="pt-4 flex justify-between items-center">
+                {authenticated && <LogoDropdown />}
+                <WalletConnect />
               </div>
-
-              {authenticated && (
-                <div className="pt-2 border-t border-primary/20">
-                  <LogoDropdown />
-                </div>
-              )}
-
-              <WalletConnect />
             </div>
           </motion.div>
         )}

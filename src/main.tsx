@@ -8,6 +8,24 @@ import { HelmetProvider } from 'react-helmet-async';
 import { ScrollToTop } from '@/components/ScrollToTop';
 import "./index.css";
 import "./types/global.d.ts";
+import "@fontsource/inter/400.css";
+import "@fontsource/inter/500.css";
+import "@fontsource/inter/600.css";
+import "@fontsource/inter/700.css";
+import "@fontsource/instrument-serif/400.css";
+import "@fontsource/instrument-serif/400-italic.css";
+import "@fontsource/manrope/400.css";
+import "@fontsource/manrope/500.css";
+import "@fontsource/manrope/600.css";
+import "@fontsource/manrope/700.css";
+import "@fontsource/cabin/400.css";
+import "@fontsource/cabin/500.css";
+import "@fontsource/cabin/600.css";
+import "@fontsource/cabin/700.css";
+import "@fontsource/poppins/400.css";
+import "@fontsource/poppins/500.css";
+import "@fontsource/poppins/600.css";
+import "@fontsource/poppins/700.css";
 
 // Lazy load route components for better code splitting
 const Landing = lazy(() => import("./pages/Landing.tsx"));
@@ -59,8 +77,8 @@ createRoot(document.getElementById("root")!).render(
           config={{
             appearance: {
               theme: 'dark',
-              accentColor: '#00ffff',
-              logo: 'https://harmless-tapir-303.convex.cloud/api/storage/1afb27dd-9d64-48c2-be2e-ada93b76526a',
+              accentColor: '#3B82F6',
+              logo: '/apna-logo-transparent.png',
             },
             embeddedWallets: {
               ethereum: {
@@ -87,7 +105,7 @@ createRoot(document.getElementById("root")!).render(
                 <Route path="/news" element={<News />} />
                 <Route path="/news/:slug" element={<NewsDetail />} />
                 <Route path="/partnerships" element={<Partnerships />} />
-                <Route path="/branding" element={<BrandingKit />} />
+                <Route path="/branding-kit" element={<BrandingKit />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/profile" element={<Profile />} />

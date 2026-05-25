@@ -78,10 +78,10 @@ export default function MyContent() {
   if (!authenticated) return null;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <Navbar />
       
-      <main className="flex-1 container mx-auto px-4 py-12">
+      <main className="flex-1 container mx-auto px-4 pt-32 pb-12">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2 cyber-glitch" data-text="My Content">My Content</h1>
           <p className="text-muted-foreground">Manage your hackathons and events</p>

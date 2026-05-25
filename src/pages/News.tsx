@@ -35,7 +35,7 @@ export default function News() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
         <Navbar />
         <main className="flex-1 pt-24 pb-16">
           <div className="container mx-auto px-4">
@@ -51,7 +51,7 @@ export default function News() {
 
   if (!news || news.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
         <Navbar />
         <main className="flex-1 pt-24 pb-16">
           <div className="container mx-auto px-4">
@@ -67,7 +67,7 @@ export default function News() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <Navbar />
       <main className="flex-1 pt-24 pb-16">
         <div className="container mx-auto px-4">
