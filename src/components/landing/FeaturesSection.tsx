@@ -266,7 +266,7 @@ function GlassPanel() {
         ease: "none",
         scrollTrigger: {
           trigger: "#scroll-sequence-container",
-          start: "top bottom",
+          start: "top top",
           end: "bottom bottom",
           scrub: 1.5,
         },
@@ -411,10 +411,10 @@ export function FeaturesSection() {
 
         {/* Layer 2: GSAP Animated Floating Text */}
         <ScrollFloat>{`Web3 Has Changed.\nHave You?`}</ScrollFloat>
-      </div>
 
-      {/* Layer 3: frosted liquid glass interactive panel */}
-      <GlassPanel />
+        {/* Layer 3: frosted liquid glass interactive panel */}
+        <GlassPanel />
+      </div>
     </section>
   );
 }
