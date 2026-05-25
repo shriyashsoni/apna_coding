@@ -56,12 +56,12 @@ export function HeroSection() {
         </motion.div>
 
         {/* Headline */}
-        <motion.h1 {...fadeUp(0.3)} className="text-5xl md:text-7xl lg:text-[5.5rem] font-medium tracking-tight mb-8 leading-[1.1]">
+        <motion.h1 {...fadeUp(0.3)} className="text-4xl md:text-7xl lg:text-[5.5rem] font-medium tracking-tight mb-8 leading-[1.1] sm:leading-[1.1]">
           Build the <span style={{ fontFamily: "Instrument Serif, serif", fontStyle: "italic", fontWeight: "normal" }}>Future</span>
         </motion.h1>
 
         {/* Subtitle */}
-        <motion.p {...fadeUp(0.4)} className="text-lg md:text-xl text-hero-subtitle max-w-2xl mx-auto mb-12">
+        <motion.p {...fadeUp(0.4)} className="text-base md:text-xl text-hero-subtitle max-w-2xl mx-auto mb-12">
           A decentralized platform where anyone can post hackathons, jobs, and events. 
           Community-to-community support — powered by the people, for the people.
         </motion.p>

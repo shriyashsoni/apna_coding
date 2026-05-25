@@ -63,7 +63,7 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-12 mb-10">
           
           {/* First column (md:col-span-5) */}
-          <div className="md:col-span-5 flex flex-col gap-6">
+          <div className="md:col-span-5 flex flex-col gap-6 text-center md:text-left items-center md:items-start">
             <div className="flex items-center gap-3">
               <img src="/apna-logo-transparent.png" alt="Apna Coding Logo" className="h-12 w-auto object-contain drop-shadow-md" />
               <span className="text-xl font-semibold tracking-tight text-white font-sans">APNA CODING</span>
@@ -75,11 +75,11 @@ export function Footer() {
           </div>
 
           {/* md:col-span-7 */}
-          <div className="md:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-8">
+          <div className="md:col-span-7 grid grid-cols-2 sm:grid-cols-3 gap-8">
             
             {/* Discover */}
             <div>
-              <h4 className="text-sm uppercase tracking-wider text-white font-semibold mb-6">Discover</h4>
+              <h4 className="text-sm uppercase tracking-wider text-white font-semibold mb-4 md:mb-6">Discover</h4>
               <ul className="space-y-3">
                 <li><Link to="/events" className="text-xs text-white/50 hover:text-white transition-colors">Events</Link></li>
                 <li><Link to="/hackathons" className="text-xs text-white/50 hover:text-white transition-colors">Hackathons</Link></li>
@@ -92,7 +92,7 @@ export function Footer() {
 
             {/* The Mission */}
             <div>
-              <h4 className="text-sm uppercase tracking-wider text-white font-semibold mb-6">Community</h4>
+              <h4 className="text-sm uppercase tracking-wider text-white font-semibold mb-4 md:mb-6">Community</h4>
               <ul className="space-y-3">
                 <li><Link to="/communities" className="text-xs text-white/50 hover:text-white transition-colors">Communities</Link></li>
                 <li><a href="https://discord.gg/8E7ER4wq" target="_blank" rel="noopener noreferrer" className="text-xs text-white/50 hover:text-white transition-colors">Discord Server</a></li>
@@ -103,9 +103,9 @@ export function Footer() {
             </div>
 
             {/* Concierge */}
-            <div>
-              <h4 className="text-sm uppercase tracking-wider text-white font-semibold mb-6">Concierge</h4>
-              <ul className="space-y-3">
+            <div className="col-span-2 sm:col-span-1">
+              <h4 className="text-sm uppercase tracking-wider text-white font-semibold mb-4 md:mb-6">Concierge</h4>
+              <ul className="space-y-3 grid grid-cols-2 sm:grid-cols-1">
                 <li><Link to="/contact" className="text-xs text-white/50 hover:text-white transition-colors">Get in Touch</Link></li>
                 <li><Link to="/privacy" className="text-xs text-white/50 hover:text-white transition-colors">Legal Privacy</Link></li>
                 <li><Link to="/terms" className="text-xs text-white/50 hover:text-white transition-colors">User Agreement</Link></li>
@@ -122,7 +122,7 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6 md:gap-4">
           
-          <div className="flex flex-col md:flex-row items-center gap-4">
+          <div className="flex flex-col md:flex-row items-center gap-2 md:gap-4 text-center">
             <p className="text-[10px] uppercase tracking-widest opacity-50">
               Curated by @shriyashsoni
             </p>
@@ -132,15 +132,15 @@ export function Footer() {
             </p>
           </div>
 
-          <div className="flex items-center gap-6">
+          <div className="flex flex-col sm:flex-row items-center gap-6">
             
             {/* Language Selector */}
-            <div className="relative group notranslate">
-              <button className="flex items-center gap-2 text-xs text-white/50 hover:text-white transition-colors">
+            <div className="relative group notranslate z-50">
+              <button className="flex items-center gap-2 text-xs text-white/50 hover:text-white transition-colors bg-white/5 px-3 py-1.5 rounded-full">
                 <Globe className="h-4 w-4" />
                 <span>{languages.find(l => l.code === language)?.flag}</span>
               </button>
-              <div className="absolute bottom-full right-0 mb-2 bg-[#000] border border-white/15 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 min-w-[140px] z-50">
+              <div className="absolute bottom-full right-1/2 translate-x-1/2 sm:translate-x-0 sm:right-0 mb-2 bg-[#000] border border-white/15 rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 min-w-[140px] z-[60]">
                 <div className="p-2 space-y-1">
                   {languages.slice(0, 10).map((lang) => (
                     <button
@@ -158,18 +158,18 @@ export function Footer() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
-              <span className="text-[10px] uppercase tracking-widest opacity-50">Join the Journey:</span>
-              <a href="https://github.com/shriyashsoni" target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition-colors hover:text-white">
+            <div className="flex items-center gap-4 flex-wrap justify-center">
+              <span className="text-[10px] uppercase tracking-widest opacity-50 hidden sm:block">Join the Journey:</span>
+              <a href="https://github.com/shriyashsoni" target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition-colors hover:text-white bg-white/5 p-2 rounded-full">
                 <Github className="h-4 w-4" />
               </a>
-              <a href="https://x.com/apna_coding" target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition-colors hover:text-white">
+              <a href="https://x.com/apna_coding" target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition-colors hover:text-white bg-white/5 p-2 rounded-full">
                 <Twitter className="h-4 w-4" />
               </a>
-              <a href="https://www.linkedin.com/company/apna-coding-by-apna-counsellors/" target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition-colors hover:text-white">
+              <a href="https://www.linkedin.com/company/apna-coding-by-apna-counsellors/" target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition-colors hover:text-white bg-white/5 p-2 rounded-full">
                 <Linkedin className="h-4 w-4" />
               </a>
-              <a href="https://www.instagram.com/apnacoding.tech" target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition-colors hover:text-white">
+              <a href="https://www.instagram.com/apnacoding.tech" target="_blank" rel="noopener noreferrer" className="opacity-70 hover:opacity-100 transition-colors hover:text-white bg-white/5 p-2 rounded-full">
                 <Instagram className="h-4 w-4" />
               </a>
             </div>
