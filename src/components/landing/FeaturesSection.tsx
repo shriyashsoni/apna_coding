@@ -402,7 +402,7 @@ export function FeaturesSection() {
   return (
     <section 
       id="scroll-sequence-container" 
-      className="relative w-full h-[250vh] bg-black text-white"
+      className="relative w-full h-[500vh] bg-black text-white"
     >
       {/* Sticky viewport content container */}
       <div className="sticky top-0 left-0 w-full h-screen overflow-hidden">
