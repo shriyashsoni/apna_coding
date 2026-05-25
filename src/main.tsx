@@ -6,6 +6,7 @@ import { BrowserRouter, Route, Routes } from "react-router";
 import { PrivyProvider } from '@privy-io/react-auth';
 import { HelmetProvider } from 'react-helmet-async';
 import { ScrollToTop } from '@/components/ScrollToTop';
+import { InitialLoader } from '@/components/InitialLoader';
 import "./index.css";
 import "./types/global.d.ts";
 import "@fontsource/inter/400.css";
@@ -62,8 +63,11 @@ const LaunchOnChain = lazy(() => import("./pages/LaunchOnChain.tsx"));
 // Simple loading fallback for route transitions
 function RouteLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-pulse text-muted-foreground">Loading...</div>
+    <div className="min-h-screen flex items-center justify-center bg-[#050505]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin"></div>
+        <div className="animate-pulse text-muted-foreground font-mono">Loading...</div>
+      </div>
     </div>
   );
 }
@@ -87,44 +91,46 @@ createRoot(document.getElementById("root")!).render(
             },
           }}
         >
-          <BrowserRouter>
-            <ScrollToTop />
-            <Suspense fallback={<RouteLoading />}>
-              <Routes>
-                <Route path="/" element={<Landing />} />
-                <Route path="/events" element={<Events />} />
-                <Route path="/events/:slug" element={<EventDetail />} />
-                <Route path="/event-groups" element={<EventGroups />} />
-                <Route path="/event-groups/:slug" element={<EventGroupDetail />} />
-                <Route path="/hackathons" element={<Hackathons />} />
-                <Route path="/hackathons/:slug" element={<HackathonDetail />} />
-                <Route path="/jobs" element={<Jobs />} />
-                <Route path="/jobs/:slug" element={<JobDetail />} />
-                <Route path="/products" element={<Products />} />
-                <Route path="/products/:slug" element={<ProductDetail />} />
-                <Route path="/news" element={<News />} />
-                <Route path="/news/:slug" element={<NewsDetail />} />
-                <Route path="/partnerships" element={<Partnerships />} />
-                <Route path="/branding-kit" element={<BrandingKit />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/my-content" element={<MyContent />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin/certificates" element={<AdminCertificates />} />
-                <Route path="/certificates" element={<Certificates />} />
-                <Route path="/issue-certificate" element={<IssueCertificate />} />
-                <Route path="/verify/:certificateNumber?" element={<VerifyCertificate />} />
-                <Route path="/communities" element={<Communities />} />
-                <Route path="/community/:slug" element={<CommunityPage />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/services" element={<Services />} />
-                <Route path="/launch-onchain" element={<LaunchOnChain />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-            <Toaster />
-          </BrowserRouter>
+          <InitialLoader>
+            <BrowserRouter>
+              <ScrollToTop />
+              <Suspense fallback={<RouteLoading />}>
+                <Routes>
+                  <Route path="/" element={<Landing />} />
+                  <Route path="/events" element={<Events />} />
+                  <Route path="/events/:slug" element={<EventDetail />} />
+                  <Route path="/event-groups" element={<EventGroups />} />
+                  <Route path="/event-groups/:slug" element={<EventGroupDetail />} />
+                  <Route path="/hackathons" element={<Hackathons />} />
+                  <Route path="/hackathons/:slug" element={<HackathonDetail />} />
+                  <Route path="/jobs" element={<Jobs />} />
+                  <Route path="/jobs/:slug" element={<JobDetail />} />
+                  <Route path="/products" element={<Products />} />
+                  <Route path="/products/:slug" element={<ProductDetail />} />
+                  <Route path="/news" element={<News />} />
+                  <Route path="/news/:slug" element={<NewsDetail />} />
+                  <Route path="/partnerships" element={<Partnerships />} />
+                  <Route path="/branding-kit" element={<BrandingKit />} />
+                  <Route path="/privacy" element={<Privacy />} />
+                  <Route path="/terms" element={<Terms />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/my-content" element={<MyContent />} />
+                  <Route path="/admin" element={<AdminDashboard />} />
+                  <Route path="/admin/certificates" element={<AdminCertificates />} />
+                  <Route path="/certificates" element={<Certificates />} />
+                  <Route path="/issue-certificate" element={<IssueCertificate />} />
+                  <Route path="/verify/:certificateNumber?" element={<VerifyCertificate />} />
+                  <Route path="/communities" element={<Communities />} />
+                  <Route path="/community/:slug" element={<CommunityPage />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/services" element={<Services />} />
+                  <Route path="/launch-onchain" element={<LaunchOnChain />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+              <Toaster />
+            </BrowserRouter>
+          </InitialLoader>
         </PrivyProvider>
       </InstrumentationProvider>
     </HelmetProvider>
