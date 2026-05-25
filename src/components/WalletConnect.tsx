@@ -1,21 +1,37 @@
-import { usePrivy } from '@privy-io/react-auth';
+import { usePrivy, useWallets } from '@privy-io/react-auth';
 import { Button } from '@/components/ui/button';
-import { Wallet, LogOut, User, FileText, Shield, ChevronDown } from 'lucide-react';
+import { Wallet, LogOut, User, FileText, Shield, ChevronDown, Network } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
+  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Link } from "react-router";
 import { useAdmin } from "@/hooks/useAdmin";
 
+const SUPPORTED_CHAINS = [
+  { id: 1, name: 'Ethereum', hex: 'eip155:1' },
+  { id: 137, name: 'Polygon', hex: 'eip155:137' },
+  { id: 42161, name: 'Arbitrum', hex: 'eip155:42161' },
+  { id: 8453, name: 'Base', hex: 'eip155:8453' },
+  { id: 42220, name: 'Celo', hex: 'eip155:42220' },
+];
+
 export function WalletConnect() {
   const { login, logout, authenticated, user } = usePrivy();
+  const { wallets } = useWallets();
   const { isAdmin } = useAdmin();
   const address = user?.wallet?.address;
   const walletType = user?.wallet?.walletClientType || user?.wallet?.connectorType;
+
+  const activeWallet = wallets[0];
+  const currentChainId = activeWallet?.chainId;
 
   const getWalletIcon = (type?: string) => {
     switch (type?.toLowerCase()) {
@@ -26,6 +42,16 @@ export function WalletConnect() {
       case 'rainbow': return 'https://raw.githubusercontent.com/rainbow-me/rainbow/master/assets/icon.png';
       case 'trust_wallet': return 'https://trustwallet.com/assets/images/media/assets/trust_wallet_logo.svg';
       default: return null;
+    }
+  };
+
+  const handleSwitchChain = async (chainId: number) => {
+    try {
+      if (activeWallet) {
+        await activeWallet.switchChain(chainId);
+      }
+    } catch (e) {
+      console.error('Failed to switch chain', e);
     }
   };
 
@@ -61,7 +87,34 @@ export function WalletConnect() {
               <LogOut className="h-3 w-3" />
             </Button>
           </div>
+
           <DropdownMenuSeparator className="bg-primary/20" />
+          
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger className="cursor-pointer py-2">
+              <Network className="mr-2 h-4 w-4" />
+              Switch Network
+            </DropdownMenuSubTrigger>
+            <DropdownMenuPortal>
+              <DropdownMenuSubContent className="border-primary/30 bg-card min-w-[160px]">
+                {SUPPORTED_CHAINS.map((chain) => (
+                  <DropdownMenuItem 
+                    key={chain.id} 
+                    className="cursor-pointer py-2"
+                    onClick={() => handleSwitchChain(chain.id)}
+                  >
+                    <div className="flex items-center gap-3 w-full">
+                      <div className={`w-2 h-2 rounded-full ${currentChainId === chain.hex ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-muted-foreground/30'}`} />
+                      {chain.name}
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuSubContent>
+            </DropdownMenuPortal>
+          </DropdownMenuSub>
+
+          <DropdownMenuSeparator className="bg-primary/20" />
+          
           <DropdownMenuItem asChild>
             <Link to="/profile" className="cursor-pointer py-2">
               <User className="mr-2 h-4 w-4" />
@@ -74,6 +127,7 @@ export function WalletConnect() {
               My Content
             </Link>
           </DropdownMenuItem>
+          
           {isAdmin && (
             <>
               <DropdownMenuSeparator className="bg-primary/20" />
