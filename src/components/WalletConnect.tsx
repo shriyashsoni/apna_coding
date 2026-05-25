@@ -1,105 +1,99 @@
-import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { usePrivy } from '@privy-io/react-auth';
 import { Button } from '@/components/ui/button';
-import { Wallet, LogOut, User, ChevronDown, Activity } from 'lucide-react';
+import { Wallet, LogOut, User, FileText, Shield, ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Link } from "react-router";
+import { useAdmin } from "@/hooks/useAdmin";
 
 export function WalletConnect() {
   const { login, logout, authenticated, user } = usePrivy();
-  const { wallets } = useWallets();
+  const { isAdmin } = useAdmin();
   const address = user?.wallet?.address;
+  const walletType = user?.wallet?.walletClientType || user?.wallet?.connectorType;
 
-  // Find the currently active wallet to get its chain
-  const activeWallet = wallets.find(w => w.address === address) || wallets[0];
-
-  const getNetworkName = (chainId?: string) => {
-    if (!chainId) return "Unknown Network";
-    if (chainId.includes("eip155:1")) return "Ethereum";
-    if (chainId.includes("eip155:137")) return "Polygon";
-    if (chainId.includes("eip155:8453")) return "Base";
-    if (chainId.includes("eip155:42220")) return "Celo";
-    if (chainId.includes("eip155:44787")) return "Alfajores";
-    if (chainId.includes("eip155:11155111")) return "Sepolia";
-    return "EVM Chain";
-  };
-
-  const getCurrencyName = (chainId?: string) => {
-    if (!chainId) return "ETH";
-    if (chainId.includes("eip155:137")) return "MATIC";
-    if (chainId.includes("eip155:42220") || chainId.includes("eip155:44787")) return "CELO";
-    return "ETH";
+  const getWalletIcon = (type?: string) => {
+    switch (type?.toLowerCase()) {
+      case 'metamask': return 'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg';
+      case 'coinbase_wallet': return 'https://avatars.githubusercontent.com/u/18060234?s=200&v=4';
+      case 'wallet_connect': return 'https://raw.githubusercontent.com/WalletConnect/walletconnect-assets/master/Logo/Blue%20(Default)/Logo.svg';
+      case 'phantom': return 'https://res.cloudinary.com/crunchbase-production/image/upload/c_lpad,h_256,w_256,f_auto,q_auto:eco,dpr_1/wwe1kcl7b6ok3b2n8eex';
+      case 'rainbow': return 'https://raw.githubusercontent.com/rainbow-me/rainbow/master/assets/icon.png';
+      case 'trust_wallet': return 'https://trustwallet.com/assets/images/media/assets/trust_wallet_logo.svg';
+      default: return null;
+    }
   };
 
   if (authenticated && address) {
+    const iconUrl = getWalletIcon(walletType);
+
     return (
-      <div className="flex items-center gap-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            className="border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 gap-2 px-3 pl-2"
+          >
+            {iconUrl ? (
+              <img src={iconUrl} alt="Wallet" className="w-5 h-5 object-contain rounded-sm" />
+            ) : (
+              <Wallet className="h-4 w-4" />
+            )}
+            <span className="font-mono">{address.slice(0, 6)}...{address.slice(-4)}</span>
+            <ChevronDown className="h-3 w-3 opacity-50 ml-1" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-56 border-primary/30 bg-card">
+          <div className="px-2 py-2 mb-1 flex items-center justify-between">
+            <span className="text-xs text-muted-foreground font-mono truncate">{address}</span>
             <Button
-              variant="outline"
-              className="border-white/10 bg-[#121212] text-white hover:bg-white/5 rounded-xl flex items-center gap-2"
+              onClick={logout}
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              title="Logout"
             >
-              <User className="h-4 w-4 text-gray-400" />
-              <span>Account</span>
-              <ChevronDown className="h-4 w-4 text-gray-500" />
+              <LogOut className="h-3 w-3" />
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 bg-[#121212] border-white/10 text-white">
-            <DropdownMenuLabel>My Wallet</DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-white/10" />
-            <div className="px-2 py-1.5 text-sm text-gray-400 flex justify-between items-center">
-              <span>Network</span>
-              <span className="text-white font-medium flex items-center gap-1.5">
-                <Activity className="h-3.5 w-3.5 text-green-400" />
-                {getNetworkName(activeWallet?.chainId)}
-              </span>
-            </div>
-            <div className="px-2 py-1.5 text-sm text-gray-400 flex justify-between items-center">
-              <span>Currency</span>
-              <span className="text-white font-medium">
-                {getCurrencyName(activeWallet?.chainId)}
-              </span>
-            </div>
-            <DropdownMenuSeparator className="bg-white/10" />
-            <DropdownMenuItem 
-              onClick={login}
-              className="hover:bg-white/5 focus:bg-white/5 cursor-pointer"
-            >
-              <Wallet className="mr-2 h-4 w-4" />
-              <span>Change Wallet / Network</span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-        <Button
-          variant="outline"
-          className="border-white/10 bg-[#121212] text-white hover:bg-white/5 rounded-xl font-mono"
-        >
-          {address.slice(0, 6)}...{address.slice(-4)}
-        </Button>
-
-        <Button
-          onClick={logout}
-          variant="ghost"
-          size="icon"
-          className="text-gray-400 hover:text-white hover:bg-white/5 rounded-xl"
-        >
-          <LogOut className="h-4 w-4" />
-        </Button>
-      </div>
+          </div>
+          <DropdownMenuSeparator className="bg-primary/20" />
+          <DropdownMenuItem asChild>
+            <Link to="/profile" className="cursor-pointer py-2">
+              <User className="mr-2 h-4 w-4" />
+              Profile
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem asChild>
+            <Link to="/my-content" className="cursor-pointer py-2">
+              <FileText className="mr-2 h-4 w-4" />
+              My Content
+            </Link>
+          </DropdownMenuItem>
+          {isAdmin && (
+            <>
+              <DropdownMenuSeparator className="bg-primary/20" />
+              <DropdownMenuItem asChild>
+                <Link to="/admin" className="cursor-pointer text-primary py-2">
+                  <Shield className="mr-2 h-4 w-4" />
+                  Admin Dashboard
+                </Link>
+              </DropdownMenuItem>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
     );
   }
 
   return (
     <Button
       onClick={login}
-      className="bg-white text-black hover:bg-gray-200 rounded-full px-6 font-medium"
+      className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_rgba(0,255,255,0.3)]"
     >
       <Wallet className="mr-2 h-4 w-4" />
       Connect Wallet

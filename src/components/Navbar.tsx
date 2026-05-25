@@ -4,7 +4,6 @@ import { Menu, X, Terminal } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { WalletConnect } from "@/components/WalletConnect";
-import { LogoDropdown } from "@/components/LogoDropdown";
 import { usePrivy } from "@privy-io/react-auth";
 
 export function Navbar() {
@@ -50,7 +49,6 @@ export function Navbar() {
 
       {/* Right: Actions */}
       <div className="hidden md:flex items-center gap-4 pointer-events-auto">
-        {authenticated && <LogoDropdown />}
         <WalletConnect />
       </div>
 
@@ -83,8 +81,7 @@ export function Navbar() {
                 </Link>
               ))}
 
-              <div className="pt-4 flex justify-between items-center">
-                {authenticated && <LogoDropdown />}
+              <div className="pt-4 flex justify-end items-center">
                 <WalletConnect />
               </div>
             </div>
