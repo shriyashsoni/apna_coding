@@ -341,29 +341,29 @@ function GlassPanel() {
           className="w-full h-full flex flex-col justify-between rounded-3xl relative overflow-hidden"
         >
           {/* Main Frosted Glass Content */}
-          <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-12 text-center py-6 md:py-8 overflow-y-auto overflow-x-hidden no-scrollbar">
-            <span className="font-serif italic text-white/70 text-xs md:text-base mb-2">
+          <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-12 text-center py-4 md:py-8 overflow-y-auto overflow-x-hidden no-scrollbar">
+            <span className="font-serif italic text-white/70 text-xs md:text-base mb-1 md:mb-2">
               Web3 Opportunity Layer
             </span>
-            <h2 className="font-serif text-white text-2xl sm:text-3xl md:text-5xl lg:text-[40px] leading-[1.3] tracking-tight w-full max-w-[1000px] mx-auto mb-6 md:mb-8">
+            <h2 className="font-serif text-white text-lg sm:text-3xl md:text-5xl lg:text-[40px] leading-[1.2] md:leading-[1.3] tracking-tight w-full max-w-[1000px] mx-auto mb-4 md:mb-8">
               Apna Coding is a decentralized, public opportunity layer that gives anyone the tools to create experiences that are more like <span className="italic font-normal">growth</span> than just <span className="italic font-normal">networking</span>.
             </h2>
 
             {/* Sub Feature Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-6 w-full max-w-[1100px] text-left mt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 md:gap-6 w-full max-w-[1100px] text-left mt-1 md:mt-2">
               {features.map((feat, idx) => {
                 const Icon = feat.icon;
                 return (
                   <div
                     key={idx}
-                    className="p-4 md:p-6 rounded-2xl border border-white/5 bg-white/[0.03] backdrop-blur-md flex flex-col justify-between hover:border-white/20 transition-all duration-300 group"
+                    className="p-3 md:p-6 rounded-2xl border border-white/5 bg-white/[0.03] backdrop-blur-md flex flex-col justify-between hover:border-white/20 transition-all duration-300 group"
                   >
                     <div>
-                      <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-white flex items-center justify-center text-black mb-3 md:mb-4 group-hover:scale-105 transition-transform">
-                        <Icon className="h-5 w-5 md:h-6 md:w-6" />
+                      <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl bg-white flex items-center justify-center text-black mb-2 md:mb-4 group-hover:scale-105 transition-transform">
+                        <Icon className="h-4 w-4 md:h-6 md:w-6" />
                       </div>
-                      <h3 className="text-base md:text-lg font-bold text-white mb-1.5 md:mb-2">{feat.title}</h3>
-                      <p className="text-white/60 text-[11px] md:text-xs leading-relaxed">{feat.desc}</p>
+                      <h3 className="text-sm md:text-lg font-bold text-white mb-1 md:mb-2">{feat.title}</h3>
+                      <p className="text-white/60 text-[10px] md:text-xs leading-relaxed">{feat.desc}</p>
                     </div>
                   </div>
                 );
@@ -372,11 +372,11 @@ function GlassPanel() {
           </div>
 
           {/* Bottom Infinite Logo Marquee */}
-          <div className="border-t border-white/10 py-6 overflow-hidden w-full relative bg-black/10">
-            <div className="flex w-[200%] animate-marquee whitespace-nowrap">
+          <div className="border-t border-white/10 py-3 md:py-6 overflow-hidden w-full relative bg-black/10">
+            <div className="flex w-max animate-marquee whitespace-nowrap">
               {/* Duplicate 2 times for a seamless infinite loop */}
               {[1, 2].map((multiplier) => (
-                <div key={multiplier} className="flex justify-around items-center w-1/2">
+                <div key={multiplier} className="flex items-center justify-around gap-8 md:gap-16 px-4 md:px-8">
                   {marqueeBrands.map((brand, bIdx) => (
                     <span 
                       key={bIdx}
