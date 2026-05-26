@@ -341,11 +341,11 @@ function GlassPanel() {
           className="w-full h-full flex flex-col justify-between rounded-3xl relative overflow-hidden"
         >
           {/* Main Frosted Glass Content */}
-          <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-12 text-center py-4 md:py-8 overflow-y-auto overflow-x-hidden no-scrollbar">
-            <span className="font-serif italic text-white/70 text-xs md:text-base mb-1 md:mb-2">
+          <div className="flex-1 flex flex-col items-center justify-center px-4 md:px-12 text-center py-2 md:py-8 overflow-y-auto overflow-x-hidden no-scrollbar">
+            <span className="font-serif italic text-white/70 text-[10px] md:text-base mb-1 md:mb-2">
               Web3 Opportunity Layer
             </span>
-            <h2 className="font-serif text-white text-lg sm:text-3xl md:text-5xl lg:text-[40px] leading-[1.2] md:leading-[1.3] tracking-tight w-full max-w-[1000px] mx-auto mb-4 md:mb-8">
+            <h2 className="font-serif text-white text-[17px] sm:text-3xl md:text-5xl lg:text-[40px] leading-[1.2] md:leading-[1.3] tracking-tight w-full max-w-[1000px] mx-auto mb-3 md:mb-8">
               Apna Coding is a decentralized, public opportunity layer that gives anyone the tools to create experiences that are more like <span className="italic font-normal">growth</span> than just <span className="italic font-normal">networking</span>.
             </h2>
 
@@ -356,14 +356,14 @@ function GlassPanel() {
                 return (
                   <div
                     key={idx}
-                    className="p-3 md:p-6 rounded-2xl border border-white/5 bg-white/[0.03] backdrop-blur-md flex flex-col justify-between hover:border-white/20 transition-all duration-300 group"
+                    className="p-2.5 md:p-6 rounded-xl md:rounded-2xl border border-white/5 bg-white/[0.03] backdrop-blur-md flex flex-row sm:flex-col items-center sm:items-start gap-3 md:gap-0 justify-start sm:justify-between hover:border-white/20 transition-all duration-300 group"
                   >
-                    <div>
-                      <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl bg-white flex items-center justify-center text-black mb-2 md:mb-4 group-hover:scale-105 transition-transform">
-                        <Icon className="h-4 w-4 md:h-6 md:w-6" />
-                      </div>
-                      <h3 className="text-sm md:text-lg font-bold text-white mb-1 md:mb-2">{feat.title}</h3>
-                      <p className="text-white/60 text-[10px] md:text-xs leading-relaxed">{feat.desc}</p>
+                    <div className="w-8 h-8 min-w-[32px] md:w-12 md:h-12 md:min-w-[48px] rounded-lg md:rounded-xl bg-white flex items-center justify-center text-black mb-0 md:mb-4 group-hover:scale-105 transition-transform">
+                      <Icon className="h-4 w-4 md:h-6 md:w-6" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <h3 className="text-[13px] md:text-lg font-bold text-white mb-0.5 md:mb-2 leading-tight">{feat.title}</h3>
+                      <p className="text-white/60 text-[10px] md:text-xs leading-snug md:leading-relaxed">{feat.desc}</p>
                     </div>
                   </div>
                 );
