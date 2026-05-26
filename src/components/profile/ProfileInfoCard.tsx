@@ -2,8 +2,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Wallet, Twitter, Github, Linkedin, Mail } from "lucide-react";
+import { Wallet, Twitter, Github, Linkedin, Mail, Shield, Trophy, Calendar, Briefcase, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Badge } from "@/components/ui/badge";
 
 interface ProfileData {
   name?: string;
@@ -12,6 +13,10 @@ interface ProfileData {
   twitterHandle?: string;
   githubUsername?: string;
   linkedinUrl?: string;
+  role?: string;
+  canPostHackathons?: boolean;
+  canPostEvents?: boolean;
+  canPostJobs?: boolean;
 }
 
 interface ProfileInfoCardProps {
@@ -69,10 +74,63 @@ export function ProfileInfoCard({ address, profile, onSave }: ProfileInfoCardPro
           </Button>
         </div>
         
-        <CardTitle className="text-2xl mt-4">
-          {name || "Anonymous Builder"}
-        </CardTitle>
-        <p className="text-muted-foreground text-sm flex items-center gap-2 mt-1">
+        {/* Dynamic Role Badge mapping */}
+        {(() => {
+          const getRoleLabel = (role?: string) => {
+            if (!role || role === "user") return null;
+            switch (role) {
+              case "admin": return { label: "Super Admin", color: "bg-red-500/20 text-red-500 border-red-500/30" };
+              case "moderator": return { label: "Moderator", color: "bg-orange-500/20 text-orange-500 border-orange-500/30" };
+              case "event_manager": return { label: "Event Manager", color: "bg-purple-500/20 text-purple-500 border-purple-500/30" };
+              case "community_manager": return { label: "Community Manager", color: "bg-blue-500/20 text-blue-500 border-blue-500/30" };
+              case "content_manager": return { label: "Content Manager", color: "bg-green-500/20 text-green-500 border-green-500/30" };
+              case "developer": return { label: "Core Developer", color: "bg-cyan-500/20 text-cyan-500 border-cyan-500/30" };
+              case "recruiter": return { label: "Talent Recruiter", color: "bg-yellow-500/20 text-yellow-500 border-yellow-500/30" };
+              default: return null;
+            }
+          };
+          const roleBadge = getRoleLabel(profile?.role);
+          return (
+            <>
+              <div className="flex flex-wrap items-center gap-2 mt-4">
+                <CardTitle className="text-2xl">
+                  {name || "Anonymous Builder"}
+                </CardTitle>
+                {roleBadge && (
+                  <Badge variant="outline" className={`font-bold px-2 py-0.5 border ${roleBadge.color} animate-pulse`}>
+                    <Shield className="h-3 w-3 mr-1" />
+                    {roleBadge.label}
+                  </Badge>
+                )}
+              </div>
+              
+              {((profile?.role && profile.role !== "user") || profile?.canPostEvents || profile?.canPostHackathons || profile?.canPostJobs) && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {profile?.canPostHackathons && (
+                    <Badge variant="secondary" className="text-[9px] bg-purple-500/10 text-purple-500 border border-purple-500/15 font-semibold py-0">
+                      <Trophy className="h-2.5 w-2.5 mr-1" />
+                      Hackathons
+                    </Badge>
+                  )}
+                  {profile?.canPostEvents && (
+                    <Badge variant="secondary" className="text-[9px] bg-blue-500/10 text-blue-500 border border-blue-500/15 font-semibold py-0">
+                      <Calendar className="h-2.5 w-2.5 mr-1" />
+                      Events
+                    </Badge>
+                  )}
+                  {profile?.canPostJobs && (
+                    <Badge variant="secondary" className="text-[9px] bg-green-500/10 text-green-500 border border-green-500/15 font-semibold py-0">
+                      <Briefcase className="h-2.5 w-2.5 mr-1" />
+                      Jobs
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </>
+          );
+        })()}
+
+        <p className="text-muted-foreground text-sm flex items-center gap-2 mt-2.5">
           <Wallet className="h-3.5 w-3.5" />
           <span className="font-mono">{address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Not connected'}</span>
         </p>

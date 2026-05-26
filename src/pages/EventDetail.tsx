@@ -255,7 +255,7 @@ export default function EventDetail() {
             </Card>
 
             {/* Registration Button */}
-            {event.registrationLink && (
+            {event.registration_link && (
               <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-8">
                 <Button
                   size="lg"
@@ -266,7 +266,7 @@ export default function EventDetail() {
                       signIn();
                       return;
                     }
-                    window.open(event.registrationLink, "_blank");
+                    window.open(event.registration_link, "_blank");
                   }}
                 >
                   <ExternalLink className="mr-2 h-5 w-5" />

@@ -46,7 +46,37 @@ export default function AdminDashboard() {
   const address = privyUser?.wallet?.address;
   const { user: authUser, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
-  const isAdmin = authUser?.role === "admin";
+  const isSuperAdmin = authUser?.role === "admin";
+  const isTeamMember = authUser?.role && authUser.role !== "user";
+
+  const isTabAuthorized = (tab: string) => {
+    if (!authUser) return false;
+    if (authUser.role === "admin") return true; // Super Admin has total access
+
+    switch (tab) {
+      case "overview":
+        return true;
+      case "publisher":
+        return authUser.role === "content_manager" || authUser.can_post_jobs || authUser.can_post_hackathons || authUser.can_post_events;
+      case "approvals":
+        return authUser.role === "moderator";
+      case "library":
+      case "search":
+      case "content":
+        return authUser.role === "content_manager" || authUser.role === "recruiter";
+      case "communities":
+        return authUser.role === "community_manager";
+      case "event-groups":
+        return authUser.role === "event_manager";
+      case "news":
+      case "leaderboard":
+        return authUser.role === "content_manager";
+      case "partnerships":
+        return authUser.role === "community_manager";
+      default:
+        return false;
+    }
+  };
 
   const [analytics, setAnalytics] = useState<any>(null);
   const [admins, setAdmins] = useState<any[]>([]);
@@ -112,17 +142,17 @@ export default function AdminDashboard() {
   }, [authenticated, ready, navigate]);
 
   useEffect(() => {
-    if (ready && authenticated && !isAuthLoading && authUser && !isAdmin) {
+    if (ready && authenticated && !isAuthLoading && authUser && !isTeamMember) {
       navigate("/");
-      toast.error("You don't have admin permissions");
+      toast.error("You don't have admin or team privileges");
     }
-  }, [authUser, isAdmin, isAuthLoading, navigate, authenticated, ready]);
+  }, [authUser, isTeamMember, isAuthLoading, navigate, authenticated, ready]);
 
   useEffect(() => {
-    if (isAdmin) {
+    if (isTeamMember) {
       fetchAdminData();
     }
-  }, [isAdmin]);
+  }, [isTeamMember]);
 
   const fetchAdminData = async () => {
     setLoading(true);
@@ -827,115 +857,55 @@ export default function AdminDashboard() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2 h-auto p-3 w-full bg-card/50 border border-primary/20 rounded-lg">
-              <TabsTrigger value="overview" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Eye className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Overview</span>
-              </TabsTrigger>
-              <TabsTrigger value="publisher" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Sparkles className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Publisher</span>
-              </TabsTrigger>
-              <TabsTrigger value="approvals" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem] relative">
-                <Shield className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Approvals</span>
-                {approvalStats && approvalStats.pending > 0 && (
-                  <Badge variant="destructive" className="ml-1 px-1.5 py-0 text-[10px] h-4 flex-shrink-0">
-                    {approvalStats.pending}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="master" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem] border border-primary/20 bg-primary/5">
-                <Bot className="h-4 w-4 flex-shrink-0 text-primary" />
-                <span className="truncate">Super Agent</span>
-              </TabsTrigger>
-              <TabsTrigger value="library" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Database className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Content Library</span>
-              </TabsTrigger>
-              <TabsTrigger value="bulk" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Package className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Bulk</span>
-              </TabsTrigger>
-              <TabsTrigger value="search" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Search className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Search</span>
-              </TabsTrigger>
-              <TabsTrigger value="system" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Activity className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">System</span>
-              </TabsTrigger>
-              <TabsTrigger value="activity" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Clock className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Activity</span>
-              </TabsTrigger>
-              <TabsTrigger value="export" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Download className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Export</span>
-              </TabsTrigger>
-              <TabsTrigger value="reports" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <BarChart3 className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Reports</span>
-              </TabsTrigger>
-              <TabsTrigger value="backup" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Database className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Backup</span>
-              </TabsTrigger>
-              <TabsTrigger value="settings" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Settings className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Settings</span>
-              </TabsTrigger>
-              <TabsTrigger value="permissions" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Users className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Permissions</span>
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <BarChart3 className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Analytics</span>
-              </TabsTrigger>
-              <TabsTrigger value="users" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Users className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Users</span>
-              </TabsTrigger>
-              <TabsTrigger value="content" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Package className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Content</span>
-              </TabsTrigger>
-              <TabsTrigger value="news" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Newspaper className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">News</span>
-              </TabsTrigger>
-              <TabsTrigger value="communities" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <MessageSquare className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Communities</span>
-              </TabsTrigger>
-              <TabsTrigger value="event-groups" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Calendar className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Event Groups</span>
-              </TabsTrigger>
-              <TabsTrigger value="aiagent" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Bot className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">AI Agent</span>
-              </TabsTrigger>
-              <TabsTrigger value="ai-email" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Mail className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">AI Email</span>
-              </TabsTrigger>
-              <TabsTrigger value="bulk-email" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Mail className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Bulk Email</span>
-              </TabsTrigger>
-              <TabsTrigger value="admins" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Shield className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Admins</span>
-              </TabsTrigger>
-              <TabsTrigger value="leaderboard" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Trophy className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Leaderboard</span>
-              </TabsTrigger>
-              <TabsTrigger value="partnerships" className="text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem]">
-                <Star className="h-4 w-4 flex-shrink-0" />
-                <span className="truncate">Partners</span>
-              </TabsTrigger>
+              {[
+                { value: "overview", label: "Overview", icon: Eye },
+                { value: "publisher", label: "Publisher", icon: Sparkles },
+                { value: "approvals", label: "Approvals", icon: Shield, badge: approvalStats?.pending },
+                { value: "master", label: "Super Agent", icon: Bot, isSpecial: true },
+                { value: "library", label: "Content Library", icon: Database },
+                { value: "bulk", label: "Bulk Actions", icon: Package },
+                { value: "search", label: "Search", icon: Search },
+                { value: "system", label: "System Status", icon: Activity },
+                { value: "activity", label: "Activity Logs", icon: Clock },
+                { value: "export", label: "Export Data", icon: Download },
+                { value: "reports", label: "Reports", icon: BarChart3 },
+                { value: "backup", label: "Backup & Restore", icon: Database },
+                { value: "settings", label: "Settings", icon: Settings },
+                { value: "permissions", label: "Team & Rules", icon: Users },
+                { value: "analytics", label: "Analytics", icon: BarChart3 },
+                { value: "users", label: "Registered Users", icon: Users },
+                { value: "content", label: "Manage Content", icon: Package },
+                { value: "news", label: "News & Articles", icon: Newspaper },
+                { value: "communities", label: "Manage Communities", icon: MessageSquare },
+                { value: "event-groups", label: "Manage Event Guides", icon: Calendar },
+                { value: "aiagent", label: "AI Agent Portal", icon: Bot },
+                { value: "ai-email", label: "AI Email Outreach", icon: Mail },
+                { value: "bulk-email", label: "Bulk Emailer", icon: Mail },
+                { value: "admins", label: "Admins Roster", icon: Shield },
+                { value: "leaderboard", label: "Leaderboard Manager", icon: Trophy },
+                { value: "partnerships", label: "Partnerships", icon: Star }
+              ]
+                .filter((tab) => isTabAuthorized(tab.value))
+                .map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      className={`text-xs sm:text-sm flex items-center justify-center gap-1 px-3 py-2 min-h-[2.5rem] relative ${
+                        tab.isSpecial ? "border border-primary/20 bg-primary/5" : ""
+                      }`}
+                    >
+                      <Icon className={`h-4 w-4 flex-shrink-0 ${tab.isSpecial ? "text-primary" : ""}`} />
+                      <span className="truncate">{tab.label}</span>
+                      {tab.badge !== undefined && tab.badge > 0 && (
+                        <Badge variant="destructive" className="ml-1 px-1.5 py-0 text-[10px] h-4 flex-shrink-0">
+                          {tab.badge}
+                        </Badge>
+                      )}
+                    </TabsTrigger>
+                  );
+                })}
             </TabsList>
 
             {/* Overview Tab */}

@@ -101,7 +101,11 @@ export default function Profile() {
                 bio: user.bio,
                 twitterHandle: user.twitter_handle,
                 githubUsername: user.github_username,
-                linkedinUrl: user.linkedin_url
+                linkedinUrl: user.linkedin_url,
+                role: user.role,
+                canPostHackathons: user.can_post_hackathons,
+                canPostEvents: user.can_post_events,
+                canPostJobs: user.can_post_jobs
               } : null}
               onSave={handleSaveProfile}
             />

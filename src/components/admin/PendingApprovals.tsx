@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, Calendar, MapPin, Briefcase, Trophy, Loader2, Package, Wallet, MessageSquare, Newspaper } from "lucide-react";
+import { CheckCircle, XCircle, Calendar, MapPin, Briefcase, Trophy, Loader2, Package, Wallet, MessageSquare, Newspaper, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
@@ -296,7 +296,7 @@ export function PendingApprovals() {
                           )}
                         </div>
                         <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{item.description}</p>
-                        <div className="flex items-center gap-4 mt-3 text-xs text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-4 mt-3 text-xs text-muted-foreground">
                           {item.start_date || item.date ? (
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
@@ -307,6 +307,19 @@ export function PendingApprovals() {
                             <span className="flex items-center gap-1">
                               <MapPin className="h-3 w-3" />
                               {item.location}
+                            </span>
+                          )}
+                          {(item.registration_link || item.link || item.website_url || item.website) && (
+                            <span className="flex items-center gap-1">
+                              <ExternalLink className="h-3 w-3 text-primary" />
+                              <a
+                                href={item.registration_link || item.link || item.website_url || item.website}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:underline text-primary font-semibold"
+                              >
+                                View Link
+                              </a>
                             </span>
                           )}
                           {item.wallet_address && (
