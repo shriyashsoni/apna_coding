@@ -12,7 +12,11 @@ export function CTASection() {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    toast.success("🎉 Successfully subscribed to Web3 opportunities!");
+    
+    const substackUrl = `https://apnacoding.substack.com/subscribe?email=${encodeURIComponent(email)}`;
+    window.open(substackUrl, '_blank');
+    
+    toast.success("🎉 Redirecting to Substack to complete your subscription!");
     setEmail("");
   };
 
