@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { scrapeSideEventsList } from "@/utils/frontend-scraper";
+import { Badge } from "@/components/ui/badge";
 
 export default function EventGroupDetail() {
   const { slug } = useParams<{ slug: string }>();

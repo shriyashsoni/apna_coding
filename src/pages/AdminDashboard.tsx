@@ -241,7 +241,7 @@ export default function AdminDashboard() {
     }
   };
 
-  if (isAuthLoading || !authenticated || !isAdmin) return null;
+  if (isAuthLoading || !authenticated || !isTeamMember) return null;
 
   const handleMakeAdmin = async () => {
     if (!address || !newAdminWallet) return;
