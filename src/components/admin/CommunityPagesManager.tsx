@@ -8,12 +8,13 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Plus, Sparkles, Edit, Trash2, Eye, Globe, Loader2, Power, Link as LinkIcon, Star } from "lucide-react";
+import { Plus, Sparkles, Edit, Trash2, Eye, Globe, Loader2, Power, Link as LinkIcon, Star, CheckCircle } from "lucide-react";
 import { Link } from "react-router";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/lib/supabase";
 import { scrapeContentDirectly } from "@/utils/frontend-scraper";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function CommunityPagesManager() {
   const { user: authUser } = useAuth();
@@ -41,6 +42,9 @@ export function CommunityPagesManager() {
   useEffect(() => {
     fetchCommunities();
   }, []);
+
+  const [selectedCategory, setSelectedCategory] = useState("Ethereum Communities");
+  const [customCategory, setCustomCategory] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -75,6 +79,8 @@ export function CommunityPagesManager() {
     }
 
     setIsSubmitting(true);
+    const finalCategory = selectedCategory === "custom" ? customCategory : selectedCategory;
+
     try {
       const { error } = await supabase.from('communities').insert({
         name: formData.name,
@@ -88,7 +94,7 @@ export function CommunityPagesManager() {
         discord: formData.discord || null,
         telegram: formData.telegram || null,
         github: formData.github || null,
-        category: formData.category || null,
+        category: finalCategory || null,
         tags: formData.tags ? formData.tags.split(",").map(t => t.trim()) : [],
         member_count: formData.memberCount ? parseInt(formData.memberCount) : 0,
         founded: formData.founded || null,
@@ -100,6 +106,8 @@ export function CommunityPagesManager() {
 
       toast.success(`Community "${formData.name}" created!`);
       setIsOpen(false);
+      setSelectedCategory("Ethereum Communities");
+      setCustomCategory("");
       setFormData({
         name: "",
         slug: "",
@@ -422,31 +430,40 @@ export function CommunityPagesManager() {
                   required
                 />
               </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
-                  <Input
-                    id="category"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    placeholder="e.g., DeFi, NFT, Gaming, DAO"
-                  />
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger className="w-full bg-background/50 border-primary/20">
+                      <SelectValue placeholder="Select Category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Ethereum Communities">Ethereum Communities</SelectItem>
+                      <SelectItem value="Blockchain Communities">Blockchain Communities</SelectItem>
+                      <SelectItem value="Web3 Communities">Web3 Communities</SelectItem>
+                      <SelectItem value="AI Communities">AI Communities</SelectItem>
+                      <SelectItem value="Developer Communities">Developer Communities</SelectItem>
+                      <SelectItem value="custom">Other / Custom Category</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <div>
-                  <Label htmlFor="tags">Tags (comma-separated)</Label>
-                  <Input
-                    id="tags"
-                    value={formData.tags}
-                    onChange={(e) => setFormData({ ...formData, tags: e.target.value })}
-                    placeholder="e.g., web3, defi, dao"
-                  />
-                </div>
+                {selectedCategory === "custom" && (
+                  <div className="space-y-2">
+                    <Label htmlFor="customCategory">Custom Category Name *</Label>
+                    <Input
+                      id="customCategory"
+                      value={customCategory}
+                      onChange={(e) => setCustomCategory(e.target.value)}
+                      placeholder="e.g., Gaming Guilds"
+                      required
+                    />
+                  </div>
+                )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <Label htmlFor="logo">Logo URL</Label>
                   <Input
                     id="logo"
@@ -457,80 +474,26 @@ export function CommunityPagesManager() {
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="coverImage">Cover Image URL</Label>
+                <div className="space-y-2">
+                  <Label htmlFor="website">Website / Join URL</Label>
                   <Input
-                    id="coverImage"
-                    type="url"
-                    value={formData.coverImage}
-                    onChange={(e) => setFormData({ ...formData, coverImage: e.target.value })}
-                    placeholder="https://example.com/cover.jpg"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="memberCount">Member Count</Label>
-                  <Input
-                    id="memberCount"
-                    type="number"
-                    value={formData.memberCount}
-                    onChange={(e) => setFormData({ ...formData, memberCount: e.target.value })}
-                    placeholder="e.g., 5000"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="founded">Founded Year</Label>
-                  <Input
-                    id="founded"
-                    value={formData.founded}
-                    onChange={(e) => setFormData({ ...formData, founded: e.target.value })}
-                    placeholder="e.g., 2024"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <Label>Social Links</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  <Input
-                    placeholder="Website URL"
+                    id="website"
                     type="url"
                     value={formData.website}
                     onChange={(e) => setFormData({ ...formData, website: e.target.value })}
-                  />
-                  <Input
-                    placeholder="Twitter URL"
-                    type="url"
-                    value={formData.twitter}
-                    onChange={(e) => setFormData({ ...formData, twitter: e.target.value })}
-                  />
-                  <Input
-                    placeholder="Discord URL"
-                    type="url"
-                    value={formData.discord}
-                    onChange={(e) => setFormData({ ...formData, discord: e.target.value })}
-                  />
-                  <Input
-                    placeholder="Telegram URL"
-                    type="url"
-                    value={formData.telegram}
-                    onChange={(e) => setFormData({ ...formData, telegram: e.target.value })}
+                    placeholder="https://example.com"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
+              <div className="flex items-center gap-2.5 p-3 rounded-lg bg-primary/5 border border-primary/10">
+                <Switch
                   id="isPublished"
                   checked={formData.isPublished}
-                  onChange={(e) => setFormData({ ...formData, isPublished: e.target.checked })}
+                  onCheckedChange={(checked) => setFormData({ ...formData, isPublished: checked })}
                 />
-                <Label htmlFor="isPublished" className="cursor-pointer">
-                  Publish immediately
+                <Label htmlFor="isPublished" className="cursor-pointer font-semibold text-sm">
+                  Approve and Publish immediately (Make visible on main page)
                 </Label>
               </div>
 
@@ -549,7 +512,7 @@ export function CommunityPagesManager() {
                   )}
                 </Button>
               </div>
-                </form>
+            </form>
               </TabsContent>
             </Tabs>
           </DialogContent>
