@@ -17,7 +17,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 
 export default function Jobs() {
-  const { user: authUser, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { user: authUser, isAuthenticated, isLoading: isAuthLoading, signIn } = useAuth();
   const address = authUser?.wallet_address;
   const isConnected = isAuthenticated;
   const isAdmin = authUser?.role === "admin";
@@ -485,6 +485,11 @@ export default function Jobs() {
                       className="w-full md:w-auto bg-primary text-primary-foreground hover:bg-primary/90" 
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (!isAuthenticated && signIn) {
+                          toast.error("Please connect your wallet to apply");
+                          signIn();
+                          return;
+                        }
                         window.open(job.link, "_blank");
                       }}
                     >

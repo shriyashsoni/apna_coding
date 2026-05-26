@@ -28,7 +28,7 @@ import {
 export default function JobDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, signIn } = useAuth();
   const address = user?.wallet_address;
   const [job, setJob] = useState<any>(undefined);
   const { mutate: deleteJobMutate } = useSupabaseMutation('jobs');
@@ -200,7 +200,14 @@ export default function JobDetail() {
                   <Button
                     size="lg"
                     className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(0,255,255,0.4)] text-lg px-8 py-6"
-                    onClick={() => window.open(job.link || job.external_url, "_blank")}
+                    onClick={() => {
+                      if (!isAuthenticated && signIn) {
+                        toast.error("Please connect your wallet to apply");
+                        signIn();
+                        return;
+                      }
+                      window.open(job.link || job.external_url, "_blank");
+                    }}
                   >
                     Apply for this Position
                     <ExternalLink className="ml-2 h-5 w-5" />

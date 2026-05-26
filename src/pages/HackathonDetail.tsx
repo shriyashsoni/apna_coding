@@ -25,7 +25,7 @@ import { useEffect } from "react";
 export default function HackathonDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
-  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: isAuthLoading, signIn } = useAuth();
   const address = user?.wallet_address;
   const [hackathon, setHackathon] = useState<any>(undefined);
   const [teams, setTeams] = useState<any[]>([]);
@@ -547,10 +547,19 @@ export default function HackathonDetail() {
             </div>
             {hackathon.registration_link && (
               <div className="mt-6 flex flex-col sm:flex-row gap-3">
-                <Button asChild size="lg" className="bg-primary hover:bg-primary/90">
-                  <a href={hackathon.registration_link} target="_blank" rel="noopener noreferrer">
-                    Register Now <ExternalLink className="ml-2 h-4 w-4" />
-                  </a>
+                <Button 
+                  size="lg" 
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => {
+                    if (!isAuthenticated && signIn) {
+                      toast.error("Please connect your wallet to register");
+                      signIn();
+                      return;
+                    }
+                    window.open(hackathon.registration_link, "_blank");
+                  }}
+                >
+                  Register Now <ExternalLink className="ml-2 h-4 w-4" />
                 </Button>
                 <ShareButtons
                   url={`/hackathons/${slug}`}
@@ -599,10 +608,19 @@ export default function HackathonDetail() {
                     <p className="text-muted-foreground">
                       Ready to participate? Register for this hackathon using the link below.
                     </p>
-                    <Button asChild size="lg" className="w-full bg-primary hover:bg-primary/90">
-                      <a href={hackathon.registration_link} target="_blank" rel="noopener noreferrer">
-                        Register Now <ExternalLink className="ml-2 h-4 w-4" />
-                      </a>
+                    <Button 
+                      size="lg" 
+                      className="w-full bg-primary hover:bg-primary/90"
+                      onClick={() => {
+                        if (!isAuthenticated && signIn) {
+                          toast.error("Please connect your wallet to register");
+                          signIn();
+                          return;
+                        }
+                        window.open(hackathon.registration_link, "_blank");
+                      }}
+                    >
+                      Register Now <ExternalLink className="ml-2 h-4 w-4" />
                     </Button>
                   </CardContent>
                 </Card>

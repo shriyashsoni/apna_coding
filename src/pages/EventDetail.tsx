@@ -28,7 +28,7 @@ import {
 export default function EventDetail() {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, signIn } = useAuth();
   const address = user?.wallet_address;
   const [event, setEvent] = useState<any>(undefined);
   const { mutate: deleteEventMutate } = useSupabaseMutation('events');
@@ -260,7 +260,14 @@ export default function EventDetail() {
                 <Button
                   size="lg"
                   className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(0,255,255,0.4)] text-lg px-8 py-6"
-                  onClick={() => window.open(event.registrationLink, "_blank")}
+                  onClick={() => {
+                    if (!isAuthenticated && signIn) {
+                      toast.error("Please connect your wallet to register");
+                      signIn();
+                      return;
+                    }
+                    window.open(event.registrationLink, "_blank");
+                  }}
                 >
                   <ExternalLink className="mr-2 h-5 w-5" />
                   Register for This Event
