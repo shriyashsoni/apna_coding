@@ -186,10 +186,10 @@ export default function EventDetail() {
             </div>
 
             {/* Event Image */}
-            {event.image && (
+            {(event.image || event.image_url) && (
               <div className="mb-8 rounded-lg overflow-hidden border border-primary/20">
                 <img
-                  src={event.image}
+                  src={event.image || event.image_url}
                   alt={event.title}
                   className="w-full h-[400px] object-cover"
                 />

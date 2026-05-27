@@ -79,8 +79,8 @@ export default function Landing() {
                   <Link to={`/hackathons/${hackathon.slug}`} className="block h-full group">
                     <div className="liquid-glass rounded-2xl overflow-hidden h-full flex flex-col">
                       <div className="h-48 relative bg-muted/30">
-                        {hackathon.image ? (
-                          <img src={hackathon.image} alt={hackathon.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        {(hackathon.image || hackathon.image_url) ? (
+                          <img src={hackathon.image || hackathon.image_url} alt={hackathon.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center"><Trophy className="h-10 w-10 text-muted-foreground/30" /></div>
                         )}
@@ -123,8 +123,8 @@ export default function Landing() {
                   <Link to={`/events/${event.slug || event.id}`} className="block h-full group">
                     <div className="liquid-glass rounded-2xl overflow-hidden h-full flex flex-col">
                       <div className="h-48 relative bg-muted/30">
-                        {event.image ? (
-                          <img src={event.image} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        {(event.image || event.image_url) ? (
+                          <img src={event.image || event.image_url} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center"><Calendar className="h-10 w-10 text-muted-foreground/30" /></div>
                         )}

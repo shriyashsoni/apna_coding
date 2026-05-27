@@ -3,7 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, XCircle, Download, Loader2, Eye } from "lucide-react";
+import { CheckCircle, XCircle, Download, Loader2, Eye, Sparkles, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
@@ -19,8 +19,125 @@ export function BulkActions() {
   const address = authUser?.wallet_address;
   const [selectedItems, setSelectedItems] = useState<SelectedItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDeduplicating, setIsDeduplicating] = useState(false);
   const [allItems, setAllItems] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const handleAIDeduplicate = async () => {
+    if (!address) {
+      toast.error("Please connect your wallet");
+      return;
+    }
+
+    setIsDeduplicating(true);
+    toast.info("🧠 AI Analysis: Scanning database for duplicates...");
+
+    try {
+      // 1. Scan Hackathons
+      const { data: hackathons } = await supabase
+        .from('hackathons')
+        .select('id, name, registration_link')
+        .order('created_at', { ascending: true });
+
+      const seenHNames = new Set();
+      const seenHLinks = new Set();
+      const duplicateHIds: string[] = [];
+
+      if (hackathons) {
+        hackathons.forEach(h => {
+          const cleanName = h.name.trim().toLowerCase();
+          const cleanLink = h.registration_link ? h.registration_link.trim().toLowerCase().replace(/\/$/, "") : null;
+          
+          if (seenHNames.has(cleanName) || (cleanLink && seenHLinks.has(cleanLink))) {
+            duplicateHIds.push(h.id);
+          } else {
+            seenHNames.add(cleanName);
+            if (cleanLink) seenHLinks.add(cleanLink);
+          }
+        });
+      }
+
+      // 2. Scan Events
+      const { data: events } = await supabase
+        .from('events')
+        .select('id, title, registration_link')
+        .order('created_at', { ascending: true });
+
+      const seenETitles = new Set();
+      const seenELinks = new Set();
+      const duplicateEIds: string[] = [];
+
+      if (events) {
+        events.forEach(e => {
+          const cleanTitle = e.title.trim().toLowerCase();
+          const cleanLink = e.registration_link ? e.registration_link.trim().toLowerCase().replace(/\/$/, "") : null;
+
+          if (seenETitles.has(cleanTitle) || (cleanLink && seenELinks.has(cleanLink))) {
+            duplicateEIds.push(e.id);
+          } else {
+            seenETitles.add(cleanTitle);
+            if (cleanLink) seenELinks.add(cleanLink);
+          }
+        });
+      }
+
+      // 3. Scan Jobs
+      const { data: jobs } = await supabase
+        .from('jobs')
+        .select('id, title, link')
+        .order('created_at', { ascending: true });
+
+      const seenJTitles = new Set();
+      const seenJLinks = new Set();
+      const duplicateJIds: string[] = [];
+
+      if (jobs) {
+        jobs.forEach(j => {
+          const cleanTitle = j.title.trim().toLowerCase();
+          const cleanLink = j.link ? j.link.trim().toLowerCase().replace(/\/$/, "") : null;
+
+          if (seenJTitles.has(cleanTitle) || (cleanLink && seenJLinks.has(cleanLink))) {
+            duplicateJIds.push(j.id);
+          } else {
+            seenJTitles.add(cleanTitle);
+            if (cleanLink) seenJLinks.add(cleanLink);
+          }
+        });
+      }
+
+      const totalDuplicates = duplicateHIds.length + duplicateEIds.length + duplicateJIds.length;
+
+      if (totalDuplicates === 0) {
+        toast.success("✨ Database is clean! No duplicates found.");
+        setIsDeduplicating(false);
+        return;
+      }
+
+      if (!confirm(`🧠 AI Analysis found ${totalDuplicates} duplicates:\n- Hackathons: ${duplicateHIds.length}\n- Events: ${duplicateEIds.length}\n- Jobs: ${duplicateJIds.length}\n\nDo you want to delete these duplicates, leaving exactly one distinct copy of each opportunity?`)) {
+        setIsDeduplicating(false);
+        return;
+      }
+
+      const deletePromises = [];
+      if (duplicateHIds.length > 0) {
+        deletePromises.push(supabase.from('hackathons').delete().in('id', duplicateHIds));
+      }
+      if (duplicateEIds.length > 0) {
+        deletePromises.push(supabase.from('events').delete().in('id', duplicateEIds));
+      }
+      if (duplicateJIds.length > 0) {
+        deletePromises.push(supabase.from('jobs').delete().in('id', duplicateJIds));
+      }
+
+      await Promise.all(deletePromises);
+      toast.success(`🎉 AI Deduplication complete! Removed ${totalDuplicates} redundant items.`);
+      fetchPendingItems();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to run AI Deduplication");
+    } finally {
+      setIsDeduplicating(false);
+    }
+  };
 
   const fetchPendingItems = async () => {
     if (!address) return;
@@ -193,17 +310,53 @@ export function BulkActions() {
 
   return (
     <div className="space-y-6">
-      <Card className="border-primary/20">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CheckCircle className="h-5 w-5" />
-            Bulk Actions
-          </CardTitle>
-          <CardDescription>
-            Select multiple items and perform actions in bulk to save time
-          </CardDescription>
-        </CardHeader>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card className="border-primary/20 bg-card/40 backdrop-blur-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-primary" />
+              Standard Bulk Manager
+            </CardTitle>
+            <CardDescription>
+              Select pending items below to approve, reject, or export in bulk.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        <Card className="border-purple-500/20 bg-purple-500/5 backdrop-blur-md relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <Sparkles className="h-24 w-24 text-purple-500" />
+          </div>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-purple-400">
+              <Sparkles className="h-5 w-5 text-purple-400 animate-pulse" />
+              AI-Driven Deduplicator
+            </CardTitle>
+            <CardDescription>
+              Scan all listed hackathons, events, and jobs. Detect formatting variations and redundant URL links to automatically clean up database clutter, leaving exactly one unique record of each opportunity.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button 
+              onClick={handleAIDeduplicate}
+              disabled={isDeduplicating}
+              className="bg-purple-600 hover:bg-purple-700 text-white font-semibold gap-2 shadow-[0_0_15px_rgba(168,85,247,0.4)] border border-purple-500/30"
+            >
+              {isDeduplicating ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Analyzing & Cleaning Database...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="h-4 w-4" />
+                  Run AI Deduplication Tool
+                </>
+              )}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Action Buttons */}
       {selectedItems.length > 0 && (

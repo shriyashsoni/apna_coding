@@ -69,9 +69,9 @@ export function EventCard({ event, index, showDelete = false, onDelete }: EventC
         className="group liquid-glass rounded-2xl overflow-hidden transition-all cursor-pointer h-full flex flex-col"
       >
         <div className="h-48 bg-muted/50 relative shrink-0">
-        {event.image ? (
+        {(event.image || event.image_url) ? (
           <img
-            src={event.image}
+            src={event.image || event.image_url}
             alt={event.title}
             className="w-full h-full object-cover"
             onError={(e) => {

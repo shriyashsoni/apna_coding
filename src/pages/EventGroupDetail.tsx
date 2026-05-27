@@ -640,9 +640,9 @@ export default function EventGroupDetail() {
 
                         {/* Banner Image */}
                         <div className="h-44 w-full bg-muted relative overflow-hidden">
-                          {event.image ? (
+                          {(event.image || event.image_url) ? (
                             <img
-                              src={event.image}
+                              src={event.image || event.image_url}
                               alt={event.title}
                               className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
                             />
