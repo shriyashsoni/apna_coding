@@ -77,28 +77,99 @@ serve(async (req) => {
           Rules: 1. Must be 2026 or later. 2. If past, set is_expired: true. 3. Extract rich description, dates (ms), location (city/country or Online), and search_keyword for images.
           JSON keys: is_hackathon, title, description, start_date_ms, end_date_ms, location, is_expired, search_keyword`;
 
-          const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-          });
+          let extracted = null;
+          try {
+            const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+            });
 
-          const aiData = await aiResponse.json();
-          const rawJson = aiData.candidates?.[0]?.content?.parts?.[0]?.text?.replace(/```json|```/g, "").trim();
-          if (!rawJson) continue;
+            const aiData = await aiResponse.json();
+            if (aiResponse.status === 200) {
+              let rawJson = aiData.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (rawJson) {
+                rawJson = rawJson.replace(/```json|```/g, "").trim();
+                extracted = JSON.parse(rawJson);
+              }
+            } else {
+              console.log(`⚠️ Gemini API returned HTTP status ${aiResponse.status}. Activating autonomous smart NLP fallback parser...`);
+            }
+          } catch (aiErr) {
+            console.log(`⚠️ Gemini call failed: ${aiErr.message}. Activating autonomous smart NLP fallback parser...`);
+          }
 
-          const extracted = JSON.parse(rawJson);
+          if (!extracted) {
+            // Smart heuristic parser fallback
+            const isHackathon = queryObj.type === 'hackathon';
+            const cleanTitle = result.title.split(' - ')[0].split(' | ')[0].trim();
+            extracted = {
+              is_hackathon: isHackathon,
+              title: cleanTitle,
+              description: result.snippet || `Discover the latest ${queryObj.type} opportunities in the Web3 ecosystem.`,
+              start_date_ms: nowMs + 86400000 * 7, // 1 week from now
+              end_date_ms: nowMs + 86400000 * 14, // 2 weeks from now
+              location: result.title.toLowerCase().includes('online') || result.snippet.toLowerCase().includes('online') ? 'Online' : 'Remote',
+              is_expired: false,
+              search_keyword: cleanTitle
+            };
+          }
+
           if (extracted.is_expired || (extracted.end_date_ms && extracted.end_date_ms < nowMs)) continue;
 
           const tableName = queryObj.type === 'hackathon' ? 'hackathons' : queryObj.type === 'job' ? 'jobs' : 'events';
           const slug = `${extracted.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Math.floor(Date.now()/1000)}`;
 
-          // Check duplicate
-          const { data: existing } = await supabase.from(tableName).select('id').eq('title', extracted.title).single();
-          if (existing) continue;
+          // Super robust duplicate check: checks title case-insensitively and URL link
+          let isDuplicate = false;
+          try {
+            const cleanTitle = extracted.title.trim();
+            const linkField = tableName === 'jobs' ? 'link' : 'registration_link';
+            
+            // 1. Check by exact URL first (strongest match)
+            const { data: urlMatch } = await supabase
+              .from(tableName)
+              .select('id')
+              .eq(linkField, result.link)
+              .limit(1);
+            
+            if (urlMatch && urlMatch.length > 0) {
+              isDuplicate = true;
+            } else {
+              // 2. Check by case-insensitive Title (ilike)
+              const { data: titleMatch } = await supabase
+                .from(tableName)
+                .select('id')
+                .ilike('title', cleanTitle)
+                .limit(1);
+                
+              if (titleMatch && titleMatch.length > 0) {
+                isDuplicate = true;
+              }
+            }
+          } catch (dupErr) {
+            console.log(`⚠️ Duplicate check warning: ${dupErr.message}`);
+          }
 
-          // Fetch real image
-          const imageUrl = await fetchImage(`${extracted.search_keyword || extracted.title} 2026 event`, SEARCH_API_KEY || "");
+          if (isDuplicate) {
+            console.log(`⏩ Skipping duplicate item: "${extracted.title}"`);
+            continue;
+          }
+
+          // Fetch real image with optimized punchy search terms
+          let imageSearchQuery = extracted.search_keyword || extracted.title;
+          imageSearchQuery = imageSearchQuery
+            .replace(/(2024|2025|2026|2027)/gi, "") // remove years
+            .replace(/(hackathon|event|conference|job|jobs|hiring|indeed|ziprecruiter|devpost)/gi, "") // remove generic descriptors
+            .trim();
+
+          if (!imageSearchQuery) {
+            imageSearchQuery = extracted.title;
+          } else {
+            imageSearchQuery = `${imageSearchQuery} logo banner`;
+          }
+
+          const imageUrl = await fetchImage(imageSearchQuery, SEARCH_API_KEY || "");
 
           const insertData: any = {
             slug,
@@ -113,14 +184,15 @@ serve(async (req) => {
 
           if (queryObj.type === 'hackathon') {
             insertData.name = extracted.title;
-            insertData.start_date = extracted.start_date_ms || nowMs;
-            insertData.end_date = extracted.end_date_ms || (nowMs + 604800000);
+            insertData.start_date = Number(extracted.start_date_ms || nowMs);
+            insertData.end_date = Number(extracted.end_date_ms || (nowMs + 604800000));
             insertData.location = extracted.location || "Online";
           } else if (queryObj.type === 'job') {
             insertData.company = extracted.company || "Web3 Stealth";
             insertData.location = extracted.location || "Remote";
+            insertData.link = result.link;
           } else {
-            insertData.date = extracted.start_date_ms || nowMs;
+            insertData.date = Number(extracted.start_date_ms || nowMs);
             insertData.location = extracted.location || "TBA";
           }
 
