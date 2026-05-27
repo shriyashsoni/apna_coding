@@ -233,11 +233,11 @@ export default function Communities() {
               <span>Select Active Catalog Ecosystem</span>
             </div>
             
-            <div className="flex flex-wrap gap-2 justify-center max-w-4xl p-1.5 bg-card/40 border rounded-full shadow-lg backdrop-blur-md overflow-x-auto py-2">
+            <div className="flex md:flex-wrap gap-2 justify-start md:justify-center w-full max-w-4xl p-2 bg-card/40 border rounded-2xl md:rounded-full shadow-lg backdrop-blur-md overflow-x-auto scrollbar-none py-2 px-4 whitespace-nowrap">
               <Button
                 variant={activeCatalog === "all" ? "default" : "ghost"}
                 onClick={() => setActiveCatalog("all")}
-                className="rounded-full px-5 py-2 text-xs md:text-sm font-semibold transition-all duration-300"
+                className="rounded-full px-5 py-2 text-xs md:text-sm font-semibold transition-all duration-300 shrink-0"
               >
                 🌐 All Catalogs ({communities.length})
               </Button>
@@ -248,7 +248,7 @@ export default function Communities() {
                     key={catalog}
                     variant={activeCatalog === catalog ? "default" : "ghost"}
                     onClick={() => setActiveCatalog(catalog)}
-                    className="rounded-full px-5 py-2 text-xs md:text-sm font-semibold transition-all duration-300 gap-1.5"
+                    className="rounded-full px-5 py-2 text-xs md:text-sm font-semibold transition-all duration-300 gap-1.5 shrink-0"
                   >
                     <span>{getCatalogIcon(catalog)}</span>
                     <span>{catalog}</span>

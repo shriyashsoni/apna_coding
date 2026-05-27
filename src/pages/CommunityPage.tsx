@@ -326,7 +326,7 @@ export default function CommunityPage() {
 
       {/* Floating Admin Controls */}
       {isAdmin && (
-        <div className="bg-primary/10 border-b border-primary/20 sticky top-16 z-30 backdrop-blur-md">
+        <div className="bg-primary/10 border-b border-primary/20 sticky top-24 md:top-28 z-30 backdrop-blur-md">
           <div className="container mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <ShieldAlert className="h-5 w-5 text-primary animate-pulse" />
@@ -356,7 +356,7 @@ export default function CommunityPage() {
       )}
 
       {/* Hero Section */}
-      <section className="relative pt-20 pb-16">
+      <section className="relative pt-28 md:pt-32 pb-16">
         {community.cover_image && (
           <div
             className="absolute inset-0 opacity-20"

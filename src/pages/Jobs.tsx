@@ -469,7 +469,7 @@ export default function Jobs() {
                       <h3 className="text-lg font-bold truncate group-hover:text-primary transition-colors">{job.title}</h3>
                       <Badge variant="outline" className="border-primary/30 text-primary text-xs">{job.type}</Badge>
                     </div>
-                    <div className="flex items-center text-sm text-muted-foreground gap-4">
+                    <div className="flex flex-wrap items-center text-sm text-muted-foreground gap-x-4 gap-y-1.5">
                       <span className="flex items-center"><Building className="h-3 w-3 mr-1" /> {job.company}</span>
                       <span className="flex items-center"><MapPin className="h-3 w-3 mr-1" /> {job.location}</span>
                       {job.salary && <span className="flex items-center text-accent"><DollarSign className="h-3 w-3 mr-1" /> {job.salary}</span>}

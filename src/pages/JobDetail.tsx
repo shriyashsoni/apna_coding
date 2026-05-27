@@ -129,7 +129,7 @@ export default function JobDetail() {
           >
             {/* Header Section */}
             <div className="mb-8">
-              <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
                 <div className="flex-1">
                   <div className="flex flex-wrap items-center gap-3 mb-3">
                     <Badge variant="outline" className="border-primary/30 text-primary">
