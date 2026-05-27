@@ -276,6 +276,9 @@ export default function EventDetail() {
                   url={`/events/${event.slug || event.id}`}
                   title={event.title}
                   description={event.description}
+                  date={event.date}
+                  location={event.location}
+                  type="event"
                   hashtags={['web3', 'event', 'blockchain', 'apnacoding']}
                 />
               </div>

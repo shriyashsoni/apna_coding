@@ -217,6 +217,8 @@ export default function JobDetail() {
                     url={`/jobs/${job.slug || job.id}`}
                     title={`${job.title} at ${job.company}`}
                     description={job.description}
+                    location={job.location}
+                    type="job"
                     hashtags={['jobs', 'tech', 'web3', 'apnacoding']}
                   />
                 </div>

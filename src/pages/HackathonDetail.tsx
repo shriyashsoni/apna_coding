@@ -565,6 +565,9 @@ export default function HackathonDetail() {
                   url={`/hackathons/${slug}`}
                   title={hackathon.title || hackathon.name}
                   description={hackathon.tagline || hackathon.short_description || hackathon.description}
+                  date={hackathon.start_date}
+                  location={hackathon.location || hackathon.mode}
+                  type="hackathon"
                   hashtags={['web3', 'hackathon', 'blockchain', 'apnacoding']}
                 />
               </div>
