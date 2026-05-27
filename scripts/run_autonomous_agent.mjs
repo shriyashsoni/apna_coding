@@ -34,6 +34,7 @@ Object.assign(process.env, env);
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.VITE_SUPABASE_ANON_KEY;
 const GOOGLE_AI_KEY = process.env.GOOGLE_AI_KEY;
+const GROK_API_KEY = process.env.GROK_API_KEY || process.env.XAI_API_KEY;
 const SEARCH_API_KEY = process.env.SEARCH_API_KEY;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID || "@ApnaCoding_Updates";
@@ -43,8 +44,8 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
   process.exit(1);
 }
 
-if (!GOOGLE_AI_KEY || !SEARCH_API_KEY) {
-  console.error("❌ ERROR: Missing GOOGLE_AI_KEY or SEARCH_API_KEY for search and analysis. Please add them to your .env!");
+if ((!GOOGLE_AI_KEY && !GROK_API_KEY) || !SEARCH_API_KEY) {
+  console.error("❌ ERROR: Missing AI API keys (GOOGLE_AI_KEY or GROK_API_KEY) or SEARCH_API_KEY. Please add them to your .env!");
   process.exit(1);
 }
 
@@ -136,25 +137,69 @@ async function startCycle() {
           JSON keys: is_hackathon, title, description, start_date_ms, end_date_ms, location, is_expired, search_keyword`;
 
           let extracted = null;
-          try {
-            const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
-            });
 
-            const aiData = await aiResponse.json();
-            if (aiResponse.status === 200) {
-              let rawJson = aiData.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (rawJson) {
-                rawJson = rawJson.replace(/```json|```/g, "").trim();
-                extracted = JSON.parse(rawJson);
+          // 1. Try Grok first if GROK_API_KEY is available
+          if (GROK_API_KEY) {
+            try {
+              console.log(`🤖 Analyzing content with Grok: "${result.title}"...`);
+              const grokResponse = await fetch("https://api.x.ai/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${GROK_API_KEY}`
+                },
+                body: JSON.stringify({
+                  model: "grok-2",
+                  messages: [
+                    {
+                      role: "user",
+                      content: `${prompt}\nRespond with JSON only.`
+                    }
+                  ],
+                  temperature: 0.1
+                })
+              });
+
+              if (grokResponse.status === 200) {
+                const grokData = await grokResponse.json();
+                let rawJson = grokData.choices?.[0]?.message?.content;
+                if (rawJson) {
+                  rawJson = rawJson.replace(/```json|```/g, "").trim();
+                  extracted = JSON.parse(rawJson);
+                  console.log(`✅ Successfully extracted data using Grok!`);
+                }
+              } else {
+                console.log(`⚠️ Grok API returned HTTP status ${grokResponse.status}. Trying Gemini...`);
               }
-            } else {
-              console.log(`⚠️ Gemini API returned HTTP status ${aiResponse.status}. Activating autonomous smart NLP fallback parser...`);
+            } catch (grokErr) {
+              console.log(`⚠️ Grok call failed: ${grokErr.message}. Trying Gemini...`);
             }
-          } catch (aiErr) {
-            console.log(`⚠️ Gemini call failed: ${aiErr.message}. Activating autonomous smart NLP fallback parser...`);
+          }
+
+          // 2. Fallback to Gemini if Grok didn't extract the details
+          if (!extracted && GOOGLE_AI_KEY) {
+            try {
+              console.log(`🤖 Analyzing content with Gemini: "${result.title}"...`);
+              const aiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GOOGLE_AI_KEY}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+              });
+
+              const aiData = await aiResponse.json();
+              if (aiResponse.status === 200) {
+                let rawJson = aiData.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (rawJson) {
+                  rawJson = rawJson.replace(/```json|```/g, "").trim();
+                  extracted = JSON.parse(rawJson);
+                  console.log(`✅ Successfully extracted data using Gemini!`);
+                }
+              } else {
+                console.log(`⚠️ Gemini API returned HTTP status ${aiResponse.status}. Activating autonomous smart NLP fallback parser...`);
+              }
+            } catch (aiErr) {
+              console.log(`⚠️ Gemini call failed: ${aiErr.message}. Activating autonomous smart NLP fallback parser...`);
+            }
           }
 
           if (!extracted) {
