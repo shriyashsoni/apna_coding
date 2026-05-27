@@ -77,6 +77,10 @@ serve(async (req) => {
           Content: ${result.title} - ${result.snippet}
           Rules: 1. Must be 2026 or later. 2. If past, set is_expired: true. 3. Extract rich description, dates (ms), location (city/country or Online), and search_keyword for images.
           JSON keys: is_hackathon, title, description, start_date_ms, end_date_ms, location, is_expired, search_keyword`;
+          // Robust rate-limit throttling to prevent 429 Too Many Requests on free-tier API keys
+          if (GOOGLE_AI_KEY || GROK_API_KEY) {
+            await new Promise(resolve => setTimeout(resolve, 4000));
+          }
 
           let extracted = null;
 

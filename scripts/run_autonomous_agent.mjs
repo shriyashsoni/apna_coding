@@ -126,8 +126,11 @@ async function startCycle() {
         }
 
         try {
-          console.log(`🤖 Analyzing content with Gemini: "${result.title}"...`);
-          
+          // Robust rate-limit throttling to prevent 429 Too Many Requests on free-tier API keys
+          if (GOOGLE_AI_KEY || GROK_API_KEY) {
+            await new Promise(resolve => setTimeout(resolve, 4000));
+          }
+
           const prompt = `Return JSON ONLY for this 2026 ${queryObj.type}. 
           Content: ${result.title} - ${result.snippet}
           Rules: 
