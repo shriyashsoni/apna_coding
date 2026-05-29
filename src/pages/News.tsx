@@ -8,6 +8,7 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { SEO } from "@/components/SEO";
 
 export default function News() {
   const [news, setNews] = useState<any[] | null>(null);
@@ -68,6 +69,13 @@ export default function News() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
+      <SEO
+        title="Web3 News, Guides & Tech Insights"
+        description="Stay updated with the latest Web3 and blockchain news, Solidity tutorials, coding announcements, and developer ecosystem insights."
+        keywords={["web3 news", "blockchain news", "solidity tutorials", "crypto insights"]}
+        url="/news"
+        type="website"
+      />
       <Navbar />
       <main className="flex-1 pt-24 pb-16">
         <div className="container mx-auto px-4">

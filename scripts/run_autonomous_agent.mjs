@@ -287,7 +287,7 @@ async function startCycle() {
             title: extracted.title,
             description: extracted.description,
             image_url: imageUrl,
-            is_published: true,
+            is_published: false, // Set to false so scraped items go into draft/approval queue for admin review
             registration_link: result.link,
             created_at: new Date().toISOString()
           };

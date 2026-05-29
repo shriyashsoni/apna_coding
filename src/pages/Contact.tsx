@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -96,6 +97,13 @@ Sent from Apna Coding Contact Form
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
+      <SEO
+        title="Contact Apna Coding - Web3 Support & Partnerships"
+        description="Get in touch with Apna Coding team. Reach out for partnership opportunities, collaboration proposals, technical support, or platform suggestions."
+        keywords={["contact apna coding", "apna coding support", "web3 collaborations", "partnership inquiries"]}
+        url="/contact"
+        type="website"
+      />
       <Navbar />
 
       <main className="flex-1 container mx-auto px-4 pt-32 pb-12">

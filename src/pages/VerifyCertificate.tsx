@@ -11,6 +11,7 @@ import { Shield, Search, CheckCircle, XCircle, Award, Calendar, ExternalLink, Sp
 import { motion } from "framer-motion";
 import { getCurrentFlowConfig } from "@/lib/flowConfig";
 import { supabase } from "@/lib/supabase";
+import { SEO } from "@/components/SEO";
 
 export default function VerifyCertificate() {
   const { certificateNumber: urlCertNumber } = useParams();
@@ -66,8 +67,24 @@ export default function VerifyCertificate() {
     setSearchQuery(searchNumber);
   };
 
+  const hasCert = verification?.valid && verification?.certificate;
+  const seoTitle = hasCert 
+    ? `Verified Certificate: ${verification.certificate.participantName} - ${verification.certificate.eventName}`
+    : "Verify Web3 Certificates & Credentials";
+  
+  const seoDescription = hasCert
+    ? `Verify the official Web3 credential issued by Apna Coding to ${verification.certificate.participantName} for participating in ${verification.certificate.eventName}.`
+    : "Lookup and verify the authenticity of Web3 certificates, credentials, and event completions issued on the Apna Coding platform.";
+
   return (
     <div className="min-h-screen flex flex-col">
+      <SEO
+        title={seoTitle}
+        description={seoDescription}
+        url={urlCertNumber ? `/verify/${urlCertNumber}` : "/verify"}
+        type="website"
+        keywords={hasCert ? [verification.certificate.participantName, verification.certificate.eventName, "verified certificate", "apna coding credentials"] : ["verify certificate", "web3 credentials", "blockchain certification"]}
+      />
       <Navbar />
 
       <main className="flex-1 container mx-auto px-4 pt-32 pb-12">

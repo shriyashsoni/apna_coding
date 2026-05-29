@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Sparkles, Mail, Send, Copy, RefreshCw, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { sendEmailUnified } from "@/lib/resend";
 
 export function AIEmailAgent() {
   const [formData, setFormData] = useState({
@@ -109,7 +110,47 @@ export function AIEmailAgent() {
   };
 
   const handleSendEmail = async () => {
-    toast.info("Email sending logic needs to be migrated to Supabase Edge Functions");
+    if (!formData.recipientEmail) {
+      toast.error("Please enter a recipient email address.");
+      return;
+    }
+
+    const currentTemplate = generatedEmail?.templates?.[selectedTemplate] || generatedEmail;
+    if (!currentTemplate) {
+      toast.error("Please generate an email first before attempting to send.");
+      return;
+    }
+
+    setIsSendingEmail(true);
+    try {
+      const subject = currentTemplate.subject;
+      const content = currentTemplate.content;
+
+      // Wrap or strip plain templates accordingly
+      const formattedHtml = useColorfulTemplate ? content : convertToPlainTemplate(content);
+
+      const result = await sendEmailUnified(
+        formData.recipientEmail,
+        formData.recipientName || "Partner",
+        subject,
+        formattedHtml
+      );
+
+      if (result.success) {
+        if (result.provider === "sandbox") {
+          toast.success("🚀 [Sandbox Mode] Email successfully printed to console!");
+        } else {
+          toast.success(`🚀 Partnership email delivered successfully via ${result.provider === "zeptomail" ? "Zoho ZeptoMail" : "Resend API"}!`);
+        }
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error: any) {
+      console.error("Email delivery failed:", error);
+      toast.error(`Email Delivery Error: ${error.message || "Failed to send email."}`);
+    } finally {
+      setIsSendingEmail(false);
+    }
   };
 
   const stripHtml = (html: string): string => {

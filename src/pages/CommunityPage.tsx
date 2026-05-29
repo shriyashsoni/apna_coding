@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { extractDomain, validateClaimDomain, sendVerificationCode } from "@/lib/resend";
 import { toast } from "sonner";
 
 export default function CommunityPage() {
@@ -27,10 +28,22 @@ export default function CommunityPage() {
   const { isAdmin } = useAdmin();
   const { user } = useAuth();
   
+  const isOwner = !!(user && community && (community.wallet_address === user.wallet_address || community.wallet_address === user.id));
+  const hasAccess = !!(isAdmin || isOwner);
+  
   // Dialog Open States
   const [isEditCommunityOpen, setIsEditCommunityOpen] = useState(false);
   const [isAddEventOpen, setIsAddEventOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<any>(null);
+  
+  // Claim Community States
+  const [isClaimDialogOpen, setIsClaimDialogOpen] = useState(false);
+  const [claimEmail, setClaimEmail] = useState("");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [sentCode, setSentCode] = useState<string | null>(null);
+  const [isSendingCode, setIsSendingCode] = useState(false);
+  const [isVerifyingClaim, setIsVerifyingClaim] = useState(false);
+  const [claimError, setClaimError] = useState("");
   
   // Community edit form state
   const [communityForm, setCommunityForm] = useState<any>({
@@ -284,6 +297,81 @@ export default function CommunityPage() {
     }
   };
 
+  const handleSendVerificationCode = async () => {
+    if (!claimEmail || !claimEmail.includes("@")) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    if (!community.website) {
+      toast.error("This community has no official website listed, making domain claim impossible.");
+      return;
+    }
+
+    setIsSendingCode(true);
+    setClaimError("");
+    try {
+      const { isValid, domain, websiteDomain } = validateClaimDomain(claimEmail, community.website);
+      if (!isValid) {
+        setClaimError(`Domain mismatch! Your email domain (${domain || "unknown"}) must match the community website domain (${websiteDomain || "unknown"}).`);
+        setIsSendingCode(false);
+        return;
+      }
+
+      // Generate a 6-digit numeric verification code
+      const code = Math.floor(100000 + Math.random() * 900000).toString();
+      const success = await sendVerificationCode(claimEmail, community.name, code);
+      
+      if (success) {
+        setSentCode(code);
+        toast.success(`Verification code sent to ${claimEmail}!`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to send code.");
+    } finally {
+      setIsSendingCode(false);
+    }
+  };
+
+  const handleVerifyAndClaim = async () => {
+    if (!verificationCode || verificationCode.trim() !== sentCode) {
+      toast.error("Invalid verification code. Please check the code and try again.");
+      return;
+    }
+
+    if (!user) {
+      toast.error("Please connect your wallet to claim the community.");
+      return;
+    }
+
+    setIsVerifyingClaim(true);
+    try {
+      const { error } = await supabase
+        .from("communities")
+        .update({
+          wallet_address: user.wallet_address || user.id
+        })
+        .eq("id", community.id);
+
+      if (error) throw error;
+
+      toast.success(`✨ Congratulations! You are now the official owner of "${community.name}"!`);
+      setIsClaimDialogOpen(false);
+      
+      // Reset states
+      setClaimEmail("");
+      setVerificationCode("");
+      setSentCode(null);
+      
+      // Refresh details
+      fetchCommunity();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to process claim. Please contact support.");
+    } finally {
+      setIsVerifyingClaim(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
@@ -324,22 +412,24 @@ export default function CommunityPage() {
       />
       <Navbar />
 
-      {/* Floating Admin Controls */}
-      {isAdmin && (
+      {/* Floating Admin / Owner Controls */}
+      {hasAccess && (
         <div className="bg-primary/10 border-b border-primary/20 sticky top-24 md:top-28 z-30 backdrop-blur-md">
           <div className="container mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <ShieldAlert className="h-5 w-5 text-primary animate-pulse" />
-              <span className="font-semibold text-sm">👑 Admin Control Hub:</span>
+              <span className="font-semibold text-sm">👑 {isOwner ? "Owner" : "Admin"} Control Hub:</span>
               <Badge variant={community.is_published ? "default" : "secondary"}>
                 {community.is_published ? "🟢 Live / Published" : "🟡 Draft Mode"}
               </Badge>
             </div>
             
             <div className="flex items-center gap-2">
-              <Button size="sm" variant="outline" onClick={handleTogglePublish} className="h-8">
-                {community.is_published ? "Unpublish to Draft" : "Publish to Live"}
-              </Button>
+              {isAdmin && (
+                <Button size="sm" variant="outline" onClick={handleTogglePublish} className="h-8">
+                  {community.is_published ? "Unpublish to Draft" : "Publish to Live"}
+                </Button>
+              )}
               
               <Button size="sm" variant="outline" onClick={() => setIsEditCommunityOpen(true)} className="h-8 gap-1.5">
                 <Edit className="h-3.5 w-3.5" />
@@ -456,6 +546,109 @@ export default function CommunityPage() {
                 description={community.description}
                 hashtags={['web3', 'community', 'blockchain', 'apnacoding']}
               />
+
+              {/* Claim Community Trigger */}
+              {!community.wallet_address && (
+                <Dialog open={isClaimDialogOpen} onOpenChange={setIsClaimDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" className="border-yellow-500/50 text-yellow-500 hover:bg-yellow-500/10 gap-1.5 shadow-[0_0_15px_rgba(234,179,8,0.15)] animate-pulse hover:animate-none">
+                      <Sparkles className="h-4 w-4" />
+                      Claim this Community
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md bg-card/95 border-2 border-primary/20 backdrop-blur-md">
+                    <DialogHeader>
+                      <DialogTitle className="flex items-center gap-2 text-xl font-bold">
+                        <Sparkles className="text-yellow-500" />
+                        Claim Ownership of {community.name}
+                      </DialogTitle>
+                      <DialogDescription>
+                        Verify your affiliation using your official email address.
+                      </DialogDescription>
+                    </DialogHeader>
+
+                    {!user ? (
+                      <div className="text-center py-6 space-y-4">
+                        <p className="text-muted-foreground text-sm">
+                          Please connect your wallet first to claim this community.
+                        </p>
+                      </div>
+                    ) : !sentCode ? (
+                      <div className="space-y-4 pt-4">
+                        <div className="p-3 bg-primary/10 border border-primary/20 rounded-md">
+                          <p className="text-xs text-muted-foreground leading-relaxed">
+                            To claim ownership, you must have an active email address hosted on the official community website domain:
+                            <strong className="block text-primary text-sm mt-1">{community.website ? extractDomain(community.website) : "No domain listed"}</strong>
+                          </p>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="claim-email">Professional Email Address</Label>
+                          <Input
+                            id="claim-email"
+                            type="email"
+                            placeholder={`you@${community.website ? extractDomain(community.website) : "domain.com"}`}
+                            value={claimEmail}
+                            onChange={(e) => setClaimEmail(e.target.value)}
+                            disabled={isSendingCode}
+                          />
+                        </div>
+
+                        {claimError && (
+                          <p className="text-xs text-red-500 bg-red-500/10 p-2.5 rounded border border-red-500/20 font-medium">
+                            {claimError}
+                          </p>
+                        )}
+
+                        <Button
+                          onClick={handleSendVerificationCode}
+                          disabled={isSendingCode || !community.website}
+                          className="w-full bg-primary hover:bg-primary/90"
+                        >
+                          {isSendingCode ? "Sending Code..." : "Send Verification Code"}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-4 pt-4">
+                        <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-md text-xs text-green-600 dark:text-green-400 font-medium">
+                          We sent a 6-digit verification code to <strong className="text-foreground">{claimEmail}</strong>. Please enter the code below to finalize ownership.
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="verification-code">6-Digit Verification Code</Label>
+                          <Input
+                            id="verification-code"
+                            placeholder="Enter 6-digit code"
+                            value={verificationCode}
+                            onChange={(e) => setVerificationCode(e.target.value)}
+                            maxLength={6}
+                            disabled={isVerifyingClaim}
+                            className="text-center tracking-widest text-lg font-bold"
+                          />
+                        </div>
+
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => setSentCode(null)}
+                            disabled={isVerifyingClaim}
+                            className="flex-1"
+                          >
+                            Back
+                          </Button>
+                          <Button
+                            onClick={handleVerifyAndClaim}
+                            disabled={isVerifyingClaim || verificationCode.length < 6}
+                            className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                          >
+                            {isVerifyingClaim ? "Claiming..." : "Verify & Claim"}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
 
             {community.member_count && (
@@ -606,7 +799,7 @@ export default function CommunityPage() {
                   <Calendar className="text-primary" />
                   Upcoming Events
                 </h2>
-                {isAdmin && (
+                {hasAccess && (
                   <Button size="sm" variant="outline" onClick={() => setIsAddEventOpen(true)} className="gap-1">
                     <Plus className="h-4 w-4" />
                     New Event
@@ -631,8 +824,8 @@ export default function CommunityPage() {
                         </div>
                       )}
                       
-                      {/* Admin Quick Actions Overlay */}
-                      {isAdmin && (
+                      {/* Owner/Admin Quick Actions Overlay */}
+                      {hasAccess && (
                         <div className="absolute top-2 right-2 flex gap-1 z-10 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-md p-1 rounded-md border">
                           <Button
                             size="sm"
@@ -685,7 +878,7 @@ export default function CommunityPage() {
                         </span>
                         
                         {event.registration_link && (
-                          <a
+                           <a
                             href={event.registration_link}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -703,7 +896,7 @@ export default function CommunityPage() {
                 {events.length === 0 && (
                   <div className="col-span-2 text-center py-12 border-2 border-dashed rounded-lg bg-card/20 border-primary/20">
                     <p className="text-muted-foreground">No upcoming events listed for this community.</p>
-                    {isAdmin && (
+                    {hasAccess && (
                       <Button size="sm" variant="link" onClick={() => setIsAddEventOpen(true)} className="mt-2 text-primary font-semibold">
                         Add the first event now!
                       </Button>

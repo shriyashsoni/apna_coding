@@ -32,6 +32,7 @@ import { LAUNCH_FEE } from "@/contracts/ProductLaunchVerification";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/lib/supabase";
 import { useSupabaseMutation } from "@/hooks/useSupabase";
+import { SEO } from "@/components/SEO";
 
 const PRODUCT_CATEGORIES = [
   "DeFi",
@@ -238,6 +239,13 @@ Perfect for developers and users looking to explore ${formData.category || "Web3
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
+      <SEO
+        title="Web3 Products, dApps & Decentralized Tech"
+        description="Discover, explore, and launch cutting-edge Web3 products, decentralized applications, DeFi tools, NFTs, and developer infrastructure on Apna Coding."
+        keywords={["web3 products", "dapps listing", "defi products", "web3 catalog"]}
+        url="/products"
+        type="website"
+      />
       <Navbar />
 
       <main className="flex-1 container mx-auto px-4 pt-32 pb-12">

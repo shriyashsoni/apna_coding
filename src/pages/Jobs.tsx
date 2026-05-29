@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
+import { SEO } from "@/components/SEO";
 
 export default function Jobs() {
   const { user: authUser, isAuthenticated, isLoading: isAuthLoading, signIn } = useAuth();
@@ -181,6 +182,13 @@ export default function Jobs() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
+      <SEO
+        title="Careers Hub - Web3 & Developer Jobs"
+        description="Find and apply for top blockchain developer, Solidity engineer, React builder, and crypto career opportunities. Post and discover remote Web3 jobs."
+        keywords={["web3 jobs", "blockchain jobs", "solidity developer", "crypto careers India"]}
+        url="/jobs"
+        type="website"
+      />
       <Navbar />
       
       <main className="flex-1 container mx-auto px-4 pt-32 pb-12">

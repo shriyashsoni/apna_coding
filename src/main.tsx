@@ -59,6 +59,7 @@ const CommunityPage = lazy(() => import("./pages/CommunityPage.tsx"));
 const Contact = lazy(() => import("./pages/Contact.tsx"));
 const Services = lazy(() => import("./pages/Services.tsx"));
 const LaunchOnChain = lazy(() => import("./pages/LaunchOnChain.tsx"));
+const PublicProfile = lazy(() => import("./pages/PublicProfile.tsx"));
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
@@ -125,6 +126,7 @@ createRoot(document.getElementById("root")!).render(
                   <Route path="/contact" element={<Contact />} />
                   <Route path="/services" element={<Services />} />
                   <Route path="/launch-onchain" element={<LaunchOnChain />} />
+                  <Route path="/user/:walletAddress" element={<PublicProfile />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>

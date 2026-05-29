@@ -1,4 +1,11 @@
-import { Helmet } from "react-helmet-async";
+import { 
+  NextSeo, 
+  ArticleJsonLd, 
+  EventJsonLd, 
+  JobPostingJsonLd, 
+  ProductJsonLd, 
+  WebSiteJsonLd 
+} from "./next-seo";
 
 interface SEOProps {
   title?: string;
@@ -40,13 +47,14 @@ export function SEO({
   salary,
   jobType,
 }: SEOProps) {
-  const siteTitle = "Apna Coding - Web3 Opportunity Layer";
+  const siteTitle = "Apna Coding";
+  const siteSlogan = "Web3 Opportunity Layer";
   const defaultDescription =
     "India's Premier Web3 Opportunity Layer. Join hackathons, find jobs, build products, and connect with developers. Learn blockchain, smart contracts, DeFi, NFTs & more.";
   const defaultImage = "https://apnacoding.com/og-image.png";
   const siteUrl = "https://apnacoding.com";
 
-  const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
+  const fullTitle = title ? `${title} | ${siteTitle} - ${siteSlogan}` : `${siteTitle} - ${siteSlogan}`;
   const finalDescription = description || defaultDescription;
   const finalImage = image || defaultImage;
   const finalUrl = url ? `${siteUrl}${url}` : siteUrl;
@@ -72,140 +80,131 @@ export function SEO({
   const allKeywords = [...new Set([...keywords, ...defaultKeywords])];
   const keywordString = allKeywords.join(", ");
 
+  // Map to NextSeo OpenGraph format
+  const ogImages = [
+    {
+      url: finalImage,
+      width: 1200,
+      height: 630,
+      alt: title || siteTitle,
+      type: "image/png"
+    }
+  ];
+
+  const openGraphData = {
+    type,
+    title: fullTitle,
+    description: finalDescription,
+    url: finalUrl,
+    siteName: `${siteTitle} - ${siteSlogan}`,
+    locale: "en_IN",
+    images: ogImages,
+    ...(type === "article" && {
+      article: {
+        publishedTime,
+        modifiedTime,
+        authors: author ? [author] : [siteTitle],
+        section: section || "Web3",
+        tags: tags.length > 0 ? tags : ["Blockchain", "Web3"],
+      }
+    })
+  };
+
+  const twitterData = {
+    handle: "@apnacoding",
+    site: "@apnacoding",
+    cardType: "summary_large_image" as const,
+  };
+
   return (
-    <Helmet>
-      {/* Basic Meta Tags */}
-      <title>{fullTitle}</title>
-      <meta name="description" content={finalDescription} />
-      <meta name="keywords" content={keywordString} />
-      <meta name="author" content={author || "Apna Coding"} />
-      <link rel="canonical" href={finalUrl} />
+    <>
+      {/* 🚀 Render NextSeo Meta Tag Layer */}
+      <NextSeo
+        title={title}
+        titleTemplate={`%s | ${siteTitle} - ${siteSlogan}`}
+        defaultTitle={`${siteTitle} - ${siteSlogan}`}
+        description={finalDescription}
+        canonical={finalUrl}
+        themeColor="#6366f1"
+        openGraph={openGraphData}
+        twitter={twitterData}
+        additionalMetaTags={[
+          { name: "keywords", content: keywordString },
+          { name: "language", content: "English" },
+          { name: "rating", content: "General" },
+          { name: "mobile-web-app-capable", content: "yes" },
+          { name: "apple-mobile-web-app-capable", content: "yes" },
+          { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+        ]}
+      />
 
-      {/* Open Graph Meta Tags (Facebook, LinkedIn) */}
-      <meta property="og:type" content={type} />
-      <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={finalDescription} />
-      <meta property="og:image" content={finalImage} />
-      <meta property="og:url" content={finalUrl} />
-      <meta property="og:site_name" content={siteTitle} />
-      <meta property="og:locale" content="en_IN" />
-
-      {/* Article-specific Open Graph Tags */}
-      {type === "article" && publishedTime && (
-        <meta property="article:published_time" content={publishedTime} />
+      {/* 📊 Render Structured Rich Snippets JSON-LD Schemas based on Content Type */}
+      {type === "article" && (
+        <ArticleJsonLd
+          url={finalUrl}
+          title={fullTitle}
+          images={[finalImage]}
+          datePublished={publishedTime || new Date().toISOString()}
+          dateModified={modifiedTime || publishedTime || new Date().toISOString()}
+          authorName={author || siteTitle}
+          description={finalDescription}
+        />
       )}
-      {type === "article" && modifiedTime && (
-        <meta property="article:modified_time" content={modifiedTime} />
+
+      {type === "event" && (
+        <EventJsonLd
+          name={title || siteTitle}
+          startDate={startDate || publishedTime || new Date().toISOString()}
+          endDate={endDate || startDate || publishedTime || new Date().toISOString()}
+          location={{
+            name: location || "Online",
+            address: location || "Online",
+            url: location === "Online" ? finalUrl : undefined,
+          }}
+          url={finalUrl}
+          description={finalDescription}
+          images={[finalImage]}
+          organizerName={organization || siteTitle}
+          organizerUrl={siteUrl}
+        />
       )}
-      {type === "article" && author && (
-        <meta property="article:author" content={author} />
+
+      {type === "job" && (
+        <JobPostingJsonLd
+          title={title || "Web3 Developer"}
+          description={finalDescription}
+          datePosted={publishedTime || new Date().toISOString()}
+          validThrough={endDate}
+          employmentType={jobType || "FULL_TIME"}
+          hiringOrganizationName={organization || siteTitle}
+          hiringOrganizationUrl={siteUrl}
+          jobLocation={{
+            addressLocality: location || "Remote",
+            addressCountry: "IN",
+          }}
+          baseSalary={salary ? {
+            currency: "INR",
+            value: Number(salary) || 0,
+          } : undefined}
+          jobLocationType={location === "Remote" ? "TELECOMMUTE" : undefined}
+        />
       )}
-      {type === "article" && section && (
-        <meta property="article:section" content={section} />
+
+      {type === "product" && (
+        <ProductJsonLd
+          productName={title || "Apna Coding Product"}
+          images={[finalImage]}
+          description={finalDescription}
+          brand={organization || siteTitle}
+        />
       )}
-      {type === "article" &&
-        tags.map((tag, index) => (
-          <meta property="article:tag" content={tag} key={index} />
-        ))}
 
-      {/* Twitter Card Meta Tags */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={finalDescription} />
-      <meta name="twitter:image" content={finalImage} />
-      <meta name="twitter:site" content="@apnacoding" />
-      <meta name="twitter:creator" content="@apnacoding" />
-
-      {/* Additional SEO Tags */}
-      <meta name="robots" content="index, follow, max-image-preview:large" />
-      <meta name="googlebot" content="index, follow" />
-      <meta name="bingbot" content="index, follow" />
-      <meta name="language" content="English" />
-      <meta name="revisit-after" content="7 days" />
-      <meta name="rating" content="General" />
-
-      {/* Mobile & PWA Meta Tags */}
-      <meta name="mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-capable" content="yes" />
-      <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-      <meta name="apple-mobile-web-app-title" content={siteTitle} />
-      <meta name="theme-color" content="#6366f1" />
-
-      {/* Schema.org JSON-LD */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          "@context": "https://schema.org",
-          "@type": type === "article" ? "Article" : "WebSite",
-          name: fullTitle,
-          description: finalDescription,
-          url: finalUrl,
-          image: finalImage,
-          ...(type === "article" && {
-            author: {
-              "@type": "Person",
-              name: author || "Apna Coding",
-            },
-            datePublished: publishedTime,
-            dateModified: modifiedTime,
-          }),
-          ...(type === "event" && {
-            "@type": "Event",
-            location: {
-              "@type": "Place",
-              name: location || "Online",
-              address: location || "Online",
-            },
-            startDate: startDate || publishedTime,
-            endDate: endDate || publishedTime,
-            organizer: {
-              "@type": "Organization",
-              name: organization || "Apna Coding",
-              url: siteUrl,
-            },
-          }),
-          ...(type === "job" && {
-            "@type": "JobPosting",
-            title: title,
-            description: finalDescription,
-            datePosted: publishedTime,
-            validThrough: endDate,
-            employmentType: jobType || "FULL_TIME",
-            hiringOrganization: {
-              "@type": "Organization",
-              name: organization || "Apna Coding",
-              sameAs: siteUrl,
-              logo: "https://apnacoding.com/logo.png",
-            },
-            jobLocation: {
-              "@type": "Place",
-              address: {
-                "@type": "PostalAddress",
-                addressLocality: location || "Remote",
-                addressCountry: "IN",
-              },
-            },
-            baseSalary: salary ? {
-              "@type": "MonetaryAmount",
-              currency: "INR",
-              value: {
-                "@type": "QuantitativeValue",
-                value: salary,
-                unitText: "YEAR",
-              },
-            } : undefined,
-          }),
-          ...(type === "website" && {
-            publisher: {
-              "@type": "Organization",
-              name: siteTitle,
-              logo: {
-                "@type": "ImageObject",
-                url: "https://apnacoding.com/logo.png",
-              },
-            },
-          }),
-        })}
-      </script>
-    </Helmet>
+      {type === "website" && (
+        <WebSiteJsonLd
+          url={finalUrl}
+          description={finalDescription}
+        />
+      )}
+    </>
   );
 }

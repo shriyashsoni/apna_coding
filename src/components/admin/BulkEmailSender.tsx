@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { sendEmailUnified } from "@/lib/resend";
 import {
   Mail,
   Send,
@@ -194,7 +195,66 @@ export function BulkEmailSender() {
   };
 
   const handleSend = async () => {
-    toast.info("Bulk email sending logic needs to be migrated to Supabase Edge Functions (Resend/SendGrid)");
+    if (recipients.length === 0) {
+      toast.error("Please add at least one recipient.");
+      return;
+    }
+    if (!subject || !template) {
+      toast.error("Subject and Template are required.");
+      return;
+    }
+
+    setIsSending(true);
+    setResults([]);
+    
+    const sendingResults: EmailResult[] = [];
+
+    toast.info(`Starting bulk email delivery to ${recipients.length} recipients...`);
+
+    for (const recipient of recipients) {
+      try {
+        const personalizedSubject = subject.replace(/\{\{name\}\}/g, recipient.name);
+        const personalizedBody = template.replace(/\{\{name\}\}/g, recipient.name);
+
+        const result = await sendEmailUnified(
+          recipient.email,
+          recipient.name,
+          personalizedSubject,
+          personalizedBody
+        );
+
+        if (!result.success) {
+          throw new Error(result.message);
+        }
+
+        sendingResults.push({
+          email: recipient.email,
+          name: recipient.name,
+          status: "success",
+          message: `Delivered successfully (${result.provider})`
+        });
+      } catch (err: any) {
+        console.error(`Failed sending to ${recipient.email}:`, err);
+        sendingResults.push({
+          email: recipient.email,
+          name: recipient.name,
+          status: "error",
+          message: err.message || "Failed to send"
+        });
+      }
+    }
+
+    setResults(sendingResults);
+    setIsSending(false);
+
+    const successCount = sendingResults.filter(r => r.status === "success").length;
+    const errorCount = sendingResults.length - successCount;
+
+    if (errorCount === 0) {
+      toast.success(`🎉 Bulk delivery completed successfully! Sent ${successCount} emails.`);
+    } else {
+      toast.warning(`⚠️ Bulk delivery finished with warnings. Success: ${successCount}, Failed: ${errorCount}. Check Results tab.`);
+    }
   };
 
   return (
