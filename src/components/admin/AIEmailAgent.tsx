@@ -133,7 +133,9 @@ export function AIEmailAgent() {
         formData.recipientEmail,
         formData.recipientName || "Partner",
         subject,
-        formattedHtml
+        formattedHtml,
+        "shriyash.soni@apnacoding.com",
+        "Shriyash Soni"
       );
 
       if (result.success) {

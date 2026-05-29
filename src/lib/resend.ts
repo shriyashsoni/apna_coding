@@ -49,12 +49,14 @@ export async function sendZeptoMail(
   toEmail: string,
   toName: string,
   subject: string,
-  html: string
+  html: string,
+  fromEmail?: string,
+  fromName?: string
 ): Promise<boolean> {
   const zeptoApiKey = import.meta.env.VITE_ZEPTOMAIL_API_KEY || "";
   
   if (!zeptoApiKey) {
-    throw new Error("ZeptoMail API Key is not configured in the environment.");
+    throw new Error("ZeptoMail API Key is not configured.");
   }
 
   try {
@@ -67,8 +69,8 @@ export async function sendZeptoMail(
       },
       body: JSON.stringify({
         from: {
-          address: "noreply@apnacoding.com",
-          name: "Apna Coding"
+          address: fromEmail || "noreply@apnacoding.com",
+          name: fromName || "Apna Coding"
         },
         to: [
           {
@@ -107,15 +109,22 @@ export async function sendResendMail(
   toEmail: string,
   toName: string,
   subject: string,
-  html: string
+  html: string,
+  fromEmail?: string,
+  fromName?: string
 ): Promise<boolean> {
   const resendApiKey = import.meta.env.VITE_RESEND_API_KEY || "";
   
   if (!resendApiKey) {
-    throw new Error("Resend API Key is not configured in the environment.");
+    throw new Error("Resend API Key is not configured.");
   }
 
   try {
+    // If customized sender is requested, attempt using it, else fallback to Resend verified domain onboarding sender
+    const sender = fromEmail && fromEmail !== "noreply@apnacoding.com"
+      ? `${fromName || "Apna Coding"} <${fromEmail}>`
+      : `Apna Coding <onboarding@resend.dev>`;
+
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
@@ -123,7 +132,7 @@ export async function sendResendMail(
         "Authorization": `Bearer ${resendApiKey}`
       },
       body: JSON.stringify({
-        from: "Apna Coding <onboarding@resend.dev>",
+        from: sender,
         to: toEmail,
         subject: subject,
         html: html
@@ -144,13 +153,15 @@ export async function sendResendMail(
 
 /**
  * Unified dispatch email sender supporting ZeptoMail (primary) and Resend (failover/fallback)
- * with a Sandbox developer mode fallback.
+ * with custom sender overrides and a Sandbox developer mode fallback.
  */
 export async function sendEmailUnified(
   toEmail: string,
   toName: string,
   subject: string,
-  html: string
+  html: string,
+  fromEmail?: string,
+  fromName?: string
 ): Promise<{ success: boolean; provider: "zeptomail" | "resend" | "sandbox"; message: string }> {
   const zeptoApiKey = import.meta.env.VITE_ZEPTOMAIL_API_KEY || "";
   const resendApiKey = import.meta.env.VITE_RESEND_API_KEY || "";
@@ -158,20 +169,20 @@ export async function sendEmailUnified(
   // 1. Try ZeptoMail first
   if (zeptoApiKey) {
     try {
-      const success = await sendZeptoMail(toEmail, toName, subject, html);
+      const success = await sendZeptoMail(toEmail, toName, subject, html, fromEmail, fromName);
       if (success) {
         return { success: true, provider: "zeptomail", message: "Delivered successfully via Zoho ZeptoMail." };
       }
     } catch (e: any) {
       console.warn("ZeptoMail delivery failed, trying Resend fallback...", e);
-      toast.warning("ZeptoMail failed, attempting fallback...", { description: e.message });
+      toast.warning("ZeptoMail failed, attempting Resend fallback...", { description: e.message });
     }
   }
 
   // 2. Try Resend second
   if (resendApiKey) {
     try {
-      const success = await sendResendMail(toEmail, toName, subject, html);
+      const success = await sendResendMail(toEmail, toName, subject, html, fromEmail, fromName);
       if (success) {
         return { success: true, provider: "resend", message: "Delivered successfully via Resend API." };
       }
@@ -183,6 +194,7 @@ export async function sendEmailUnified(
 
   // 3. Fallback to developer Sandbox mode
   console.log(`[Email Sandbox Mode]
+Sender: ${fromName || "Apna Coding"} <${fromEmail || "noreply@apnacoding.com"}>
 Recipient: ${toName} <${toEmail}>
 Subject: ${subject}
 Content: ${html.substring(0, 300)}...`);
@@ -196,6 +208,7 @@ Content: ${html.substring(0, 300)}...`);
 
 /**
  * Sends a community ownership verification email using the unified email engine.
+ * Verified codes use the automated non-reply address.
  */
 export async function sendVerificationCode(
   email: string,
@@ -217,7 +230,15 @@ export async function sendVerificationCode(
     </div>
   `;
 
-  const result = await sendEmailUnified(email, "Community Claimant", subject, htmlContent);
+  // Always use noreply@apnacoding.com for verification codes
+  const result = await sendEmailUnified(
+    email, 
+    "Community Claimant", 
+    subject, 
+    htmlContent,
+    "noreply@apnacoding.com",
+    "Apna Coding"
+  );
 
   if (result.provider === "sandbox") {
     toast.success(`[Sandbox Mode] Verification code is: ${code}`, {

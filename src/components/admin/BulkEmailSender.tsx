@@ -220,7 +220,9 @@ export function BulkEmailSender() {
           recipient.email,
           recipient.name,
           personalizedSubject,
-          personalizedBody
+          personalizedBody,
+          "shriyash.soni@apnacoding.com",
+          "Shriyash Soni"
         );
 
         if (!result.success) {

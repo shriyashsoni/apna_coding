@@ -6,12 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Mail, MessageSquare, Twitter, Send, Linkedin, Github, Globe } from "lucide-react";
+import { Mail, MessageSquare, Twitter, Send, Linkedin, Github, Globe, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { toast } from "sonner";
+import { sendEmailUnified } from "@/lib/resend";
 
 export default function Contact() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -56,7 +58,7 @@ export default function Contact() {
     }
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
@@ -64,35 +66,59 @@ export default function Contact() {
       return;
     }
 
-    // Get the subject label
-    const subjectLabel = subjectOptions.find(opt => opt.value === formData.subject)?.label || "Contact Form";
+    setIsSubmitting(true);
+    try {
+      // Get the subject label
+      const subjectLabel = subjectOptions.find(opt => opt.value === formData.subject)?.label || "Contact Form Inquiry";
 
-    // Create email body with all information
-    const emailBody = `
-Name: ${formData.name}
-Email: ${formData.email}
-Subject: ${subjectLabel}
+      const htmlContent = `
+        <div style="font-family: sans-serif; padding: 25px; border: 1px solid #eaeaea; border-radius: 8px; max-width: 600px; color: #1f2937;">
+          <h2 style="color: #6366f1; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; margin-bottom: 20px; font-size: 20px;">Apna Coding - Contact Form Submission</h2>
+          <table style="width: 100%; border-collapse: collapse; font-size: 14px; margin-bottom: 20px;">
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold; width: 120px; color: #4b5563;">Sender Name:</td>
+              <td style="padding: 6px 0; color: #1f2937;">${formData.name}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold; color: #4b5563;">Sender Email:</td>
+              <td style="padding: 6px 0; color: #1f2937;">
+                <a href="mailto:${formData.email}" style="color: #6366f1; text-decoration: none;">${formData.email}</a>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; font-weight: bold; color: #4b5563;">Subject:</td>
+              <td style="padding: 6px 0; color: #1f2937;">${subjectLabel}</td>
+            </tr>
+          </table>
+          <div style="padding: 15px; background-color: #f9fafb; border-radius: 6px; border-left: 4px solid #6366f1;">
+            <p style="margin: 0 0 8px 0; font-weight: bold; font-size: 13px; color: #4b5563;">Message Details:</p>
+            <p style="margin: 0; font-size: 14px; color: #1f2937; white-space: pre-wrap; line-height: 1.6;">${formData.message}</p>
+          </div>
+          <hr style="border: 0; border-top: 1px solid #eaeaea; margin: 25px 0 15px 0;" />
+          <p style="font-size: 11px; color: #9ca3af; text-align: center; margin: 0;">Sent securely via Zoho ZeptoMail from Apna Coding Website Contact Portal.</p>
+        </div>
+      `;
 
-Message:
-${formData.message}
+      // Submit email directly to administrative inbox via Zoho ZeptoMail
+      const result = await sendEmailUnified(
+        "apnacoding.tech@gmail.com",
+        "Apna Coding Support Team",
+        `[Website Inquiry] ${subjectLabel} from ${formData.name}`,
+        htmlContent
+      );
 
----
-Sent from Apna Coding Contact Form
-    `.trim();
-
-    // Create mailto link with pre-filled data
-    const mailtoLink = `mailto:apnacoding.tech@gmail.com?subject=${encodeURIComponent(`[Apna Coding] ${subjectLabel} from ${formData.name}`)}&body=${encodeURIComponent(emailBody)}`;
-
-    // Open Gmail compose window
-    window.location.href = mailtoLink;
-
-    // Show success message
-    toast.success("Opening your email client...");
-
-    // Reset form
-    setTimeout(() => {
-      setFormData({ name: "", email: "", subject: "general", message: "" });
-    }, 1000);
+      if (result.success) {
+        toast.success("Thank you! Your message has been sent successfully.");
+        setFormData({ name: "", email: "", subject: "general", message: "" });
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error: any) {
+      console.error("Submission failed:", error);
+      toast.error(`Submission Error: ${error.message || "Failed to submit message."}`);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -201,9 +227,19 @@ Sent from Apna Coding Contact Form
                       type="submit"
                       className="w-full bg-primary hover:bg-primary/90"
                       size="lg"
+                      disabled={isSubmitting}
                     >
-                      <Send className="h-4 w-4 mr-2" />
-                      Send via Email
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Sending Message...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="h-4 w-4 mr-2" />
+                          Send Message
+                        </>
+                      )}
                     </Button>
                   </form>
                 </CardContent>
