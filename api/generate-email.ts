@@ -15,6 +15,7 @@ export default async function handler(req: any, res: any) {
   const { companyName, purpose, additionalContext, emailLength } = req.body;
 
   try {
+    const groqApiKey = process.env.VITE_GROQ_API_KEY || process.env.GROQ_API_KEY || "";
     const grokApiKey = process.env.VITE_GROK_API_KEY || process.env.GROK_API_KEY || process.env.XAI_API_KEY || "";
     const geminiApiKey = process.env.VITE_GOOGLE_AI_KEY || process.env.GOOGLE_AI_KEY || "AIzaSyBoKnjf9OFEo4LZPymYFAXNjMJJvwPwPZM";
 
@@ -55,9 +56,45 @@ export default async function handler(req: any, res: any) {
       Do not include markdown code block fences (\`\`\`json). Return ONLY the raw JSON string.
     `;
 
-    // 1. Try Grok-2 first if Grok Key is configured
+    // 1. Try Groq first if Groq Key is configured (High priority, fast and structured)
+    if (groqApiKey) {
+      try {
+        console.log("Attempting email generation with Groq...");
+        const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${groqApiKey}`
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            messages: [
+              {
+                role: "user",
+                content: prompt
+              }
+            ],
+            response_format: { type: "json_object" }
+          })
+        });
+
+        if (response.ok) {
+          const resData = await response.json();
+          const text = resData.choices?.[0]?.message?.content;
+          if (text) {
+            const parsed = JSON.parse(text.trim());
+            return res.status(200).json({ success: true, provider: "groq", templates: parsed });
+          }
+        }
+      } catch (e) {
+        console.warn("Groq failed inside API, using fallback...", e);
+      }
+    }
+
+    // 2. Try Grok-2 second if Grok Key is configured
     if (grokApiKey) {
       try {
+        console.log("Attempting email generation with Grok-2...");
         const response = await fetch("https://api.x.ai/v1/chat/completions", {
           method: "POST",
           headers: {
@@ -89,9 +126,10 @@ export default async function handler(req: any, res: any) {
       }
     }
 
-    // 2. Fallback to Gemini
+    // 3. Fallback to Gemini
     if (geminiApiKey) {
       try {
+        console.log("Attempting email generation with Gemini...");
         const response = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
           {
