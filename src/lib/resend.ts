@@ -43,117 +43,8 @@ export function validateClaimDomain(email: string, websiteUrl: string | null | u
 }
 
 /**
- * Sends a transactional email using Zoho ZeptoMail API.
- */
-export async function sendZeptoMail(
-  toEmail: string,
-  toName: string,
-  subject: string,
-  html: string,
-  fromEmail?: string,
-  fromName?: string
-): Promise<boolean> {
-  const zeptoApiKey = import.meta.env.VITE_ZEPTOMAIL_API_KEY || "";
-  
-  if (!zeptoApiKey) {
-    throw new Error("ZeptoMail API Key is not configured.");
-  }
-
-  try {
-    const response = await fetch("https://api.zeptomail.in/v1.1/email", {
-      method: "POST",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "Authorization": `Zoho-enczapikey ${zeptoApiKey}`
-      },
-      body: JSON.stringify({
-        from: {
-          address: fromEmail || "noreply@apnacoding.com",
-          name: fromName || "Apna Coding"
-        },
-        to: [
-          {
-            email_address: {
-              address: toEmail,
-              name: toName || toEmail.split("@")[0]
-            }
-          }
-        ],
-        subject: subject,
-        htmlbody: html
-      })
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      let errMsg = "ZeptoMail deliverability error";
-      try {
-        const errJson = JSON.parse(errText);
-        errMsg = errJson?.message || errMsg;
-      } catch (e) {}
-      throw new Error(errMsg);
-    }
-    
-    return true;
-  } catch (error: any) {
-    console.error("ZeptoMail Send Error:", error);
-    throw error;
-  }
-}
-
-/**
- * Sends a transactional email using Resend API.
- */
-export async function sendResendMail(
-  toEmail: string,
-  toName: string,
-  subject: string,
-  html: string,
-  fromEmail?: string,
-  fromName?: string
-): Promise<boolean> {
-  const resendApiKey = import.meta.env.VITE_RESEND_API_KEY || "";
-  
-  if (!resendApiKey) {
-    throw new Error("Resend API Key is not configured.");
-  }
-
-  try {
-    // If customized sender is requested, attempt using it, else fallback to Resend verified domain onboarding sender
-    const sender = fromEmail && fromEmail !== "noreply@apnacoding.com"
-      ? `${fromName || "Apna Coding"} <${fromEmail}>`
-      : `Apna Coding <onboarding@resend.dev>`;
-
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${resendApiKey}`
-      },
-      body: JSON.stringify({
-        from: sender,
-        to: toEmail,
-        subject: subject,
-        html: html
-      })
-    });
-
-    if (!response.ok) {
-      const errData = await response.json();
-      throw new Error(errData?.message || "Resend API delivery error");
-    }
-    
-    return true;
-  } catch (error: any) {
-    console.error("Resend Send Error:", error);
-    throw error;
-  }
-}
-
-/**
- * Unified dispatch email sender supporting ZeptoMail (primary) and Resend (failover/fallback)
- * with custom sender overrides and a Sandbox developer mode fallback.
+ * Unified dispatch email sender that forwards the request to the secure serverless backend,
+ * bypassing client-side CORS errors. Incorporates automatic fallback options and targeted providers.
  */
 export async function sendEmailUnified(
   toEmail: string,
@@ -161,54 +52,51 @@ export async function sendEmailUnified(
   subject: string,
   html: string,
   fromEmail?: string,
-  fromName?: string
+  fromName?: string,
+  provider: "zeptomail" | "resend" | "auto" = "auto"
 ): Promise<{ success: boolean; provider: "zeptomail" | "resend" | "sandbox"; message: string }> {
-  const zeptoApiKey = import.meta.env.VITE_ZEPTOMAIL_API_KEY || "";
-  const resendApiKey = import.meta.env.VITE_RESEND_API_KEY || "";
+  try {
+    const response = await fetch("/api/send-email", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        toEmail,
+        toName,
+        subject,
+        html,
+        fromEmail,
+        fromName,
+        provider
+      })
+    });
 
-  // 1. Try ZeptoMail first
-  if (zeptoApiKey) {
-    try {
-      const success = await sendZeptoMail(toEmail, toName, subject, html, fromEmail, fromName);
-      if (success) {
-        return { success: true, provider: "zeptomail", message: "Delivered successfully via Zoho ZeptoMail." };
-      }
-    } catch (e: any) {
-      console.warn("ZeptoMail delivery failed, trying Resend fallback...", e);
-      toast.warning("ZeptoMail failed, attempting Resend fallback...", { description: e.message });
+    if (!response.ok) {
+      const errJson = await response.json().catch(() => ({}));
+      throw new Error(errJson?.error || "Server dispatch failed");
     }
+
+    const data = await response.json();
+    return {
+      success: data.success,
+      provider: data.provider,
+      message: data.message
+    };
+  } catch (error: any) {
+    console.error("Unified dispatcher fetch failed:", error);
+    // If the serverless endpoint fails or is offline (e.g. local dev sandbox)
+    toast.warning("Server connection failed, using local sandbox fallback...", { description: error.message });
+    return {
+      success: true,
+      provider: "sandbox",
+      message: `Delivered in Local Sandbox Mode. (${error.message})`
+    };
   }
-
-  // 2. Try Resend second
-  if (resendApiKey) {
-    try {
-      const success = await sendResendMail(toEmail, toName, subject, html, fromEmail, fromName);
-      if (success) {
-        return { success: true, provider: "resend", message: "Delivered successfully via Resend API." };
-      }
-    } catch (e: any) {
-      console.warn("Resend delivery failed, falling back to sandbox...", e);
-      toast.warning("Resend failed, activating sandbox fallback...", { description: e.message });
-    }
-  }
-
-  // 3. Fallback to developer Sandbox mode
-  console.log(`[Email Sandbox Mode]
-Sender: ${fromName || "Apna Coding"} <${fromEmail || "noreply@apnacoding.com"}>
-Recipient: ${toName} <${toEmail}>
-Subject: ${subject}
-Content: ${html.substring(0, 300)}...`);
-
-  return { 
-    success: true, 
-    provider: "sandbox", 
-    message: "Delivered in Local Sandbox Mode." 
-  };
 }
 
 /**
  * Sends a community ownership verification email using the unified email engine.
- * Verified codes use the automated non-reply address.
  */
 export async function sendVerificationCode(
   email: string,
@@ -226,7 +114,7 @@ export async function sendVerificationCode(
       </div>
       <p style="color: #6b7280; font-size: 14px;">If you did not make this request, you can safely ignore this email.</p>
       <hr style="border: 0; border-top: 1px solid #eaeaea; margin: 20px 0;" />
-      <p style="font-size: 12px; color: #9ca3af; text-align: center;">Powered by Apna Coding & Zoho ZeptoMail</p>
+      <p style="font-size: 12px; color: #9ca3af; text-align: center;">Powered by Apna Coding</p>
     </div>
   `;
 
@@ -237,7 +125,8 @@ export async function sendVerificationCode(
     subject, 
     htmlContent,
     "noreply@apnacoding.com",
-    "Apna Coding"
+    "Apna Coding",
+    "auto"
   );
 
   if (result.provider === "sandbox") {

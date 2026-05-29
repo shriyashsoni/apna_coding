@@ -26,6 +26,7 @@ export function AIEmailAgent() {
   const [isScrapingWebsite, setIsScrapingWebsite] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSendingEmail, setIsSendingEmail] = useState(false);
+  const [emailProvider, setEmailProvider] = useState<"resend" | "zeptomail" | "auto">("resend");
   const [useColorfulTemplate, setUseColorfulTemplate] = useState(true); // Toggle for colored vs plain template
   const [generatedEmail, setGeneratedEmail] = useState<{
     subject: string;
@@ -230,7 +231,8 @@ export function AIEmailAgent() {
         subject,
         formattedHtml,
         "shriyash.soni@apnacoding.com",
-        "Shriyash Soni"
+        "Shriyash Soni",
+        emailProvider
       );
 
       if (result.success) {
@@ -648,7 +650,7 @@ export function AIEmailAgent() {
                       </div>
                     </div>
                     <div
-                      className="p-6 bg-background border border-primary/20 rounded-md min-h-[500px] max-h-[700px] overflow-y-auto text-base leading-relaxed"
+                      className="p-6 bg-background border border-primary/20 rounded-md min-h-[500px] max-h-[700px] overflow-y-auto text-base leading-relaxed [&_p]:mb-4 [&_ul]:mb-4 [&_li]:mb-2 [&_h1]:mb-4 [&_h2]:mb-4"
                       dangerouslySetInnerHTML={{
                         __html: generatedEmail.templates?.[selectedTemplate]?.content || generatedEmail.content
                       }}
@@ -675,6 +677,47 @@ export function AIEmailAgent() {
                         onCheckedChange={setUseColorfulTemplate}
                         className="ml-3"
                       />
+                    </div>
+
+                    {/* Choose Delivery API Service Option */}
+                    <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border">
+                      <Label className="text-sm font-semibold flex items-center gap-1.5">
+                        ⚙️ Choose Delivery API Service
+                      </Label>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant={emailProvider === "resend" ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setEmailProvider("resend")}
+                          className="flex-1"
+                        >
+                          📨 Resend API
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={emailProvider === "zeptomail" ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setEmailProvider("zeptomail")}
+                          className="flex-1"
+                        >
+                          ⚡ ZeptoMail
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={emailProvider === "auto" ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setEmailProvider("auto")}
+                          className="flex-1"
+                        >
+                          🔄 Auto Cascade
+                        </Button>
+                      </div>
+                      <p className="text-[11px] text-muted-foreground mt-1">
+                        {emailProvider === "resend" && "Emails are dispatched exclusively using your Resend API credentials."}
+                        {emailProvider === "zeptomail" && "Emails are dispatched exclusively using Zoho ZeptoMail."}
+                        {emailProvider === "auto" && "ZeptoMail will be attempted first with Resend as automatic failover."}
+                      </p>
                     </div>
 
                     {/* Primary Send Button - Direct Email Sending */}
