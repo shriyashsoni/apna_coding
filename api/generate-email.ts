@@ -12,7 +12,14 @@ export default async function handler(req: any, res: any) {
     return res.status(200).end();
   }
 
-  const { companyName, purpose, additionalContext, emailLength } = req.body;
+  let body = req.body;
+  if (typeof body === "string") {
+    try {
+      body = JSON.parse(body);
+    } catch (e) {}
+  }
+
+  const { companyName, purpose, additionalContext, emailLength } = body || {};
 
   try {
     const groqApiKey = process.env.VITE_GROQ_API_KEY || process.env.GROK_API_KEY || "";

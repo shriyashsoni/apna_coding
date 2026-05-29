@@ -12,7 +12,14 @@ export default async function handler(req: any, res: any) {
     return res.status(200).end();
   }
 
-  const { toEmail, toName, subject, html, fromEmail, fromName, provider } = req.body;
+  let body = req.body;
+  if (typeof body === "string") {
+    try {
+      body = JSON.parse(body);
+    } catch (e) {}
+  }
+
+  const { toEmail, toName, subject, html, fromEmail, fromName, provider } = body || {};
 
   if (!toEmail || !subject || !html) {
     return res.status(400).json({ error: "Missing required fields (toEmail, subject, html)" });
