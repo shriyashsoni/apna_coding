@@ -24,7 +24,8 @@ import {
   ListTodo,
   FileText,
   Upload,
-  Layers
+  Layers,
+  Code2
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -94,7 +95,10 @@ Founder, Apna Coding
 shriyash.soni@apnacoding.com`);
 
   const [emailProvider, setEmailProvider] = useState<"resend" | "zeptomail" | "auto">("resend");
-  const [useColorfulTemplate, setUseColorfulTemplate] = useState(true);
+  
+  // 3-way layout configuration: 'colorful' | 'plain' | 'html'
+  const [layoutMode, setLayoutMode] = useState<"colorful" | "plain" | "html">("colorful");
+  
   const [isGeneratingTemplate, setIsGeneratingTemplate] = useState(false);
   const [aiGeneratorPrompt, setAiGeneratorPrompt] = useState("An invitation to co-host a national developer Web3 Hackathon with cash prizes");
   const [isLaunchingCampaign, setIsLaunchingCampaign] = useState(false);
@@ -253,32 +257,46 @@ shriyash.soni@apnacoding.com`);
     setLeads(updated);
   };
 
-  // Strip styling recursively to create pure plain template
-  const convertToPlainTemplate = (htmlContent: string): string => {
-    const temp = document.createElement("div");
-    temp.innerHTML = htmlContent;
-
-    const allElements = temp.querySelectorAll("*");
-    allElements.forEach(el => {
-      el.removeAttribute("style");
-      el.removeAttribute("class");
-    });
+  // Format body text with gorgeous proportional line-heights and margins
+  const formatPlainLayout = (bodyText: string): string => {
+    const paragraphs = bodyText
+      .split(/\n\n+/)
+      .map(p => p.trim())
+      .filter(Boolean)
+      .map(p => `<p style="margin: 0 0 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.8; color: #1e293b;">${p.replace(/\n/g, "<br>")}</p>`)
+      .join("");
 
     return `
 <!DOCTYPE html>
 <html lang="en">
-<body style="margin: 0; padding: 20px; font-family: Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #ffffff;">
-  <div style="max-width: 600px; margin: 0 auto;">
-    ${temp.innerHTML}
-  </div>
+<body style="margin: 0; padding: 30px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #ffffff; color: #1e293b;">
+  <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #ffffff;">
+    <tr>
+      <td align="center">
+        <table width="100%" style="max-width: 600px; text-align: left;">
+          <tr>
+            <td style="padding: 20px 0;">
+              ${paragraphs}
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>
     `.trim();
   };
 
-  // Generate fancy HTML template around clean body text
+  // Generate fancy HTML template around clean body text with proportional line-heights and margins
   const generateColorfulTemplate = (bodyText: string): string => {
-    const paragraphs = bodyText.split("\n\n").map(p => `<p style="margin: 0 0 16px 0; font-size: 16px; line-height: 1.8; color: #334155;">${p.replace(/\n/g, "<br>")}</p>`).join("");
+    const paragraphs = bodyText
+      .split(/\n\n+/)
+      .map(p => p.trim())
+      .filter(Boolean)
+      .map(p => `<p style="margin: 0 0 24px 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.8; color: #334155;">${p.replace(/\n/g, "<br>")}</p>`)
+      .join("");
+
     return `
 <!DOCTYPE html>
 <html lang="en">
@@ -286,45 +304,45 @@ shriyash.soni@apnacoding.com`);
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8fafc;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc;">
   <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; padding: 40px 10px;">
     <tr>
       <td align="center">
-        <table width="100%" max-width="600" style="max-width: 600px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+        <table width="100%" max-width="600" style="max-width: 600px; background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.03);">
           
           <!-- Header Banner -->
           <tr>
-            <td style="background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%); padding: 32px 40px; text-align: center;">
-              <h2 style="margin: 0; font-size: 24px; color: #ffffff; font-weight: 700; letter-spacing: -0.5px;">🤝 Partnership Collaboration Campaign</h2>
-              <p style="margin: 4px 0 0 0; font-size: 14px; color: #e2e8f0;">Outreach via Apna Coding Administrative Hub</p>
+            <td style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 36px 40px; text-align: center;">
+              <h2 style="margin: 0; font-size: 26px; color: #ffffff; font-weight: 700; letter-spacing: -0.5px;">🤝 Strategic Partnership Proposal</h2>
+              <p style="margin: 6px 0 0 0; font-size: 14px; color: #bfdbfe; font-weight: 500;">Apna Coding Outreach Network</p>
             </td>
           </tr>
 
           <!-- Main Content Body -->
           <tr>
-            <td style="padding: 40px 40px 30px 40px; background-color: #ffffff;">
+            <td style="padding: 44px 44px 34px 44px; background-color: #ffffff;">
               ${paragraphs}
             </td>
           </tr>
 
           <!-- Custom Highlight Footer Action -->
           <tr>
-            <td style="padding: 0 40px 40px 40px;">
-              <div style="background-color: #f0fdfa; border-left: 4px solid #14b8a6; padding: 20px; border-radius: 8px; margin-top: 10px;">
-                <h4 style="margin: 0 0 6px 0; font-size: 14px; color: #0f766e; font-weight: 600;">🚀 Let's Connect Today</h4>
-                <p style="margin: 0; font-size: 13px; color: #115e59; line-height: 1.5;">To schedule a quick synchronization meeting or ask questions directly, please reply to this outreach email thread.</p>
+            <td style="padding: 0 44px 44px 44px;">
+              <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 22px; border-radius: 8px;">
+                <h4 style="margin: 0 0 6px 0; font-size: 15px; color: #1e3a8a; font-weight: 600;">🚀 Let's Connect</h4>
+                <p style="margin: 0; font-size: 13.5px; color: #1e40af; line-height: 1.6;">To schedule a quick call or request details, please reply directly to this thread.</p>
               </div>
             </td>
           </tr>
 
           <!-- Brand Footer -->
           <tr>
-            <td style="background-color: #f8fafc; border-top: 1px solid #f1f5f9; padding: 24px 40px; text-align: center;">
+            <td style="background-color: #f8fafc; border-top: 1px solid #f1f5f9; padding: 24px 44px; text-align: center;">
               <p style="margin: 0 0 8px 0; font-size: 13px; color: #64748b;"><strong>Apna Coding Ecosystem</strong> — India's Premier Developer Network</p>
               <p style="margin: 0; font-size: 12px; color: #94a3b8;">
-                <a href="https://apnacoding.com" style="color: #4f46e5; text-decoration: none; margin: 0 6px;">Website</a> • 
-                <a href="https://x.com/apna_coding" style="color: #4f46e5; text-decoration: none; margin: 0 6px;">Twitter</a> • 
-                <a href="https://www.linkedin.com/company/apna-coding-by-apna-counsellors/" style="color: #4f46e5; text-decoration: none; margin: 0 6px;">LinkedIn</a>
+                <a href="https://apnacoding.com" style="color: #3b82f6; text-decoration: none; margin: 0 6px;">Website</a> • 
+                <a href="https://x.com/apna_coding" style="color: #3b82f6; text-decoration: none; margin: 0 6px;">Twitter</a> • 
+                <a href="https://www.linkedin.com/company/apna-coding-by-apna-counsellors/" style="color: #3b82f6; text-decoration: none; margin: 0 6px;">LinkedIn</a>
               </p>
             </td>
           </tr>
@@ -458,9 +476,19 @@ shriyash.soni@apnacoding.com`);
             .replace(/\{\{focus\}\}/g, lead.focus);
         }
 
-        const htmlLayout = useColorfulTemplate
-          ? generateColorfulTemplate(bodyText)
-          : convertToPlainTemplate(bodyText);
+        // Apply selected Layout engine formatting
+        let htmlLayout = "";
+        
+        if (layoutMode === "html") {
+          // 1. Raw Custom HTML Mode: Send exactly what is written, just replace placeholders!
+          htmlLayout = bodyText;
+        } else if (layoutMode === "plain") {
+          // 2. Standard Plain Mode with proportional spacing and beautiful vertical margins
+          htmlLayout = formatPlainLayout(bodyText);
+        } else {
+          // 3. Colorful Premium Layout with gradient header banner and beautiful spacing
+          htmlLayout = generateColorfulTemplate(bodyText);
+        }
 
         const result = await sendEmailUnified(
           lead.email,
@@ -686,7 +714,7 @@ shriyash.soni@apnacoding.com`);
                 ✉️ Compose Mass Outreach Email Campaign
               </CardTitle>
               <CardDescription>
-                Use <code className="text-primary font-mono text-xs">{"{{companyName}}"}</code> and <code className="text-primary font-mono text-xs">{"{{focus}}"}</code> to insert personalized variables into your campaign dynamically.
+                Use <code className="text-primary font-mono text-xs">{"{{companyName}}"}</code> and <code className="text-primary font-mono text-xs">{"{{focus}}"}</code> to insert variables. Custom HTML tags are fully supported and executed in Raw HTML mode!
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -735,15 +763,16 @@ shriyash.soni@apnacoding.com`);
 
               {/* Body Textarea */}
               <div className="space-y-2" style={{ opacity: hyperPersonalize ? 0.6 : 1 }}>
-                <Label htmlFor="campaign-template" className="font-semibold text-sm">
-                  Outreach Body Content Template {hyperPersonalize && <span className="text-primary">(AI Hyper-Personalized draft will override this)</span>}
+                <Label htmlFor="campaign-template" className="font-semibold text-sm flex items-center justify-between">
+                  <span>Outreach Body Content {hyperPersonalize && <span className="text-primary">(AI Hyper-Personalized draft will override this)</span>}</span>
+                  {layoutMode === "html" && <Badge variant="secondary" className="bg-orange-500/10 text-orange-500 border-orange-500/20 text-xs">HTML Code Active</Badge>}
                 </Label>
                 <Textarea
                   id="campaign-template"
                   value={templateContent}
                   onChange={(e) => setTemplateContent(e.target.value)}
-                  placeholder="Compose your personalized outreach template here..."
-                  rows={12}
+                  placeholder={layoutMode === "html" ? `<!-- Write custom HTML here -->\n<div style="padding: 20px;">\n  <h1>Hi {{companyName}} Team,</h1>\n</div>` : "Compose your personalized outreach template here..."}
+                  rows={15}
                   className="bg-background/40 border-primary/20 font-mono text-sm leading-relaxed"
                   disabled={hyperPersonalize}
                 />
@@ -783,21 +812,54 @@ shriyash.soni@apnacoding.com`);
                 />
               </div>
 
-              {/* Plain / Colorful toggle */}
-              <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border">
-                <div className="space-y-1">
-                  <Label htmlFor="template-style" className="font-semibold text-sm block">🎨 Use Responsive Colorful Banner</Label>
-                  <p className="text-xs text-muted-foreground">
-                    {useColorfulTemplate 
-                      ? "High-end email banner gradients and modern visual formatting" 
-                      : "Completely stripped plain layout without any styles or highlights"}
-                  </p>
+              {/* Advanced Proportional Layout Mode Selector */}
+              <div className="space-y-3 p-4 bg-muted/30 rounded-lg border border-border">
+                <Label className="text-sm font-bold flex items-center gap-1.5">
+                  🎨 Proportional Layout Template Mode
+                </Label>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    type="button"
+                    variant={layoutMode === "colorful" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setLayoutMode("colorful");
+                      setHyperPersonalize(true);
+                    }}
+                    className="justify-start text-xs text-left"
+                  >
+                    🎨 Colorful Gradient Banner (Premium & Spaced)
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={layoutMode === "plain" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setLayoutMode("plain");
+                      setHyperPersonalize(false);
+                    }}
+                    className="justify-start text-xs text-left"
+                  >
+                    ✉️ Standard Professional Plain (Perfect Spacing)
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={layoutMode === "html" ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      setLayoutMode("html");
+                      setHyperPersonalize(false);
+                    }}
+                    className="justify-start text-xs text-left"
+                  >
+                    💻 Custom Raw HTML Code Mode (100% Custom Control)
+                  </Button>
                 </div>
-                <Switch
-                  id="template-style"
-                  checked={useColorfulTemplate}
-                  onCheckedChange={setUseColorfulTemplate}
-                />
+                <p className="text-[10px] text-muted-foreground leading-relaxed mt-1">
+                  {layoutMode === "colorful" && "Gradients and beautiful card styling with automatic spacing."}
+                  {layoutMode === "plain" && "Clean layout using Apple-System typography. Ideal for high deliverability."}
+                  {layoutMode === "html" && "Sends your custom code directly. Variables like {{companyName}} are supported."}
+                </p>
               </div>
 
               {/* Delivery Service API Selector */}
