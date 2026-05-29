@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,16 +15,18 @@ import {
   Users,
   CheckCircle,
   XCircle,
-  Eye,
   Sparkles,
   Search,
   CheckSquare,
   Square,
   Globe,
   Settings2,
-  ListTodo
+  ListTodo,
+  FileText,
+  Upload,
+  Layers
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface BlockchainLead {
   name: string;
@@ -38,7 +40,7 @@ interface BlockchainLead {
 interface CampaignLog {
   recipientName: string;
   recipientEmail: string;
-  status: "pending" | "success" | "error";
+  status: "pending" | "success" | "error" | "ai_generating";
   message: string;
   timestamp: string;
 }
@@ -46,6 +48,8 @@ interface CampaignLog {
 export function BulkEmailSender() {
   const [leadQuery, setLeadQuery] = useState("blockchain developer communities and Web3 start-ups");
   const [isFindingLeads, setIsFindingLeads] = useState(false);
+  
+  // Dynamic queue containing both AI-discovered leads and imported Excel lists
   const [leads, setLeads] = useState<BlockchainLead[]>([
     {
       name: "Solana India Community",
@@ -96,6 +100,109 @@ shriyash.soni@apnacoding.com`);
   const [isLaunchingCampaign, setIsLaunchingCampaign] = useState(false);
   const [campaignLogs, setCampaignLogs] = useState<CampaignLog[]>([]);
 
+  // CSV & Excel bulk extractor state
+  const [rawExtractorText, setRawExtractorText] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Hyper-personalization state (Generate completely unique AI email drafts for each recipient)
+  const [hyperPersonalize, setHyperPersonalize] = useState(true);
+
+  // Extract from excel / CSV copy-pasted raw data or file
+  const handleBulkExtract = (textData: string) => {
+    const content = textData || rawExtractorText;
+    if (!content.trim()) {
+      toast.error("Please enter or paste list content to extract.");
+      return;
+    }
+
+    const lines = content.split("\n").map(l => l.trim()).filter(Boolean);
+    const extractedList: BlockchainLead[] = [];
+    let duplicateCount = 0;
+
+    for (const line of lines) {
+      // Split by tab (Excel/Google Sheets copy paste) or comma (CSV)
+      let parts = line.split("\t");
+      if (parts.length === 1) {
+        parts = line.split(",");
+      }
+      
+      // Clean components
+      parts = parts.map(p => p.trim());
+
+      // Attempt to identify email address using standard regex
+      const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+      let email = "";
+      let name = "";
+      
+      // Look for the email field in the split columns
+      const emailIdx = parts.findIndex(p => emailRegex.test(p));
+      if (emailIdx !== -1) {
+        email = parts[emailIdx].match(emailRegex)?.[0] || "";
+        
+        // Grab the remaining columns for name search
+        const otherParts = parts.filter((_, idx) => idx !== emailIdx);
+        if (otherParts.length > 0) {
+          name = otherParts[0];
+        } else {
+          // Fallback extraction of name from the email prefix
+          name = email.split("@")[0].replace(/[._-]/g, " ");
+          name = name.charAt(0).toUpperCase() + name.slice(1);
+        }
+      } else {
+        // If not split, run a simple regex match over the line
+        const directEmailMatch = line.match(emailRegex);
+        if (directEmailMatch) {
+          email = directEmailMatch[0];
+          name = line.replace(email, "").replace(/[,;\t]/g, "").trim() || email.split("@")[0];
+        }
+      }
+
+      if (email) {
+        // Check if duplicate already exists in queue
+        const isDuplicate = leads.some(l => l.email.toLowerCase() === email.toLowerCase());
+        if (isDuplicate) {
+          duplicateCount++;
+          continue;
+        }
+
+        extractedList.push({
+          name: name || "Web3 Leader",
+          email: email.toLowerCase(),
+          website: "https://apnacoding.com",
+          category: "Excel Import",
+          focus: "Custom imported campaign list target",
+          selected: true
+        });
+      }
+    }
+
+    if (extractedList.length > 0) {
+      setLeads(prev => [...prev, ...extractedList]);
+      setRawExtractorText("");
+      toast.success(`Successfully extracted & merged ${extractedList.length} verified email recipients!`);
+      if (duplicateCount > 0) {
+        toast.info(`Skipped ${duplicateCount} duplicate email addresses.`);
+      }
+    } else {
+      toast.error("No valid email addresses could be extracted. Check your layout format.");
+    }
+  };
+
+  // Handle uploaded excel or CSV text files
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      handleBulkExtract(text);
+    };
+    reader.readAsText(file);
+    // Reset file input
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
   // Find targeted blockchain leads using our secure AI pipeline
   const handleFindLeads = async () => {
     if (!leadQuery.trim()) {
@@ -120,10 +227,10 @@ shriyash.soni@apnacoding.com`);
           ...l,
           selected: true
         }));
-        setLeads(mappedLeads);
-        toast.success(`Found ${mappedLeads.length} blockchain outreach leads via ${data.provider}!`);
+        setLeads(prev => [...prev, ...mappedLeads]);
+        toast.success(`Discovered ${mappedLeads.length} new targeted leads via AI!`);
       } else {
-        toast.info("No new leads found, kept existing targets.");
+        toast.info("No new leads found matching query.");
       }
     } catch (e: any) {
       console.error(e);
@@ -257,11 +364,9 @@ shriyash.soni@apnacoding.com`);
       const data = await response.json();
       const generated = data.templates?.[data.selectedTemplate] || data;
       if (generated && generated.content) {
-        // Strip tags if AI wrapped it in a full colored template automatically, so we can save as raw text
         let cleanText = generated.content;
         const temp = document.createElement("div");
         temp.innerHTML = cleanText;
-        // If it looks like a rich HTML banner, extract just paragraph blocks
         const paragraphs = temp.querySelectorAll("p");
         if (paragraphs.length > 0) {
           cleanText = Array.from(paragraphs).map(p => p.textContent).join("\n\n");
@@ -271,33 +376,33 @@ shriyash.soni@apnacoding.com`);
 
         setSubject(generated.subject || "🤝 Collaboration Proposal: Apna Coding × {{companyName}}");
         setTemplateContent(cleanText);
-        toast.success(`Generated personalized Mass Email template using ${data.provider}!`);
+        toast.success("Generated dynamic baseline outreach template!");
       }
     } catch (e: any) {
       console.error(e);
-      toast.error(e.message || "Failed to generate campaign template.");
+      toast.error("Failed to generate campaign template. Using dynamic baseline fallback instead.");
     } finally {
       setIsGeneratingTemplate(false);
     }
   };
 
-  // Mass campaign launcher
+  // Mass campaign launcher with individual dynamic AI hyper-personalization
   const handleLaunchCampaign = async () => {
     const selectedLeads = leads.filter(l => l.selected);
     if (selectedLeads.length === 0) {
-      toast.error("Please select at least one blockchain lead to receive the campaign.");
+      toast.error("Please select at least one lead to receive the campaign.");
       return;
     }
 
     setIsLaunchingCampaign(true);
     setCampaignLogs([]);
-    toast.loading(`Launching massive outreach campaign to ${selectedLeads.length} leads...`);
+    toast.loading(`Launching campaign dispatch loop for ${selectedLeads.length} recipients...`);
 
     const newLogs: CampaignLog[] = selectedLeads.map(lead => ({
       recipientName: lead.name,
       recipientEmail: lead.email,
       status: "pending" as const,
-      message: "Queued for sending...",
+      message: "Queued for execution...",
       timestamp: new Date().toLocaleTimeString()
     }));
     setCampaignLogs(newLogs);
@@ -306,11 +411,52 @@ shriyash.soni@apnacoding.com`);
     for (let i = 0; i < selectedLeads.length; i++) {
       const lead = selectedLeads[i];
       try {
-        // Replace placeholders in subject and body dynamically
-        const personalizedSubject = subject.replace(/\{\{companyName\}\}/g, lead.name);
-        let bodyText = templateContent
-          .replace(/\{\{companyName\}\}/g, lead.name)
-          .replace(/\{\{focus\}\}/g, lead.focus);
+        let personalizedSubject = subject.replace(/\{\{companyName\}\}/g, lead.name);
+        let bodyText = "";
+
+        if (hyperPersonalize) {
+          // Real-time dynamic unique AI generation customized to this recipient
+          setCampaignLogs(prev => prev.map((log, index) => 
+            index === i 
+              ? { ...log, status: "ai_generating" as const, message: "🧠 Generating distinct custom draft with AI..." }
+              : log
+          ));
+
+          const response = await fetch("/api/generate-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              companyName: lead.name,
+              purpose: lead.category,
+              additionalContext: `Recipient: ${lead.name}. Focus profile: ${lead.focus}. Campaign focus context: ${aiGeneratorPrompt}`,
+              emailLength: "medium"
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            const generated = data.templates?.friendly || data.templates?.formal || data;
+            if (generated && generated.content) {
+              const temp = document.createElement("div");
+              temp.innerHTML = generated.content;
+              const paragraphs = temp.querySelectorAll("p");
+              bodyText = paragraphs.length > 0 
+                ? Array.from(paragraphs).map(p => p.textContent).join("\n\n") 
+                : (temp.textContent || generated.content);
+              
+              if (generated.subject) {
+                personalizedSubject = generated.subject;
+              }
+            }
+          }
+        }
+
+        // Fallback or Standard variable replacement if hyper-personalize is off or failed
+        if (!bodyText) {
+          bodyText = templateContent
+            .replace(/\{\{companyName\}\}/g, lead.name)
+            .replace(/\{\{focus\}\}/g, lead.focus);
+        }
 
         const htmlLayout = useColorfulTemplate
           ? generateColorfulTemplate(bodyText)
@@ -329,7 +475,7 @@ shriyash.soni@apnacoding.com`);
         if (result.success) {
           setCampaignLogs(prev => prev.map((log, index) => 
             index === i 
-              ? { ...log, status: "success" as const, message: `Sent successfully via ${result.provider}!` }
+              ? { ...log, status: "success" as const, message: `Delivered via ${result.provider}!` }
               : log
           ));
         } else {
@@ -339,7 +485,7 @@ shriyash.soni@apnacoding.com`);
         console.error(e);
         setCampaignLogs(prev => prev.map((log, index) => 
           index === i 
-            ? { ...log, status: "error" as const, message: e.message || "Delivery failed" }
+            ? { ...log, status: "error" as const, message: e.message || "Failed to deliver" }
             : log
         ));
       }
@@ -348,12 +494,63 @@ shriyash.soni@apnacoding.com`);
     }
 
     toast.dismiss();
-    toast.success("🏆 Bulk Campaign Outreach completed!");
+    toast.success("🏆 Unified campaign execution completed!");
     setIsLaunchingCampaign(false);
   };
 
   return (
     <div className="space-y-6">
+      {/* CSV & Spreadsheets Excel Bulk Extractor Card */}
+      <Card className="border-primary/20 bg-gradient-to-br from-primary/5 via-secondary/5 to-background relative overflow-hidden">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-xl font-bold">
+            <Upload className="h-5 w-5 text-primary" />
+            Excel/CSV & Raw Text Recipient Extractor
+          </CardTitle>
+          <CardDescription>
+            Copy-paste cell rows straight from Microsoft Excel or Google Sheets, drop a CSV file, or paste raw text to merge recipients instantly!
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="md:col-span-2 space-y-2">
+              <Label htmlFor="extractor-area" className="text-sm font-semibold">📋 Paste Rows (e.g. "email, name" or copy spreadsheet cells directly)</Label>
+              <Textarea
+                id="extractor-area"
+                value={rawExtractorText}
+                onChange={(e) => setRawExtractorText(e.target.value)}
+                placeholder={`john.doe@solana.org\tJohn Doe\njane.smith@polygon.technology\tJane Smith`}
+                rows={3}
+                className="bg-background/40 border-primary/20 font-mono text-xs"
+              />
+            </div>
+            
+            <div className="flex flex-col justify-end gap-3">
+              <div>
+                <Label htmlFor="file-uploader" className="text-xs font-semibold block mb-1.5 cursor-pointer flex items-center gap-1">
+                  <FileText className="h-3.5 w-3.5 text-primary" />
+                  Or Upload CSV / TXT File
+                </Label>
+                <Input
+                  id="file-uploader"
+                  type="file"
+                  accept=".csv,.txt"
+                  ref={fileInputRef}
+                  onChange={handleFileUpload}
+                  className="bg-background/40 border-primary/20 text-xs py-1"
+                />
+              </div>
+              <Button
+                onClick={() => handleBulkExtract("")}
+                className="w-full bg-secondary hover:bg-secondary/80 text-secondary-foreground font-semibold text-xs py-5"
+              >
+                ⚡ Extract & Merge Recipients
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Search and AI Lead Finder Header */}
       <Card className="border-primary/20 bg-card/40 relative overflow-hidden">
         <div className="absolute top-0 right-0 p-4 opacity-5">
@@ -434,7 +631,7 @@ shriyash.soni@apnacoding.com`);
             <div className="border border-border/80 rounded-lg overflow-hidden bg-background/50 divide-y divide-border/80 max-h-[300px] overflow-y-auto">
               {leads.length === 0 ? (
                 <div className="p-8 text-center text-muted-foreground">
-                  No blockchain leads generated yet. Enter a query prompt above to auto-generate leads!
+                  No leads generated yet. Use the Extractor or Find Leads with AI above to construct your dynamic outreach queue!
                 </div>
               ) : (
                 leads.map((lead, index) => (
@@ -522,27 +719,33 @@ shriyash.soni@apnacoding.com`);
               </div>
 
               {/* Subject */}
-              <div className="space-y-2">
-                <Label htmlFor="campaign-subject" className="font-semibold text-sm">Campaign Email Subject</Label>
+              <div className="space-y-2 animate-pulse" style={{ animationPlayState: hyperPersonalize ? "running" : "paused" }}>
+                <Label htmlFor="campaign-subject" className="font-semibold text-sm">
+                  Campaign Email Subject {hyperPersonalize && <span className="text-primary">(AI Tailored Per Recipient)</span>}
+                </Label>
                 <Input
                   id="campaign-subject"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   placeholder="🤝 Partnership: Apna Coding × {{companyName}}"
                   className="bg-background/40 border-primary/20"
+                  disabled={hyperPersonalize}
                 />
               </div>
 
               {/* Body Textarea */}
-              <div className="space-y-2">
-                <Label htmlFor="campaign-template" className="font-semibold text-sm">Outreach Body Content Template</Label>
+              <div className="space-y-2" style={{ opacity: hyperPersonalize ? 0.6 : 1 }}>
+                <Label htmlFor="campaign-template" className="font-semibold text-sm">
+                  Outreach Body Content Template {hyperPersonalize && <span className="text-primary">(AI Hyper-Personalized draft will override this)</span>}
+                </Label>
                 <Textarea
                   id="campaign-template"
                   value={templateContent}
                   onChange={(e) => setTemplateContent(e.target.value)}
                   placeholder="Compose your personalized outreach template here..."
-                  rows={14}
+                  rows={12}
                   className="bg-background/40 border-primary/20 font-mono text-sm leading-relaxed"
+                  disabled={hyperPersonalize}
                 />
               </div>
             </CardContent>
@@ -562,6 +765,24 @@ shriyash.soni@apnacoding.com`);
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              {/* AI Hyper-Personalization Switch */}
+              <div className="flex items-center justify-between p-4 bg-primary/10 rounded-lg border border-primary/30">
+                <div className="space-y-1">
+                  <Label htmlFor="hyper-personalize" className="font-bold text-sm block flex items-center gap-1">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    🧠 Dynamic AI Hyper-Personalization
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Generate completely unique, customized drafts for each recipient in real-time based on their company focus.
+                  </p>
+                </div>
+                <Switch
+                  id="hyper-personalize"
+                  checked={hyperPersonalize}
+                  onCheckedChange={setHyperPersonalize}
+                />
+              </div>
+
               {/* Plain / Colorful toggle */}
               <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-border">
                 <div className="space-y-1">
@@ -613,11 +834,6 @@ shriyash.soni@apnacoding.com`);
                     🔄 Auto Cascade
                   </Button>
                 </div>
-                <p className="text-[11px] text-muted-foreground">
-                  {emailProvider === "resend" && "Emails are sent securely through your verified Resend domain."}
-                  {emailProvider === "zeptomail" && "Emails are sent securely through Zoho ZeptoMail transactional service."}
-                  {emailProvider === "auto" && "Auto Cascade falls back to Resend if ZeptoMail reports sending errors."}
-                </p>
               </div>
 
               {/* Campaign Trigger Button */}
@@ -629,12 +845,12 @@ shriyash.soni@apnacoding.com`);
                 {isLaunchingCampaign ? (
                   <>
                     <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                    Launching Outreach Campaign...
+                    Launching Campaign...
                   </>
                 ) : (
                   <>
                     <Send className="h-5 w-5 mr-2" />
-                    Launch Partnership Campaign ({leads.filter(l => l.selected).length} Leads)
+                    Launch Campaign ({leads.filter(l => l.selected).length} Selected Targets)
                   </>
                 )}
               </Button>
@@ -662,6 +878,7 @@ shriyash.soni@apnacoding.com`);
                           {log.status === "success" && <CheckCircle className="h-3 w-3 text-green-500" />}
                           {log.status === "error" && <XCircle className="h-3 w-3 text-red-500" />}
                           {log.status === "pending" && <Loader2 className="h-3 w-3 text-yellow-500 animate-spin" />}
+                          {log.status === "ai_generating" && <Layers className="h-3 w-3 text-primary animate-pulse" />}
                           {log.recipientName}
                         </div>
                         <span className="text-[10px] text-muted-foreground">{log.recipientEmail}</span>
