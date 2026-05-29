@@ -263,47 +263,22 @@ export function AIEmailAgent() {
     const temp = document.createElement('div');
     temp.innerHTML = htmlContent;
 
-    // Extract just the body content (skip header, footer, stats, etc)
-    const bodyContent = temp.querySelector('td[style*="padding: 50px 40px"]');
-    const emailBody = bodyContent?.innerHTML || htmlContent;
+    // Completely strip style and class attributes from all elements
+    const allElements = temp.querySelectorAll('*');
+    allElements.forEach(el => {
+      el.removeAttribute('style');
+      el.removeAttribute('class');
+    });
 
-    // Create simple plain template
+    const cleanHtml = temp.innerHTML;
+
+    // Wrap in a highly readable, classic plain email format
     return `
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #ffffff;">
-  <div style="max-width: 600px; margin: 0 auto; padding: 40px 20px;">
-
-    <!-- Email Body -->
-    <div style="margin-bottom: 40px;">
-      ${emailBody}
-    </div>
-
-    <!-- Signature -->
-    <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
-      <p style="margin: 0 0 5px 0; font-size: 14px; color: #333;">Best regards,</p>
-      <p style="margin: 0 0 20px 0; font-size: 14px; color: #333; font-weight: 600;">Apna Coding Team</p>
-
-      <p style="margin: 0 0 5px 0; font-size: 13px; color: #666;">
-        <strong>Email:</strong> <a href="mailto:apnacoding.tech@gmail.com" style="color: #0066cc; text-decoration: none;">apnacoding.tech@gmail.com</a>
-      </p>
-      <p style="margin: 0 0 5px 0; font-size: 13px; color: #666;">
-        <strong>Website:</strong> <a href="https://apnacoding.com" style="color: #0066cc; text-decoration: none;">apnacoding.com</a>
-      </p>
-
-      <p style="margin: 15px 0 5px 0; font-size: 13px; color: #666;">
-        <strong>Connect:</strong>
-        <a href="https://x.com/apna_coding" style="color: #0066cc; text-decoration: none; margin-right: 10px;">Twitter</a>
-        <a href="https://www.linkedin.com/company/apna-coding-by-apna-counsellors/" style="color: #0066cc; text-decoration: none; margin-right: 10px;">LinkedIn</a>
-        <a href="https://www.instagram.com/apnacoding.tech" style="color: #0066cc; text-decoration: none; margin-right: 10px;">Instagram</a>
-        <a href="https://github.com/shriyashsoni" style="color: #0066cc; text-decoration: none;">GitHub</a>
-      </p>
-    </div>
-
+<body style="margin: 0; padding: 20px; font-family: Arial, sans-serif; line-height: 1.6; color: #333333; background-color: #ffffff;">
+  <div style="max-width: 600px; margin: 0 auto;">
+    ${cleanHtml}
   </div>
 </body>
 </html>
