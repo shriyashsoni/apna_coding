@@ -114,48 +114,99 @@ export function AIEmailAgent() {
     setIsGenerating(true);
     toast.info("AI is crafting your partnership proposals...");
 
-    const apiKey = import.meta.env.VITE_GOOGLE_AI_KEY || "AIzaSyBoKnjf9OFEo4LZPymYFAXNjMJJvwPwPZM";
+    const grokApiKey = import.meta.env.VITE_GROK_API_KEY || import.meta.env.VITE_XAI_API_KEY || "";
+    const geminiApiKey = import.meta.env.VITE_GOOGLE_AI_KEY || "AIzaSyBoKnjf9OFEo4LZPymYFAXNjMJJvwPwPZM";
 
-    try {
-      const prompt = `
-        You are the Apna Coding AI Email Partnership Agent.
-        Please write three highly personalized partnership email drafts based on the following parameters:
-        - Partner Company Name: "${formData.companyName}"
-        - Partnership Purpose/Category: "${formData.purpose}"
-        - Additional Context: "${formData.additionalContext}"
-        - Desired Email Length: "${formData.emailLength}"
+    const prompt = `
+      You are the Apna Coding AI Email Partnership Agent.
+      Please write three highly personalized partnership email drafts based on the following parameters:
+      - Partner Company Name: "${formData.companyName}"
+      - Partnership Purpose/Category: "${formData.purpose}"
+      - Additional Context: "${formData.additionalContext}"
+      - Desired Email Length: "${formData.emailLength}"
 
-        For each template (formal, friendly, creative), write a complete HTML email body.
-        - Start each email with "Hi [Recipient Name]," or if name is empty, "Hi Team,".
-        - Integrate a professional mention of Apna Coding (https://apnacoding.com) and how partnering is mutually beneficial.
-        - Include clean HTML tags (like <p>, <ul>, <li>, <strong>) but NO body/html outer wrapping tags.
-        - Include a clear call to action: "If you are interested in discussing this further, please reply directly to this email."
-        - Sign off as:
-          Shriyash Soni
-          Founder, Apna Coding
-          shriyash.soni@apnacoding.com
+      For each template (formal, friendly, creative), write a complete HTML email body.
+      - Start each email with "Hi [Recipient Name]," or if name is empty, "Hi Team,".
+      - Integrate a professional mention of Apna Coding (https://apnacoding.com) and how partnering is mutually beneficial.
+      - Include clean HTML tags (like <p>, <ul>, <li>, <strong>) but NO body/html outer wrapping tags.
+      - Include a clear call to action: "If you are interested in discussing this further, please reply directly to this email."
+      - Sign off as:
+        Shriyash Soni
+        Founder, Apna Coding
+        shriyash.soni@apnacoding.com
 
-        Your response must be a single, strict JSON object matching this schema exactly:
-        {
-          "formal": {
-            "subject": "Subject line...",
-            "content": "HTML content..."
+      Your response must be a single, strict JSON object matching this schema exactly:
+      {
+        "formal": {
+          "subject": "Subject line...",
+          "content": "HTML content..."
+        },
+        "friendly": {
+          "subject": "Subject line...",
+          "content": "HTML content..."
+        },
+        "creative": {
+          "subject": "Subject line...",
+          "content": "HTML content..."
+        }
+      }
+
+      Do not include markdown code block fences (\`\`\`json). Return ONLY the raw JSON string.
+    `;
+
+    // 1. Attempt Grok-2 first if Grok Key is configured
+    if (grokApiKey) {
+      try {
+        console.log("Attempting email generation with Grok-2...");
+        const response = await fetch("https://api.x.ai/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${grokApiKey}`
           },
-          "friendly": {
-            "subject": "Subject line...",
-            "content": "HTML content..."
-          },
-          "creative": {
-            "subject": "Subject line...",
-            "content": "HTML content..."
+          body: JSON.stringify({
+            model: "grok-2",
+            messages: [
+              {
+                role: "user",
+                content: prompt
+              }
+            ],
+            response_format: { type: "json_object" }
+          })
+        });
+
+        if (response.ok) {
+          const resData = await response.json();
+          const text = resData.choices?.[0]?.message?.content;
+          if (text) {
+            const templates = JSON.parse(text.trim());
+            setGeneratedEmail({
+              subject: templates.formal.subject,
+              content: templates.formal.content,
+              templates: {
+                formal: templates.formal,
+                friendly: templates.friendly,
+                creative: templates.creative
+              }
+            });
+            setSelectedTemplate("formal");
+            toast.success("✨ Three personalized email variations successfully generated via Grok-2!");
+            setIsGenerating(false);
+            return;
           }
         }
+        console.warn(`Grok API returned status code ${response.status}. Falling back to Gemini...`);
+      } catch (grokErr: any) {
+        console.warn("Grok generation failed, attempting Gemini fallback...", grokErr);
+      }
+    }
 
-        Do not include markdown code block fences (\`\`\`json). Return ONLY the raw JSON string.
-      `;
-
+    // 2. Fallback to Gemini if Grok Key is absent or fails
+    try {
+      console.log("Attempting email generation with Gemini...");
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiApiKey}`,
         {
           method: "POST",
           headers: {
@@ -203,7 +254,7 @@ export function AIEmailAgent() {
       });
 
       setSelectedTemplate("formal");
-      toast.success("✨ Three personalized email variations successfully generated!");
+      toast.success("✨ Three personalized email variations successfully generated via Gemini!");
     } catch (err: any) {
       console.error("AI Generation Error:", err);
       toast.error(`AI Generation Failed: ${err.message || "Please check your network and API configuration."}`);
