@@ -106,7 +106,151 @@ export function AIEmailAgent() {
   ];
 
   const handleGenerate = async () => {
-    toast.info("Email generation logic needs to be migrated to Supabase Edge Functions");
+    if (!formData.companyName) {
+      toast.error("Please enter a company name.");
+      return;
+    }
+
+    setIsGenerating(true);
+    toast.info("AI is crafting your partnership proposals...");
+
+    const apiKey = import.meta.env.VITE_GOOGLE_AI_KEY || "AIzaSyBoKnjf9OFEo4LZPymYFAXNjMJJvwPwPZM";
+
+    try {
+      const prompt = `
+        You are the Apna Coding AI Email Partnership Agent.
+        Please write three highly personalized partnership email drafts based on the following parameters:
+        - Partner Company Name: "${formData.companyName}"
+        - Partnership Purpose/Category: "${formData.purpose}"
+        - Additional Context: "${formData.additionalContext}"
+        - Desired Email Length: "${formData.emailLength}"
+
+        For each template (formal, friendly, creative), write a complete HTML email body.
+        - Start each email with "Hi [Recipient Name]," or if name is empty, "Hi Team,".
+        - Integrate a professional mention of Apna Coding (https://apnacoding.com) and how partnering is mutually beneficial.
+        - Include clean HTML tags (like <p>, <ul>, <li>, <strong>) but NO body/html outer wrapping tags.
+        - Include a clear call to action: "If you are interested in discussing this further, please reply directly to this email."
+        - Sign off as:
+          Shriyash Soni
+          Founder, Apna Coding
+          shriyash.soni@apnacoding.com
+
+        Your response must be a single, strict JSON object matching this schema exactly:
+        {
+          "formal": {
+            "subject": "Subject line...",
+            "content": "HTML content..."
+          },
+          "friendly": {
+            "subject": "Subject line...",
+            "content": "HTML content..."
+          },
+          "creative": {
+            "subject": "Subject line...",
+            "content": "HTML content..."
+          }
+        }
+
+        Do not include markdown code block fences (\`\`\`json). Return ONLY the raw JSON string.
+      `;
+
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                parts: [
+                  {
+                    text: prompt
+                  }
+                ]
+              }
+            ],
+            generationConfig: {
+              responseMimeType: "application/json"
+            }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to generate content from AI model.");
+      }
+
+      const resData = await response.json();
+      const text = resData.candidates?.[0]?.content?.parts?.[0]?.text;
+      
+      if (!text) {
+        throw new Error("Empty response received from AI model.");
+      }
+
+      // Parse JSON output
+      const templates = JSON.parse(text.trim());
+
+      setGeneratedEmail({
+        subject: templates.formal.subject,
+        content: templates.formal.content,
+        templates: {
+          formal: templates.formal,
+          friendly: templates.friendly,
+          creative: templates.creative
+        }
+      });
+
+      setSelectedTemplate("formal");
+      toast.success("✨ Three personalized email variations successfully generated!");
+    } catch (err: any) {
+      console.error("AI Generation Error:", err);
+      toast.error(`AI Generation Failed: ${err.message || "Please check your network and API configuration."}`);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const handleScrapeWebsite = async () => {
+    if (!websiteUrl) {
+      toast.error("Please enter a website URL first.");
+      return;
+    }
+
+    setIsScrapingWebsite(true);
+    toast.info("Connecting to AI Scraping Agent...");
+
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-scraper", {
+        body: { url: websiteUrl, contentType: "communities" }
+      });
+
+      if (error) {
+        throw new Error(error.message || "Failed to scrape the website.");
+      }
+
+      if (data && data.success && data.data) {
+        const scraped = data.data;
+        
+        setFormData(prev => ({
+          ...prev,
+          companyName: scraped.name || scraped.title || prev.companyName,
+          companyWebsite: websiteUrl,
+          purpose: scraped.tagline || scraped.description?.substring(0, 100) || prev.purpose,
+          additionalContext: scraped.description || scraped.about || prev.additionalContext
+        }));
+
+        toast.success(`⚡ Auto-filled details from ${scraped.name || "website"}!`);
+      } else {
+        throw new Error("No structured data was returned by the agent.");
+      }
+    } catch (err: any) {
+      console.error("Scraping error:", err);
+      toast.error(`Scraping failed: ${err.message || "Could not retrieve website details."}`);
+    } finally {
+      setIsScrapingWebsite(false);
+    }
   };
 
   const handleSendEmail = async () => {
@@ -228,9 +372,7 @@ export function AIEmailAgent() {
     toast.info(`Template "${template.name}" loaded!`);
   };
 
-  const handleScrapeWebsite = async () => {
-    toast.info("Website scraping logic needs to be migrated to Supabase Edge Functions");
-  };
+
 
   return (
     <div className="space-y-6">
