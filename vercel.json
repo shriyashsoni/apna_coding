@@ -26,35 +26,35 @@
   "rewrites": [
     {
       "source": "/sitemap.xml",
-      "destination": "/api/sitemap-index"
+      "destination": "/api/sitemap?type=index"
     },
     {
       "source": "/sitemap-static.xml",
-      "destination": "/api/sitemap-static"
+      "destination": "/api/sitemap?type=static"
     },
     {
       "source": "/sitemap-hackathons.xml",
-      "destination": "/api/sitemap-hackathons"
+      "destination": "/api/sitemap?type=hackathons"
     },
     {
       "source": "/sitemap-jobs.xml",
-      "destination": "/api/sitemap-jobs"
+      "destination": "/api/sitemap?type=jobs"
     },
     {
       "source": "/sitemap-events.xml",
-      "destination": "/api/sitemap-events"
+      "destination": "/api/sitemap?type=events"
     },
     {
       "source": "/sitemap-news.xml",
-      "destination": "/api/sitemap-news"
+      "destination": "/api/sitemap?type=news"
     },
     {
       "source": "/sitemap-communities.xml",
-      "destination": "/api/sitemap-communities"
+      "destination": "/api/sitemap?type=communities"
     },
     {
       "source": "/sitemap-products.xml",
-      "destination": "/api/sitemap-products"
+      "destination": "/api/sitemap?type=products"
     },
     {
       "source": "/robots.txt",
