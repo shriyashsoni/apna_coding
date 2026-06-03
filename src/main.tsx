@@ -60,6 +60,7 @@ const Contact = lazy(() => import("./pages/Contact.tsx"));
 const Services = lazy(() => import("./pages/Services.tsx"));
 const LaunchOnChain = lazy(() => import("./pages/LaunchOnChain.tsx"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile.tsx"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback.tsx"));
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
@@ -99,6 +100,7 @@ createRoot(document.getElementById("root")!).render(
               <Suspense fallback={<RouteLoading />}>
                 <Routes>
                   <Route path="/" element={<Landing />} />
+                  <Route path="/auth/callback" element={<AuthCallback />} />
                   <Route path="/events" element={<Events />} />
                   <Route path="/events/:slug" element={<EventDetail />} />
                   <Route path="/event-groups" element={<EventGroups />} />
