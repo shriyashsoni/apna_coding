@@ -9,7 +9,7 @@ import { ProfileInfoCard } from "@/components/profile/ProfileInfoCard";
 import { supabase } from "@/lib/supabase";
 
 export default function Profile() {
-  const { user: privyUser, authenticated, ready } = usePrivy();
+  const { user: privyUser, authenticated, ready, linkWallet } = usePrivy();
   const address = privyUser?.wallet?.address;
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
@@ -18,11 +18,11 @@ export default function Profile() {
   useEffect(() => {
     if (ready && !authenticated) {
       navigate("/");
-      toast.error("Please connect your wallet to access your profile");
+      toast.error("Please sign in to access your profile");
       return;
     }
     
-    if (address) {
+    if (ready && authenticated) {
       fetchUserData();
     }
   }, [authenticated, address, navigate, ready]);
@@ -30,14 +30,29 @@ export default function Profile() {
   const fetchUserData = async () => {
     setLoading(true);
     try {
-      // Fetch user profile
-      const { data: userData, error: userError } = await supabase
-        .from("users")
-        .select("*")
-        .eq("wallet_address", address)
-        .single();
+      let userData = null;
+      const email = privyUser?.email?.address;
       
-      if (userError && userError.code !== "PGRST116") throw userError;
+      // 1. Try email lookup
+      if (email) {
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("email", email)
+          .maybeSingle();
+        if (data) userData = data;
+      }
+      
+      // 2. Fallback to wallet lookup
+      if (!userData && address) {
+        const { data, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("wallet_address", address)
+          .maybeSingle();
+        if (data) userData = data;
+      }
+      
       setUser(userData);
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -47,17 +62,17 @@ export default function Profile() {
   };
 
   const handleSaveProfile = async (data: any) => {
-    if (!address) return;
+    const email = privyUser?.email?.address || user?.email;
+    const userWallet = address || user?.wallet_address || `email:${email}`;
+    if (!userWallet) return;
     
     try {
-      // If user doesn't exist yet, we might need an upsert, but typically they are created on login.
-      // Assuming upsert based on wallet_address
       const { error } = await supabase
         .from("users")
         .upsert({
-          wallet_address: address,
+          wallet_address: userWallet,
           name: data.name,
-          email: data.email,
+          email: email || data.email || null,
           bio: data.bio,
           twitter_handle: data.twitterHandle,
           github_username: data.githubUsername,
@@ -94,7 +109,10 @@ export default function Profile() {
 
           <div className="w-full">
             <ProfileInfoCard 
-              address={address as `0x${string}`}
+              address={address}
+              isCustomWallet={!!(privyUser?.wallet && privyUser.wallet.walletClientType !== 'privy')}
+              walletType={privyUser?.wallet?.walletClientType || privyUser?.wallet?.connectorType}
+              onLinkWallet={linkWallet}
               profile={user ? {
                 name: user.name,
                 email: user.email,

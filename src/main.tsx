@@ -85,6 +85,7 @@ createRoot(document.getElementById("root")!).render(
               accentColor: '#3B82F6',
               logo: '/apna-logo-transparent.png',
             },
+            loginMethods: ['email', 'google'],
             embeddedWallets: {
               ethereum: {
                 createOnLogin: 'users-without-wallets',

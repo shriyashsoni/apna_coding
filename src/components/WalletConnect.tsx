@@ -1,4 +1,5 @@
-import { usePrivy, useWallets } from '@privy-io/react-auth';
+import { useAuth } from '@/hooks/use-auth';
+import { useWallets } from '@privy-io/react-auth';
 import { Button } from '@/components/ui/button';
 import { Wallet, LogOut, User, FileText, Shield, ChevronDown, RefreshCw, Network } from 'lucide-react';
 import {
@@ -13,7 +14,6 @@ import {
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Link } from "react-router";
-import { useAdmin } from "@/hooks/useAdmin";
 
 const SUPPORTED_CHAINS = [
   { id: 1, name: 'Ethereum', hex: 'eip155:1' },
@@ -24,11 +24,11 @@ const SUPPORTED_CHAINS = [
 ];
 
 export function WalletConnect() {
-  const { login, logout, authenticated, user, connectWallet } = usePrivy();
+  const { isAuthenticated, user, privyUser, signIn, signOut } = useAuth();
   const { wallets } = useWallets();
-  const { isAdmin } = useAdmin();
-  const address = user?.wallet?.address;
-  const walletType = user?.wallet?.walletClientType || user?.wallet?.connectorType;
+  const address = privyUser?.wallet?.address;
+  const isCustomWallet = privyUser?.wallet && privyUser.wallet.walletClientType !== 'privy';
+  const walletType = privyUser?.wallet?.walletClientType || privyUser?.wallet?.connectorType;
 
   const activeWallet = wallets[0];
   const currentChainId = activeWallet?.chainId;
@@ -55,98 +55,115 @@ export function WalletConnect() {
     }
   };
 
-  if (authenticated && address) {
-    const iconUrl = getWalletIcon(walletType);
+  const email = privyUser?.email?.address || user?.email;
+  const name = user?.name || user?.username || email?.split('@')[0] || "Builder";
+  const isAdmin = user?.role === 'admin';
+
+  if (isAuthenticated) {
+    const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${name || "apnacoding"}`;
 
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
             variant="outline"
-            className="border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 gap-2 px-3 pl-2"
+            className="border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 gap-2 px-3 pl-2 h-10 select-none cursor-pointer"
           >
-            {iconUrl ? (
-              <img src={iconUrl} alt="Wallet" className="w-5 h-5 object-contain rounded-sm" />
-            ) : (
-              <Wallet className="h-4 w-4" />
-            )}
-            <span className="font-mono">{address.slice(0, 6)}...{address.slice(-4)}</span>
+            <img src={avatarUrl} alt="Avatar" className="w-6 h-6 rounded-full bg-primary/20 object-cover" />
+            <span className="font-medium max-w-[110px] truncate text-white/90">{name}</span>
             <ChevronDown className="h-3 w-3 opacity-50 ml-1" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56 border-primary/30 bg-card">
-          <div className="px-2 py-2 mb-1 flex items-center justify-between">
-            <span className="text-xs text-muted-foreground font-mono truncate">{address}</span>
-            <Button
-              onClick={logout}
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-              title="Logout"
-            >
-              <LogOut className="h-3 w-3" />
-            </Button>
+        <DropdownMenuContent align="end" className="w-64 border-primary/20 bg-black/95 backdrop-blur-md text-foreground p-1">
+          {/* User Details Header */}
+          <div className="px-3 py-3 mb-1">
+            <div className="font-medium text-white truncate text-sm">{name}</div>
+            {email && <div className="text-xs text-white/60 truncate font-mono mt-0.5">{email}</div>}
+            
+            {/* Show custom wallet address if linked */}
+            {isCustomWallet && address ? (
+              <div className="mt-2.5 flex items-center justify-between bg-emerald-500/10 border border-emerald-500/20 rounded-md px-2 py-1">
+                <span className="text-[10px] text-emerald-400 font-mono font-medium truncate">
+                  🔗 {address.slice(0, 6)}...{address.slice(-4)}
+                </span>
+                <span className="text-[9px] text-emerald-400 font-bold uppercase tracking-wider">
+                  {walletType || 'Wallet'}
+                </span>
+              </div>
+            ) : (
+              <div className="mt-2.5 text-[10px] text-white/40 italic flex items-center gap-1.5 px-1 py-0.5">
+                <Wallet className="h-3 w-3 text-white/30" />
+                No custom wallet linked
+              </div>
+            )}
           </div>
 
-          <DropdownMenuSeparator className="bg-primary/20" />
-          
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="cursor-pointer py-2">
-              <Network className="mr-2 h-4 w-4" />
-              Switch Network
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent className="border-primary/30 bg-card min-w-[160px]">
-                {SUPPORTED_CHAINS.map((chain) => (
-                  <DropdownMenuItem 
-                    key={chain.id} 
-                    className="cursor-pointer py-2"
-                    onClick={() => handleSwitchChain(chain.id)}
-                  >
-                    <div className="flex items-center gap-3 w-full">
-                      <div className={`w-2 h-2 rounded-full ${currentChainId === chain.hex ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-muted-foreground/30'}`} />
-                      {chain.name}
-                    </div>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
+          <DropdownMenuSeparator className="bg-primary/10 my-1" />
 
-          <DropdownMenuItem 
-            className="cursor-pointer py-2"
-            onClick={() => connectWallet()}
-          >
-            <RefreshCw className="mr-2 h-4 w-4" />
-            Change Wallet
-          </DropdownMenuItem>
-
-          <DropdownMenuSeparator className="bg-primary/20" />
+          {/* Wallet Actions (only if they have a custom wallet linked) */}
+          {isCustomWallet && activeWallet && (
+            <>
+              <DropdownMenuSub>
+                <DropdownMenuSubTrigger className="cursor-pointer py-2 text-white/90 focus:text-white">
+                  <Network className="mr-2 h-4 w-4 text-primary/80" />
+                  Switch Network
+                </DropdownMenuSubTrigger>
+                <DropdownMenuPortal>
+                  <DropdownMenuSubContent className="border-primary/20 bg-black/95 backdrop-blur-md min-w-[160px] p-1">
+                    {SUPPORTED_CHAINS.map((chain) => (
+                      <DropdownMenuItem 
+                        key={chain.id} 
+                        className="cursor-pointer py-2 focus:bg-primary/10 focus:text-white"
+                        onClick={() => handleSwitchChain(chain.id)}
+                      >
+                        <div className="flex items-center gap-3 w-full">
+                          <div className={`w-2 h-2 rounded-full ${currentChainId === chain.hex ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-muted-foreground/30'}`} />
+                          {chain.name}
+                        </div>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuPortal>
+              </DropdownMenuSub>
+              <DropdownMenuSeparator className="bg-primary/10 my-1" />
+            </>
+          )}
           
           <DropdownMenuItem asChild>
-            <Link to="/profile" className="cursor-pointer py-2">
-              <User className="mr-2 h-4 w-4" />
-              Profile
+            <Link to="/profile" className="cursor-pointer py-2 text-white/90 focus:text-white focus:bg-primary/10 flex items-center">
+              <User className="mr-2 h-4 w-4 text-primary/80" />
+              Profile Dashboard
             </Link>
           </DropdownMenuItem>
+          
           <DropdownMenuItem asChild>
-            <Link to="/my-content" className="cursor-pointer py-2">
-              <FileText className="mr-2 h-4 w-4" />
+            <Link to="/my-content" className="cursor-pointer py-2 text-white/90 focus:text-white focus:bg-primary/10 flex items-center">
+              <FileText className="mr-2 h-4 w-4 text-primary/80" />
               My Content
             </Link>
           </DropdownMenuItem>
           
           {isAdmin && (
             <>
-              <DropdownMenuSeparator className="bg-primary/20" />
+              <DropdownMenuSeparator className="bg-primary/10 my-1" />
               <DropdownMenuItem asChild>
-                <Link to="/admin" className="cursor-pointer text-primary py-2">
+                <Link to="/admin" className="cursor-pointer text-primary py-2 font-medium focus:text-white focus:bg-primary/20 flex items-center">
                   <Shield className="mr-2 h-4 w-4" />
                   Admin Dashboard
                 </Link>
               </DropdownMenuItem>
             </>
           )}
+
+          <DropdownMenuSeparator className="bg-primary/10 my-1" />
+          
+          <DropdownMenuItem 
+            onClick={signOut}
+            className="cursor-pointer py-2 text-rose-400 focus:text-white focus:bg-rose-500/20 flex items-center"
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            Sign Out
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     );
@@ -154,11 +171,11 @@ export function WalletConnect() {
 
   return (
     <Button
-      onClick={login}
-      className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_15px_rgba(0,255,255,0.3)]"
+      onClick={signIn}
+      className="bg-primary text-primary-foreground hover:bg-primary/95 shadow-[0_0_15px_rgba(59,130,246,0.25)] font-medium gap-2 px-5 py-2.5 rounded-full border border-primary/20 hover:scale-[1.02] transition-all duration-200 select-none cursor-pointer"
     >
-      <Wallet className="mr-2 h-4 w-4" />
-      Connect Wallet
+      <User className="h-4 w-4 text-white" />
+      Sign In
     </Button>
   );
 }

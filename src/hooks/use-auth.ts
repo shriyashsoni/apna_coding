@@ -19,7 +19,7 @@ export function useAuth() {
 
   useEffect(() => {
     async function fetchUser() {
-      if (!address) {
+      if (!address && !email) {
         setUser(null);
         setIsLoadingUser(false);
         return;
@@ -27,37 +27,75 @@ export function useAuth() {
 
       setIsLoadingUser(true);
       try {
-        const { data, error } = await supabase
-          .from('users')
-          .select('*')
-          .eq('wallet_address', address)
-          .single();
-        
-        let userData = data;
-        
-        // If user is a super admin, ensure they have the admin role regardless of DB state
-        if (isSuperAdmin(address, email)) {
-          if (userData) {
-            userData = { ...userData, role: 'admin' };
-          } else {
-            // Create a temporary user object for the session if they don't exist in DB yet
-            userData = {
-              wallet_address: address,
-              email: email,
-              role: 'admin',
-              username: email?.split('@')[0] || 'Admin'
-            };
+        let userData = null;
+
+        // 1. Try fetching by email if it exists (highly unique for Gmail/Google login)
+        if (email) {
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('email', email)
+            .maybeSingle();
+          
+          if (data) {
+            userData = data;
+            // Sync wallet address in DB if it's available in Privy but not in DB
+            if (address && userData.wallet_address !== address && !address.startsWith('email:')) {
+              const { data: updatedData } = await supabase
+                .from('users')
+                .update({ wallet_address: address, updated_at: new Date().toISOString() })
+                .eq('id', userData.id)
+                .select()
+                .maybeSingle();
+              if (updatedData) userData = updatedData;
+            }
           }
         }
-        
+
+        // 2. Fallback to fetching by wallet address if not found by email
+        if (!userData && address) {
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('wallet_address', address)
+            .maybeSingle();
+          if (data) userData = data;
+        }
+
+        // 3. If authenticated but doesn't exist in our DB yet, automatically register them!
+        if (!userData) {
+          const username = email ? email.split('@')[0] : `user_${address?.slice(2, 8)}`;
+          const name = username;
+          // Avoid using empty address due to UNIQUE NOT NULL constraint
+          const userWallet = address || `email:${email}`;
+
+          const { data, error } = await supabase
+            .from('users')
+            .insert({
+              wallet_address: userWallet,
+              email: email || null,
+              username: username,
+              name: name,
+              role: isSuperAdmin(address || '', email || '') ? 'admin' : 'user'
+            })
+            .select()
+            .maybeSingle();
+
+          if (data) userData = data;
+        }
+
+        // Super Admin role assurance
+        if (userData && isSuperAdmin(address || '', email || '')) {
+          userData = { ...userData, role: 'admin' };
+        }
+
         setUser(userData);
       } catch (err) {
-        console.error("Error fetching user from Supabase:", err);
-        
-        // Fallback for super admins even if DB query fails
-        if (isSuperAdmin(address, email)) {
+        console.error("Error fetching/syncing user from Supabase:", err);
+        // Fallback for super admins
+        if (isSuperAdmin(address || '', email || '')) {
           setUser({
-            wallet_address: address,
+            wallet_address: address || `email:${email}`,
             email: email,
             role: 'admin'
           });
@@ -67,10 +105,13 @@ export function useAuth() {
       }
     }
 
-    if (ready) {
+    if (ready && authenticated) {
       fetchUser();
+    } else if (ready && !authenticated) {
+      setUser(null);
+      setIsLoadingUser(false);
     }
-  }, [address, email, ready]);
+  }, [address, email, authenticated, ready]);
 
   const isLoading = !ready || isLoadingUser;
   const isAuthenticated = authenticated;

@@ -2,9 +2,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Wallet, Twitter, Github, Linkedin, Mail, Shield, Trophy, Calendar, Briefcase, CheckCircle2 } from "lucide-react";
+import { Wallet, Twitter, Github, Linkedin, Mail, Shield, Trophy, Calendar, Briefcase, CheckCircle2, Lock, Copy, KeyRound } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface ProfileData {
   name?: string;
@@ -20,12 +21,15 @@ interface ProfileData {
 }
 
 interface ProfileInfoCardProps {
-  address: `0x${string}` | undefined;
+  address: string | undefined;
   profile: ProfileData | null | undefined;
   onSave: (data: ProfileData) => Promise<void>;
+  isCustomWallet: boolean;
+  walletType?: string;
+  onLinkWallet: () => void;
 }
 
-export function ProfileInfoCard({ address, profile, onSave }: ProfileInfoCardProps) {
+export function ProfileInfoCard({ address, profile, onSave, isCustomWallet, walletType, onLinkWallet }: ProfileInfoCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -50,7 +54,7 @@ export function ProfileInfoCard({ address, profile, onSave }: ProfileInfoCardPro
     setIsEditing(false);
   };
 
-  const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${name || address || "apnacoding"}`;
+  const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${name || email || "apnacoding"}`;
 
   return (
     <Card className="border-primary/20 bg-card/50 backdrop-blur-sm overflow-hidden">
@@ -68,7 +72,7 @@ export function ProfileInfoCard({ address, profile, onSave }: ProfileInfoCardPro
               if (isEditing) handleSave();
               else setIsEditing(true);
             }}
-            className={isEditing ? "" : "border-primary/30"}
+            className={isEditing ? "" : "border-primary/30 select-none cursor-pointer"}
           >
             {isEditing ? "Save Changes" : "Edit Profile"}
           </Button>
@@ -131,8 +135,8 @@ export function ProfileInfoCard({ address, profile, onSave }: ProfileInfoCardPro
         })()}
 
         <p className="text-muted-foreground text-sm flex items-center gap-2 mt-2.5">
-          <Wallet className="h-3.5 w-3.5" />
-          <span className="font-mono">{address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Not connected'}</span>
+          <Mail className="h-3.5 w-3.5 text-primary/70" />
+          <span className="text-white/80 font-mono">{email || "Gmail Authenticated"}</span>
         </p>
       </CardHeader>
 
@@ -175,8 +179,90 @@ export function ProfileInfoCard({ address, profile, onSave }: ProfileInfoCardPro
           />
         </div>
 
+        {/* Web3 Cryptographic Identity & Privacy Shield */}
         <div className="pt-6 border-t border-primary/10">
-          <h3 className="text-base font-semibold mb-4">Connect Social Accounts</h3>
+          <div className="flex items-center gap-2 mb-4">
+            <Shield className="h-5 w-5 text-primary" />
+            <h3 className="text-base font-semibold text-white">Web3 Identity & Privacy Shield</h3>
+          </div>
+          
+          <div className="bg-black/40 border border-primary/15 rounded-xl p-5 backdrop-blur-md relative overflow-hidden">
+            {/* Background design elements */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none" />
+            
+            {isCustomWallet && address ? (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-400">
+                      <KeyRound className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-white/50 font-medium">Linked Web3 Wallet ({walletType || 'Custom'})</div>
+                      <div className="text-sm font-mono text-emerald-400 font-semibold mt-0.5 break-all flex items-center gap-1.5">
+                        {address}
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(address);
+                            toast.success("Wallet address copied!");
+                          }}
+                          className="text-white/40 hover:text-white transition-colors p-1 rounded hover:bg-white/5 cursor-pointer"
+                          title="Copy Wallet Address"
+                        >
+                          <Copy className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Button
+                    onClick={onLinkWallet}
+                    variant="outline"
+                    className="border-primary/25 bg-primary/5 hover:bg-primary/10 text-xs px-3 h-9 rounded-lg self-start sm:self-auto cursor-pointer text-white"
+                  >
+                    Change Wallet
+                  </Button>
+                </div>
+                
+                <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-lg p-3.5 text-xs text-emerald-300/80 flex items-start gap-2.5 leading-relaxed">
+                  <Lock className="h-4 w-4 mt-0.5 text-emerald-400 flex-shrink-0" />
+                  <div>
+                    <span className="font-bold text-emerald-300">Privacy Shield Active:</span> Your email identity and personal details are strictly isolated from your Web3 wallet address. On-chain operations will only prompt signature requests via your wallet client. We never track your personal transactions or balance sheets.
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-semibold text-white/95">No custom Web3 wallet connected</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed max-w-md">
+                      Connect your MetaMask, Phantom, or Coinbase Wallet to issue dynamic NFT certificates, stake on hackathons, and verify on-chain achievements.
+                    </p>
+                  </div>
+                  
+                  <Button
+                    onClick={onLinkWallet}
+                    className="bg-primary hover:bg-primary/95 text-white shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_20px_rgba(59,130,246,0.45)] text-xs font-semibold px-4 h-9 rounded-full shrink-0 border border-primary/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer self-start sm:self-auto flex items-center gap-1.5"
+                  >
+                    <Wallet className="h-3.5 w-3.5" />
+                    Connect Wallet Securely
+                  </Button>
+                </div>
+                
+                <div className="bg-white/[0.02] border border-white/5 rounded-lg p-3 text-[11px] text-white/40 flex items-start gap-2">
+                  <Shield className="h-3.5 w-3.5 mt-0.5 text-white/30 flex-shrink-0" />
+                  <span>
+                    Signing in with Gmail is the only initial authentication method. Wallet connection is completely optional, sandbox-isolated, and built with privacy-first standards.
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="pt-6 border-t border-primary/10">
+          <h3 className="text-base font-semibold mb-4 text-white">Connect Social Accounts</h3>
           
           <div className="space-y-4">
             <div className="flex items-center gap-3">
