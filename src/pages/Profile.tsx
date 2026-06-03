@@ -71,6 +71,7 @@ export default function Profile() {
         .from("users")
         .update({
           name: data.name,
+          username: data.username,
           email: email || data.email || null,
           bio: data.bio,
           twitter_handle: data.twitterHandle,
@@ -103,9 +104,21 @@ export default function Profile() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div className="mb-8 text-center md:text-left">
-            <h1 className="text-4xl font-bold mb-2">Profile Dashboard</h1>
-            <p className="text-muted-foreground">Manage your personal details and Web3 identity.</p>
+          <div className="mb-8 flex flex-col md:flex-row md:items-center justify-between text-center md:text-left gap-4">
+            <div>
+              <h1 className="text-4xl font-bold mb-2">Profile Dashboard</h1>
+              <p className="text-muted-foreground">Manage your personal details and Web3 identity.</p>
+            </div>
+            {user && (user.username || address) && (
+              <a 
+                href={`/user/${user.username || address}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2 rounded-md"
+              >
+                View Public Profile
+              </a>
+            )}
           </div>
 
           <div className="w-full">
@@ -116,6 +129,7 @@ export default function Profile() {
               onLinkWallet={linkWallet}
               profile={user ? {
                 name: user.name,
+                username: user.username,
                 email: user.email,
                 bio: user.bio,
                 twitterHandle: user.twitter_handle,

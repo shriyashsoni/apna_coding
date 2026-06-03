@@ -43,7 +43,7 @@ export default function PublicProfile() {
       const { data: userData, error: userError } = await supabase
         .from("users")
         .select("*")
-        .eq("wallet_address", walletAddress)
+        .or(`wallet_address.eq.${walletAddress},username.eq.${walletAddress}`)
         .maybeSingle();
 
       if (userError) throw userError;

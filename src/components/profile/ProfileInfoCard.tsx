@@ -19,6 +19,7 @@ interface ProfileData {
   canPostEvents?: boolean;
   canPostJobs?: boolean;
   avatar_url?: string;
+  username?: string;
 }
 
 interface ProfileInfoCardProps {
@@ -33,6 +34,7 @@ interface ProfileInfoCardProps {
 export function ProfileInfoCard({ address, profile, onSave, isCustomWallet, walletType, onLinkWallet }: ProfileInfoCardProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [bio, setBio] = useState("");
   const [twitterHandle, setTwitterHandle] = useState("");
@@ -42,6 +44,7 @@ export function ProfileInfoCard({ address, profile, onSave, isCustomWallet, wall
   useEffect(() => {
     if (profile) {
       setName(profile.name || "");
+      setUsername(profile.username || "");
       setEmail(profile.email || "");
       setBio(profile.bio || "");
       setTwitterHandle(profile.twitterHandle || "");
@@ -51,7 +54,7 @@ export function ProfileInfoCard({ address, profile, onSave, isCustomWallet, wall
   }, [profile]);
 
   const handleSave = async () => {
-    await onSave({ name, email, bio, twitterHandle, githubUsername, linkedinUrl });
+    await onSave({ name, username, email, bio, twitterHandle, githubUsername, linkedinUrl });
     setIsEditing(false);
   };
 
@@ -154,6 +157,19 @@ export function ProfileInfoCard({ address, profile, onSave, isCustomWallet, wall
             />
           </div>
           <div>
+            <label className="text-sm font-medium text-muted-foreground mb-2 block">Username (Public URL)</label>
+            <div className="relative flex items-center">
+              <span className="absolute left-3 text-muted-foreground text-sm">@</span>
+              <Input
+                value={username}
+                onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                disabled={!isEditing}
+                placeholder="username"
+                className="bg-background/50 border-primary/20 pl-7"
+              />
+            </div>
+          </div>
+          <div className="md:col-span-2">
             <label className="text-sm font-medium text-muted-foreground mb-2 block">Email Address</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
