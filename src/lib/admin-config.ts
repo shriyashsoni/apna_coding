@@ -5,7 +5,8 @@ export const SUPER_ADMINS = {
   ],
   emails: [
     "shriyashsoni@gmail.com",
-    "sonishriyash@gmail.com"
+    "sonishriyash@gmail.com",
+    "soishriyash@gmail.com"
   ]
 };
 
