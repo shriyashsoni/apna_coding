@@ -1,0 +1,39 @@
+# Dependencies
+node_modules
+
+# Build output (Vercel builds it itself)
+dist
+dist-ssr
+build
+out
+
+# Large media files
+public/videos/*.mp4
+*.mp4
+
+# Dev/editor files
+.vscode
+.idea
+.DS_Store
+.gemini
+.antigravity
+artifacts
+scratch
+browser
+tmp
+temp
+.temp
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Contracts
+contracts/node_modules
+contracts/artifacts
+contracts/cache
+
+# Logs
+*.log
+logs

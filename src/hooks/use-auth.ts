@@ -14,12 +14,20 @@ export function useAuth() {
   
   const address = privyUser?.wallet?.address;
   const email = privyUser?.email?.address;
+  // Support GitHub login: extract GitHub account info
+  const githubAccount = (privyUser as any)?.github;
+  const githubUsername = githubAccount?.username;
+  const githubSubject = githubAccount?.subject;
+  // Support X (Twitter) login: extract Twitter account info
+  const twitterAccount = (privyUser as any)?.twitter;
+  const twitterUsername = twitterAccount?.username;
+  const twitterSubject = twitterAccount?.subject;
   const [user, setUser] = useState<any>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   useEffect(() => {
     async function fetchUser() {
-      if (!address && !email) {
+      if (!address && !email && !githubSubject && !twitterSubject) {
         setUser(null);
         setIsLoadingUser(false);
         return;
@@ -62,12 +70,40 @@ export function useAuth() {
           if (data) userData = data;
         }
 
+        // 2.5. Fallback to fetching by GitHub subject if not found by email or wallet
+        if (!userData && githubSubject) {
+          const ghWallet = `github:${githubSubject}`;
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('wallet_address', ghWallet)
+            .maybeSingle();
+          if (data) userData = data;
+        }
+
+        // 2.6. Fallback to fetching by Twitter/X subject if not found by other methods
+        if (!userData && twitterSubject) {
+          const twWallet = `twitter:${twitterSubject}`;
+          const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('wallet_address', twWallet)
+            .maybeSingle();
+          if (data) userData = data;
+        }
+
         // 3. If authenticated but doesn't exist in our DB yet, automatically register them!
         if (!userData) {
-          const username = email ? email.split('@')[0] : `user_${address?.slice(2, 8)}`;
-          const name = username;
+          const username = email
+            ? email.split('@')[0]
+            : githubUsername
+              ? githubUsername
+              : twitterUsername
+                ? twitterUsername
+                : `user_${address?.slice(2, 8) || 'anon'}`;
+          const name = twitterUsername || githubUsername || username;
           // Avoid using empty address due to UNIQUE NOT NULL constraint
-          const userWallet = address || `email:${email}`;
+          const userWallet = address || (email ? `email:${email}` : githubSubject ? `github:${githubSubject}` : `twitter:${twitterSubject}`);
 
           const { data, error } = await supabase
             .from('users')
@@ -111,7 +147,7 @@ export function useAuth() {
       setUser(null);
       setIsLoadingUser(false);
     }
-  }, [address, email, authenticated, ready]);
+  }, [address, email, githubSubject, twitterSubject, authenticated, ready]);
 
   const isLoading = !ready || isLoadingUser;
   const isAuthenticated = authenticated;

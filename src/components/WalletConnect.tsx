@@ -174,8 +174,8 @@ export function WalletConnect() {
       onClick={signIn}
       className="bg-primary text-primary-foreground hover:bg-primary/95 shadow-[0_0_15px_rgba(59,130,246,0.25)] font-medium gap-2 px-5 py-2.5 rounded-full border border-primary/20 hover:scale-[1.02] transition-all duration-200 select-none cursor-pointer"
     >
-      <User className="h-4 w-4 text-white" />
-      Sign In
+      <User className="h-4 w-4 text-black" />
+      Login
     </Button>
   );
 }
