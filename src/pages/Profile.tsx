@@ -69,8 +69,7 @@ export default function Profile() {
     try {
       const { error } = await supabase
         .from("users")
-        .upsert({
-          wallet_address: userWallet,
+        .update({
           name: data.name,
           email: email || data.email || null,
           bio: data.bio,
@@ -78,15 +77,16 @@ export default function Profile() {
           github_username: data.githubUsername,
           linkedin_url: data.linkedinUrl,
           updated_at: new Date().toISOString()
-        }, { onConflict: 'wallet_address' });
+        })
+        .eq('wallet_address', userWallet);
 
       if (error) throw error;
       
       setUser({ ...user, ...data });
       window.dispatchEvent(new Event('user-updated'));
       toast.success("Profile updated successfully");
-    } catch (error) {
-      toast.error("Failed to update profile");
+    } catch (error: any) {
+      toast.error(`Failed to update profile: ${error?.message || 'Unknown error'}`);
       console.error(error);
     }
   };
