@@ -168,6 +168,18 @@ export function useAuth() {
       setUser(null);
       setIsLoadingUser(false);
     }
+
+    // Listen for profile updates
+    const handleUserUpdate = () => {
+      if (ready && authenticated) {
+        fetchUser();
+      }
+    };
+    window.addEventListener('user-updated', handleUserUpdate);
+
+    return () => {
+      window.removeEventListener('user-updated', handleUserUpdate);
+    };
   }, [address, email, githubSubject, twitterSubject, authenticated, ready]);
 
   const isLoading = !ready || isLoadingUser;

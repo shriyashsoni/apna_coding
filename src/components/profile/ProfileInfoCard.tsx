@@ -18,6 +18,7 @@ interface ProfileData {
   canPostHackathons?: boolean;
   canPostEvents?: boolean;
   canPostJobs?: boolean;
+  avatar_url?: string;
 }
 
 interface ProfileInfoCardProps {
@@ -54,7 +55,7 @@ export function ProfileInfoCard({ address, profile, onSave, isCustomWallet, wall
     setIsEditing(false);
   };
 
-  const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${name || email || "apnacoding"}`;
+  const avatarUrl = profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name || email || "apnacoding"}`;
 
   return (
     <Card className="border-primary/20 bg-card/50 backdrop-blur-sm overflow-hidden">

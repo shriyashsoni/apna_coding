@@ -61,7 +61,7 @@ export function WalletConnect() {
   const isAdmin = user?.role === 'admin';
 
   if (isAuthenticated) {
-    const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${name || "apnacoding"}`;
+    const avatarUrl = user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name || "apnacoding"}`;
 
     return (
       <DropdownMenu>

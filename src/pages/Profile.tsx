@@ -83,6 +83,7 @@ export default function Profile() {
       if (error) throw error;
       
       setUser({ ...user, ...data });
+      window.dispatchEvent(new Event('user-updated'));
       toast.success("Profile updated successfully");
     } catch (error) {
       toast.error("Failed to update profile");
@@ -123,7 +124,8 @@ export default function Profile() {
                 role: user.role,
                 canPostHackathons: user.can_post_hackathons,
                 canPostEvents: user.can_post_events,
-                canPostJobs: user.can_post_jobs
+                canPostJobs: user.can_post_jobs,
+                avatar_url: user.avatar_url
               } : null}
               onSave={handleSaveProfile}
             />
