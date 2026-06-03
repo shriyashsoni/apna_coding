@@ -1,5 +1,5 @@
 import { useAuth } from '@/hooks/use-auth';
-import { useWallets } from '@privy-io/react-auth';
+import { useWallets, usePrivy } from '@privy-io/react-auth';
 import { Button } from '@/components/ui/button';
 import { Wallet, LogOut, User, FileText, Shield, ChevronDown, RefreshCw, Network } from 'lucide-react';
 import {
@@ -26,6 +26,7 @@ const SUPPORTED_CHAINS = [
 export function WalletConnect() {
   const { isAuthenticated, user, privyUser, signIn, signOut } = useAuth();
   const { wallets } = useWallets();
+  const { linkWallet } = usePrivy();
   const address = privyUser?.wallet?.address;
   const isCustomWallet = privyUser?.wallet && privyUser.wallet.walletClientType !== 'privy';
   const walletType = privyUser?.wallet?.walletClientType || privyUser?.wallet?.connectorType;
@@ -125,6 +126,19 @@ export function WalletConnect() {
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>
               </DropdownMenuSub>
+              <DropdownMenuSeparator className="bg-primary/10 my-1" />
+            </>
+          )}
+
+          {!isCustomWallet && (
+            <>
+              <DropdownMenuItem 
+                onClick={linkWallet}
+                className="cursor-pointer py-2 text-white/90 focus:text-black focus:bg-white flex items-center"
+              >
+                <Wallet className="mr-2 h-4 w-4 text-primary/80 group-focus:text-black" />
+                Connect Wallet
+              </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-primary/10 my-1" />
             </>
           )}

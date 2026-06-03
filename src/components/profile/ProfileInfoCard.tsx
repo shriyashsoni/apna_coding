@@ -243,9 +243,9 @@ export function ProfileInfoCard({ address, profile, onSave, isCustomWallet, wall
                   
                   <Button
                     onClick={onLinkWallet}
-                    className="bg-primary hover:bg-primary/95 text-white shadow-[0_0_15px_rgba(59,130,246,0.3)] hover:shadow-[0_0_20px_rgba(59,130,246,0.45)] text-xs font-semibold px-4 h-9 rounded-full shrink-0 border border-primary/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer self-start sm:self-auto flex items-center gap-1.5"
+                    className="bg-white hover:bg-white/90 text-black shadow-[0_0_15px_rgba(255,255,255,0.3)] hover:shadow-[0_0_20px_rgba(255,255,255,0.45)] text-xs font-semibold px-4 h-9 rounded-full shrink-0 border border-white/20 hover:scale-[1.02] transition-all duration-200 cursor-pointer self-start sm:self-auto flex items-center gap-1.5"
                   >
-                    <Wallet className="h-3.5 w-3.5" />
+                    <Wallet className="h-3.5 w-3.5 text-black" />
                     Connect Wallet Securely
                   </Button>
                 </div>
