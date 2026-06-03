@@ -76,8 +76,7 @@ export default function Profile() {
           bio: data.bio,
           twitter_handle: data.twitterHandle,
           github_username: data.githubUsername,
-          linkedin_url: data.linkedinUrl,
-          updated_at: new Date().toISOString()
+          linkedin_url: data.linkedinUrl
         })
         .eq('wallet_address', userWallet);
 
