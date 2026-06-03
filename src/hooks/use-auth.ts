@@ -92,6 +92,17 @@ export function useAuth() {
           if (data) userData = data;
         }
 
+        // Determine which auth provider was used for this login
+        const authProvider = twitterSubject
+          ? 'twitter'
+          : githubSubject
+            ? 'github'
+            : email
+              ? 'google'
+              : address
+                ? 'wallet'
+                : 'unknown';
+
         // 3. If authenticated but doesn't exist in our DB yet, automatically register them!
         if (!userData) {
           const username = email
@@ -112,12 +123,22 @@ export function useAuth() {
               email: email || null,
               username: username,
               name: name,
+              auth_provider: authProvider,
               role: isSuperAdmin(address || '', email || '') ? 'admin' : 'user'
             })
             .select()
             .maybeSingle();
 
           if (data) userData = data;
+        }
+
+        // Backfill auth_provider for existing users who don't have it set
+        if (userData && !userData.auth_provider) {
+          await supabase
+            .from('users')
+            .update({ auth_provider: authProvider, updated_at: new Date().toISOString() })
+            .eq('id', userData.id);
+          userData = { ...userData, auth_provider: authProvider };
         }
 
         // Super Admin role assurance
