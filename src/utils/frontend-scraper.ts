@@ -7,6 +7,7 @@ import { generateSlug } from './slugify';
  */
 
 const PROXIES = [
+  "https://api.allorigins.win/raw?url=",
   "https://corsproxy.io/?",
   "https://api.codetabs.com/v1/proxy?quest=",
   "https://api.allorigins.win/get?url=",
@@ -27,7 +28,7 @@ async function fetchWithFallback(url: string) {
         continue;
       }
 
-      if (proxy.includes('allorigins')) {
+      if (proxy.includes('allorigins') && !proxy.includes('raw')) {
         const json = await response.json();
         return json.contents;
       } else {
@@ -386,10 +387,7 @@ export async function scrapeContentDirectly(url: string, contentType: 'jobs' | '
  */
 export async function scrapeSideEventsList(url: string): Promise<any[]> {
   try {
-    const corsUrl = `https://corsproxy.io/?url=${encodeURIComponent(url)}`;
-    const response = await fetch(corsUrl);
-    if (!response.ok) throw new Error("Failed to fetch event listing page");
-    const html = await response.text();
+    const html = await fetchWithFallback(url);
     
     const $ = cheerio.load(html);
     const events: any[] = [];
