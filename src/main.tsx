@@ -61,8 +61,6 @@ const Services = lazy(() => import("./pages/Services.tsx"));
 const LaunchOnChain = lazy(() => import("./pages/LaunchOnChain.tsx"));
 const PublicProfile = lazy(() => import("./pages/PublicProfile.tsx"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback.tsx"));
-const HostDashboard = lazy(() => import("./pages/HostDashboard.tsx"));
-const CalendarDetail = lazy(() => import("./pages/CalendarDetail.tsx"));
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
@@ -132,8 +130,6 @@ createRoot(document.getElementById("root")!).render(
                   <Route path="/services" element={<Services />} />
                   <Route path="/launch-onchain" element={<LaunchOnChain />} />
                   <Route path="/user/:walletAddress" element={<PublicProfile />} />
-                  <Route path="/host/dashboard" element={<HostDashboard />} />
-                  <Route path="/calendar/:hostAddress" element={<CalendarDetail />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>

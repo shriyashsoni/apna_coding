@@ -19,10 +19,6 @@ export function Navbar() {
     { name: "NEWS", path: "/news" },
   ];
 
-  if (authenticated) {
-    navLinks.push({ name: "HOSTING", path: "/host/dashboard" });
-  }
-
   return (
     <nav className="fixed top-0 z-50 w-full px-6 md:px-10 py-6 md:py-8 flex justify-between items-center pointer-events-none">
       

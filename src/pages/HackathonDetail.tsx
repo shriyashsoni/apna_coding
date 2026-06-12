@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Calendar, Trophy, Users, MessageSquare, Lightbulb, ExternalLink, Clock, MapPin, Plus, Upload, X, QrCode, CheckCircle2, Loader2, Laptop } from "lucide-react";
+import { Calendar, Trophy, Users, MessageSquare, Lightbulb, ExternalLink, Clock, MapPin, Plus, Upload, X } from "lucide-react";
 import { useParams, useNavigate } from "react-router";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -21,8 +21,6 @@ import { useAuth } from "@/hooks/use-auth";
 import { SEO } from "@/components/SEO";
 import { ShareButtons } from "@/components/ShareButtons";
 import { useEffect } from "react";
-import { RegisterEventDialog } from "@/components/events/RegisterEventDialog";
-import { TicketViewer } from "@/components/events/TicketViewer";
 
 export default function HackathonDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -33,61 +31,35 @@ export default function HackathonDetail() {
   const [teams, setTeams] = useState<any[]>([]);
   const [announcements, setAnnouncements] = useState<any[]>([]);
   const [questions, setQuestions] = useState<any[]>([]);
-  const [userRegistration, setUserRegistration] = useState<any>(null);
-  const [attendees, setAttendees] = useState<any[]>([]);
-  const [isLoadingReg, setIsLoadingReg] = useState(false);
-
-  const fetchHackathonAndRegs = async () => {
-    if (!slug) return;
-    
-    let query = supabase.from('hackathons').select('*');
-    
-    if (slug.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
-      query = query.eq('id', slug);
-    } else {
-      query = query.eq('slug', slug);
-    }
-
-    const { data: h, error: he } = await query.single();
-    
-    if (h) {
-      setHackathon(h);
-      const { data: t } = await supabase.from('hackathon_teams').select('*').eq('hackathon_id', h.id);
-      setTeams(t || []);
-      const { data: a } = await supabase.from('hackathon_announcements').select('*').eq('hackathon_id', h.id);
-      setAnnouncements(a || []);
-      const { data: q } = await supabase.from('hackathon_questions').select('*').eq('hackathon_id', h.id);
-      setQuestions(q || []);
-
-      // Fetch attendees
-      const { data: regList } = await supabase
-        .from('registrations')
-        .select('wallet_address, name, status')
-        .eq('hackathon_id', h.id)
-        .in('status', ['registered', 'approved', 'checked_in'])
-        .limit(20);
-      setAttendees(regList || []);
-
-      // Fetch user registration status
-      if (address) {
-        setIsLoadingReg(true);
-        const { data: userReg } = await supabase
-          .from('registrations')
-          .select('*')
-          .eq('hackathon_id', h.id)
-          .eq('wallet_address', address)
-          .maybeSingle();
-        setUserRegistration(userReg || null);
-        setIsLoadingReg(false);
-      }
-    } else {
-      setHackathon(null);
-    }
-  };
 
   useEffect(() => {
-    fetchHackathonAndRegs();
-  }, [slug, address]);
+    async function fetchData() {
+      if (!slug) return;
+      
+      let query = supabase.from('hackathons').select('*');
+      
+      if (slug.match(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i)) {
+        query = query.eq('id', slug);
+      } else {
+        query = query.eq('slug', slug);
+      }
+
+      const { data: h, error: he } = await query.single();
+      
+      if (h) {
+        setHackathon(h);
+        const { data: t } = await supabase.from('hackathon_teams').select('*').eq('hackathon_id', h.id);
+        setTeams(t || []);
+        const { data: a } = await supabase.from('hackathon_announcements').select('*').eq('hackathon_id', h.id);
+        setAnnouncements(a || []);
+        const { data: q } = await supabase.from('hackathon_questions').select('*').eq('hackathon_id', h.id);
+        setQuestions(q || []);
+      } else {
+        setHackathon(null);
+      }
+    }
+    fetchData();
+  }, [slug]);
 
   const { mutate: createTeamMutate } = useSupabaseMutation('hackathon_teams');
   const { mutate: askQuestionMutate } = useSupabaseMutation('hackathon_questions');
@@ -573,160 +545,33 @@ export default function HackathonDetail() {
                 {hackathon.total_hackers || 0} Hackers • {hackathon.total_teams || 0} Teams
               </div>
             </div>
-            {/* Hosted vs External Registration Actions */}
-            <div className="mt-6 flex flex-col gap-4">
-              {hackathon.conducting_type === "hosted" ? (
-                isLoadingReg ? (
-                  <div className="flex items-center gap-2 py-2">
-                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                    <span className="text-xs text-muted-foreground">Checking registration status...</span>
-                  </div>
-                ) : !isAuthenticated ? (
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button size="lg" className="bg-primary hover:bg-primary/95 text-white" onClick={signIn}>
-                      Connect Wallet to Register
-                    </Button>
-                    <ShareButtons
-                      url={`/hackathons/${slug}`}
-                      title={hackathon.title || hackathon.name}
-                      description={hackathon.tagline || hackathon.short_description || hackathon.description}
-                      date={hackathon.start_date}
-                      location={hackathon.location || hackathon.mode}
-                      type="hackathon"
-                      hashtags={['web3', 'hackathon', 'blockchain', 'apnacoding']}
-                    />
-                  </div>
-                ) : userRegistration ? (
-                  <div className="flex flex-col gap-2">
-                    <div className="flex flex-col sm:flex-row items-center gap-3">
-                      {userRegistration.status === "pending" && (
-                        <div className="px-4 py-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-xs">
-                          ⏳ Your registration request is pending host review.
-                        </div>
-                      )}
-                      {userRegistration.status === "declined" && (
-                        <div className="px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
-                          ❌ Your registration was declined.
-                        </div>
-                      )}
-                      {userRegistration.status === "waitlist" && (
-                        <div className="px-4 py-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs">
-                          ⏳ The hackathon is at capacity. You are waitlisted.
-                        </div>
-                      )}
-                      {["registered", "approved", "checked_in"].includes(userRegistration.status) && (
-                        <div className="flex flex-wrap gap-2 items-center">
-                          <div className="px-3 py-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center gap-1.5 text-xs font-semibold">
-                            <CheckCircle2 className="h-4 w-4" /> Registered
-                          </div>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button size="sm" className="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-bold">
-                                <QrCode className="h-4 w-4 mr-1.5" /> View Ticket
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-sm p-0 bg-transparent border-0">
-                              <TicketViewer
-                                registrationId={userRegistration.id}
-                                eventTitle={hackathon.title || hackathon.name}
-                                eventDate={hackathon.start_date}
-                                eventLocation={hackathon.location || "Virtual"}
-                                guestName={userRegistration.name}
-                                guestWallet={userRegistration.wallet_address}
-                                status={userRegistration.status}
-                              />
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-                      )}
-                      <ShareButtons
-                        url={`/hackathons/${slug}`}
-                        title={hackathon.title || hackathon.name}
-                        description={hackathon.tagline || hackathon.short_description || hackathon.description}
-                        date={hackathon.start_date}
-                        location={hackathon.location || hackathon.mode}
-                        type="hackathon"
-                        hashtags={['web3', 'hackathon', 'blockchain', 'apnacoding']}
-                      />
-                    </div>
-
-                    {/* Show virtual link to approved hackathon attendees */}
-                    {["registered", "approved", "checked_in"].includes(userRegistration.status) && 
-                     (hackathon.location_type === "virtual" || hackathon.location_type === "hybrid") && 
-                     hackathon.virtual_url && (
-                      <div className="mt-2 p-4 rounded-lg bg-cyan-950/20 border border-cyan-500/20 max-w-xl">
-                        <h4 className="font-semibold text-white text-sm flex items-center gap-1.5">
-                          <Laptop className="h-4 w-4 text-cyan-400" /> Virtual Hackathon Access Link
-                        </h4>
-                        <p className="text-xs text-slate-300 mt-1">Click below to join the discord or platform space:</p>
-                        <Button
-                          size="sm"
-                          onClick={() => window.open(hackathon.virtual_url, "_blank")}
-                          className="bg-cyan-500 hover:bg-cyan-600 text-slate-950 font-semibold mt-3"
-                        >
-                          Join Virtual space <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <RegisterEventDialog
-                      hackathonId={hackathon.id}
-                      requireApproval={hackathon.require_approval}
-                      capacity={hackathon.capacity}
-                      walletAddress={address!}
-                      userEmail={user?.email || ""}
-                      userName={user?.name || ""}
-                      onSuccess={fetchHackathonAndRegs}
-                      trigger={
-                        <Button size="lg" className="bg-primary hover:bg-primary/90 text-white">
-                          Register for Hackathon
-                        </Button>
-                      }
-                    />
-                    <ShareButtons
-                      url={`/hackathons/${slug}`}
-                      title={hackathon.title || hackathon.name}
-                      description={hackathon.tagline || hackathon.short_description || hackathon.description}
-                      date={hackathon.start_date}
-                      location={hackathon.location || hackathon.mode}
-                      type="hackathon"
-                      hashtags={['web3', 'hackathon', 'blockchain', 'apnacoding']}
-                    />
-                  </div>
-                )
-              ) : (
-                // External registration URL flow
-                (hackathon.registration_link || hackathon.external_url) && (
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    <Button 
-                      size="lg" 
-                      className="bg-primary hover:bg-primary/90"
-                      onClick={() => {
-                        if (!isAuthenticated && signIn) {
-                          toast.error("Please connect your wallet to register");
-                          signIn();
-                          return;
-                        }
-                        window.open(hackathon.registration_link || hackathon.external_url, "_blank");
-                      }}
-                    >
-                      Register Externally <ExternalLink className="ml-2 h-4 w-4" />
-                    </Button>
-                    <ShareButtons
-                      url={`/hackathons/${slug}`}
-                      title={hackathon.title || hackathon.name}
-                      description={hackathon.tagline || hackathon.short_description || hackathon.description}
-                      date={hackathon.start_date}
-                      location={hackathon.location || hackathon.mode}
-                      type="hackathon"
-                      hashtags={['web3', 'hackathon', 'blockchain', 'apnacoding']}
-                    />
-                  </div>
-                )
-              )}
-            </div>
+            {hackathon.registration_link && (
+              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                <Button 
+                  size="lg" 
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => {
+                    if (!isAuthenticated && signIn) {
+                      toast.error("Please connect your wallet to register");
+                      signIn();
+                      return;
+                    }
+                    window.open(hackathon.registration_link, "_blank");
+                  }}
+                >
+                  Register Now <ExternalLink className="ml-2 h-4 w-4" />
+                </Button>
+                <ShareButtons
+                  url={`/hackathons/${slug}`}
+                  title={hackathon.title || hackathon.name}
+                  description={hackathon.tagline || hackathon.short_description || hackathon.description}
+                  date={hackathon.start_date}
+                  location={hackathon.location || hackathon.mode}
+                  type="hackathon"
+                  hashtags={['web3', 'hackathon', 'blockchain', 'apnacoding']}
+                />
+              </div>
+            )}
           </div>
         </div>
 
