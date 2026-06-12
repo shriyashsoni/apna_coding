@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { scrapeSideEventsList } from "@/utils/frontend-scraper";
 import { Badge } from "@/components/ui/badge";
+import { uploadRemoteImageToSupabase } from "@/utils/image-uploader";
 
 export default function EventGroupDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -364,11 +365,20 @@ export default function EventGroupDetail() {
       return;
     }
 
+    setIsScraping(true); // Re-use scraping state for importing indicator
     try {
       const toImport = scrapedEvents.filter((_, idx) => selectedScrapedIndexes.includes(idx));
       
-      const payload = toImport.map(evt => {
+      toast.info("Downloading and secure-storing side event images...");
+      
+      const payload = await Promise.all(toImport.map(async (evt) => {
         const parsedMs = isNaN(new Date(evt.date).getTime()) ? (Date.now() + 86400000) : new Date(evt.date).getTime();
+        
+        let uploadedUrl = evt.image_url || evt.image || null;
+        if (uploadedUrl) {
+          uploadedUrl = await uploadRemoteImageToSupabase(uploadedUrl, 'events');
+        }
+
         return {
           title: evt.title,
           description: evt.description,
@@ -376,22 +386,25 @@ export default function EventGroupDetail() {
           location: evt.location || "Venue TBA",
           type: evt.type || "Side Event",
           registration_link: evt.registration_link || null,
-          image: evt.image_url || null,
+          image: uploadedUrl,
+          image_url: uploadedUrl,
           event_group_id: groupData.id,
           wallet_address: user?.wallet_address || null,
-          is_approved: true
+          is_approved: false // Require admin approval
         };
-      });
+      }));
 
       const { error } = await supabase.from('events').insert(payload);
       if (error) throw error;
 
-      toast.success(`✨ Successfully imported ${payload.length} side events!`);
+      toast.success(`✨ Successfully imported ${payload.length} side events for review!`);
       setIsScrapeDialogOpen(false);
       setScrapedEvents([]);
       fetchGroupAndEvents();
     } catch (err: any) {
       toast.error(err.message || "Failed to import side events");
+    } finally {
+      setIsScraping(false);
     }
   };
 

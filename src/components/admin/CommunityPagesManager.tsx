@@ -14,6 +14,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/lib/supabase";
 import { scrapeContentDirectly } from "@/utils/frontend-scraper";
+import { uploadRemoteImageToSupabase } from "@/utils/image-uploader";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function CommunityPagesManager() {
@@ -219,8 +220,20 @@ export function CommunityPagesManager() {
       
       if (!result.success) throw new Error(result.error || "Scraping failed");
 
+      let uploadedLogo = result.data.logo || "";
+      if (uploadedLogo) {
+        uploadedLogo = await uploadRemoteImageToSupabase(uploadedLogo, 'communities');
+      }
+
+      let uploadedCover = result.data.cover_image || "";
+      if (uploadedCover) {
+        uploadedCover = await uploadRemoteImageToSupabase(uploadedCover, 'communities');
+      }
+
       const { error: insertError } = await supabase.from('communities').insert({
         ...result.data,
+        logo: uploadedLogo,
+        cover_image: uploadedCover,
         slug: result.data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
         wallet_address: address,
         is_published: true

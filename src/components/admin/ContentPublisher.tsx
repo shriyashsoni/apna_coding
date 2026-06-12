@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { CreateHackathonDialog } from "@/components/hackathons/CreateHackathonDialog";
 import { CreateEventDialog } from "@/components/events/CreateEventDialog";
 import { scrapeContentDirectly } from "@/utils/frontend-scraper";
+import { uploadRemoteImageToSupabase } from "@/utils/image-uploader";
 
 interface ContentPublisherProps {
   onSuccess: () => void;
@@ -78,8 +79,15 @@ export function ContentPublisher({ onSuccess }: ContentPublisherProps) {
       
       if (!result.success) throw new Error(result.error || "Scraping failed");
 
+      let uploadedUrl = result.data.image || "";
+      if (uploadedUrl) {
+        toast.info("Uploading event poster to secure storage...");
+        uploadedUrl = await uploadRemoteImageToSupabase(uploadedUrl, 'hackathons');
+      }
+
       const { error: insertError } = await supabase.from('hackathons').insert({
         ...result.data,
+        image: uploadedUrl,
         wallet_address: address,
         is_approved: false
       });
@@ -109,8 +117,16 @@ export function ContentPublisher({ onSuccess }: ContentPublisherProps) {
       
       if (!result.success) throw new Error(result.error || "Scraping failed");
 
+      let uploadedUrl = result.data.image || result.data.image_url || "";
+      if (uploadedUrl) {
+        toast.info("Uploading event poster to secure storage...");
+        uploadedUrl = await uploadRemoteImageToSupabase(uploadedUrl, 'events');
+      }
+
       const { error: insertError } = await supabase.from('events').insert({
         ...result.data,
+        image: uploadedUrl,
+        image_url: uploadedUrl,
         event_group_id: selectedEventGroupId || null,
         wallet_address: address,
         is_approved: false

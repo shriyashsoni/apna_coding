@@ -32,7 +32,7 @@ export function useAdmin() {
           .eq('wallet_address', address)
           .single();
 
-        if (data?.role === 'admin') {
+        if (data?.role && data.role !== 'user') {
           setIsAdmin(true);
         } else {
           setIsAdmin(false);

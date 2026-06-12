@@ -9,6 +9,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/lib/supabase";
 import { scrapeContentDirectly } from "@/utils/frontend-scraper";
 
+import { uploadRemoteImageToSupabase } from "@/utils/image-uploader";
+
 interface AIAutoPublishDialogProps {
   onSuccess: () => void;
 }
@@ -34,10 +36,17 @@ export function AIAutoPublishDialog({ onSuccess }: AIAutoPublishDialogProps) {
 
       if (!result.success) throw new Error(result.error || "Scraping failed");
 
+      let uploadedImageUrl = result.data.image || "";
+      if (uploadedImageUrl) {
+        toast.info("Uploading event poster to secure storage...");
+        uploadedImageUrl = await uploadRemoteImageToSupabase(uploadedImageUrl, 'hackathons');
+      }
+
       const { error: insertError } = await supabase.from('hackathons').insert({
         ...result.data,
+        image: uploadedImageUrl,
         wallet_address: address,
-        is_approved: true, // Auto-approve for now
+        is_approved: false, // Force approval
       });
 
       if (insertError) throw insertError;

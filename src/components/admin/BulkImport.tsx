@@ -20,6 +20,7 @@ import {
   Download
 } from "lucide-react";
 import { scrapeContentDirectly } from "@/utils/frontend-scraper";
+import { uploadRemoteImageToSupabase } from "@/utils/image-uploader";
 
 export function BulkImport() {
   const { user: authUser } = useAuth();
@@ -99,6 +100,46 @@ export function BulkImport() {
 
               if (contentType === 'events' && selectedEventGroupId) {
                 insertData.event_group_id = selectedEventGroupId;
+              }
+
+              // Handle image upload based on content type
+              if (contentType === 'events') {
+                let uploadedUrl = result.data.image || result.data.image_url || "";
+                if (uploadedUrl) {
+                  uploadedUrl = await uploadRemoteImageToSupabase(uploadedUrl, 'events');
+                }
+                insertData.image = uploadedUrl;
+                insertData.image_url = uploadedUrl;
+              } else if (contentType === 'hackathons') {
+                let uploadedUrl = result.data.image || "";
+                if (uploadedUrl) {
+                  uploadedUrl = await uploadRemoteImageToSupabase(uploadedUrl, 'hackathons');
+                }
+                insertData.image = uploadedUrl;
+              } else if (contentType === 'products') {
+                let uploadedUrl = result.data.image_url || result.data.image || "";
+                if (uploadedUrl) {
+                  uploadedUrl = await uploadRemoteImageToSupabase(uploadedUrl, 'products');
+                }
+                insertData.image_url = uploadedUrl;
+              } else if (contentType === 'news') {
+                let uploadedUrl = result.data.cover_image || result.data.image_url || result.data.image || "";
+                if (uploadedUrl) {
+                  uploadedUrl = await uploadRemoteImageToSupabase(uploadedUrl, 'news');
+                }
+                insertData.cover_image = uploadedUrl;
+                insertData.image_url = uploadedUrl;
+              } else if (contentType === 'communities') {
+                let uploadedLogo = result.data.logo || "";
+                if (uploadedLogo) {
+                  uploadedLogo = await uploadRemoteImageToSupabase(uploadedLogo, 'communities');
+                }
+                let uploadedCover = result.data.cover_image || "";
+                if (uploadedCover) {
+                  uploadedCover = await uploadRemoteImageToSupabase(uploadedCover, 'communities');
+                }
+                insertData.logo = uploadedLogo;
+                insertData.cover_image = uploadedCover;
               }
 
               const { error: insertError } = await supabase.from(table).insert(insertData);

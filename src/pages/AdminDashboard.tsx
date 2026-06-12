@@ -40,6 +40,7 @@ import { BulkEmailSender } from "@/components/admin/BulkEmailSender";
 import { GlobalContentExplorer } from "@/components/admin/GlobalContentExplorer";
 import { AutonomousAgentManager } from "@/components/admin/AutonomousAgentManager";
 import { scrapeContentDirectly } from "@/utils/frontend-scraper";
+import { uploadRemoteImageToSupabase } from "@/utils/image-uploader";
 
 export default function AdminDashboard() {
   const { user: privyUser, authenticated, ready } = usePrivy();
@@ -57,24 +58,47 @@ export default function AdminDashboard() {
       case "overview":
         return true;
       case "publisher":
-        return authUser.role === "content_manager" || authUser.can_post_jobs || authUser.can_post_hackathons || authUser.can_post_events;
+        return (
+          authUser.role === "content_manager" ||
+          authUser.role === "event_manager" ||
+          authUser.role === "moderator" ||
+          !!authUser.can_post_jobs ||
+          !!authUser.can_post_events ||
+          !!authUser.can_post_hackathons
+        );
       case "approvals":
-        return authUser.role === "moderator";
+        return authUser.role === "moderator" || authUser.role === "content_manager";
       case "library":
       case "search":
       case "content":
-        return authUser.role === "content_manager" || authUser.role === "recruiter";
+        return (
+          authUser.role === "content_manager" ||
+          authUser.role === "recruiter" ||
+          authUser.role === "moderator"
+        );
       case "communities":
+      case "partnerships":
         return authUser.role === "community_manager";
       case "event-groups":
         return authUser.role === "event_manager";
       case "news":
       case "leaderboard":
         return authUser.role === "content_manager";
-      case "partnerships":
-        return authUser.role === "community_manager";
+      case "bulk":
+      case "aiagent":
+      case "analytics":
+        return (
+          authUser.role === "content_manager" ||
+          authUser.role === "event_manager" ||
+          authUser.role === "recruiter"
+        );
+      case "ai-email":
+      case "bulk-email":
+        return authUser.role === "content_manager" || authUser.role === "recruiter";
+      case "users":
+        return authUser.role === "moderator" || authUser.role === "content_manager";
       default:
-        return false;
+        return false; // Restricts system, master, backup, settings, permissions, admins to super admin
     }
   };
 
@@ -611,8 +635,14 @@ export default function AdminDashboard() {
       for (const url of sampleUrls) {
         const result = await scrapeContentDirectly(url, 'events');
         if (result.success) {
+          let uploadedUrl = result.data.image || result.data.image_url || "";
+          if (uploadedUrl) {
+            uploadedUrl = await uploadRemoteImageToSupabase(uploadedUrl, 'events');
+          }
           await supabase.from('events').insert({
             ...result.data,
+            image: uploadedUrl,
+            image_url: uploadedUrl,
             wallet_address: address,
             is_approved: false
           });
@@ -641,8 +671,13 @@ export default function AdminDashboard() {
       for (const url of sampleUrls) {
         const result = await scrapeContentDirectly(url, 'products');
         if (result.success) {
+          let uploadedUrl = result.data.image_url || result.data.image || "";
+          if (uploadedUrl) {
+            uploadedUrl = await uploadRemoteImageToSupabase(uploadedUrl, 'products');
+          }
           await supabase.from('products').insert({
             ...result.data,
+            image_url: uploadedUrl,
             wallet_address: address,
             is_approved: false,
             status: 'pending'
@@ -668,8 +703,15 @@ export default function AdminDashboard() {
       
       if (!result.success) throw new Error(result.error || "Scraping failed");
 
+      let uploadedUrl = result.data.cover_image || result.data.image_url || result.data.image || "";
+      if (uploadedUrl) {
+        uploadedUrl = await uploadRemoteImageToSupabase(uploadedUrl, 'news');
+      }
+
       const { error: insertError } = await supabase.from('news').insert({
         ...result.data,
+        cover_image: uploadedUrl,
+        image_url: uploadedUrl,
         wallet_address: address,
         is_published: false,
         is_approved: false
@@ -696,8 +738,20 @@ export default function AdminDashboard() {
       
       if (!result.success) throw new Error(result.error || "Scraping failed");
 
+      let uploadedLogo = result.data.logo || "";
+      if (uploadedLogo) {
+        uploadedLogo = await uploadRemoteImageToSupabase(uploadedLogo, 'communities');
+      }
+
+      let uploadedCover = result.data.cover_image || "";
+      if (uploadedCover) {
+        uploadedCover = await uploadRemoteImageToSupabase(uploadedCover, 'communities');
+      }
+
       const { error: insertError } = await supabase.from('communities').insert({
         ...result.data,
+        logo: uploadedLogo,
+        cover_image: uploadedCover,
         slug: result.data.name.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
         wallet_address: address,
         is_published: false
