@@ -39,14 +39,7 @@ const logos = [
     type: "PNG",
     bg: "bg-neutral-200",
   },
-  {
-    id: 5,
-    name: "Full Brand Lockup",
-    url: "/branding/Apna Coding with name.jpg",
-    description: "Complete logo with wordmark for headers, banners, and hero sections.",
-    type: "JPG",
-    bg: "bg-black",
-  },
+
   {
     id: 6,
     name: "Horizontal Logo — White (Transparent)",
