@@ -47,6 +47,38 @@ const logos = [
     type: "JPG",
     bg: "bg-black",
   },
+  {
+    id: 6,
+    name: "Horizontal Logo — White (Transparent)",
+    url: "/branding/logo-horizontal-white-transparent.png",
+    description: "Horizontal logo with white icon and text, transparent background.",
+    type: "PNG",
+    bg: "bg-black",
+  },
+  {
+    id: 7,
+    name: "Horizontal Logo — White on Black",
+    url: "/branding/logo-horizontal-white-bg-black.png",
+    description: "Horizontal logo with white icon and text on a solid black background.",
+    type: "PNG",
+    bg: "bg-neutral-900",
+  },
+  {
+    id: 8,
+    name: "Horizontal Logo — Black (Transparent)",
+    url: "/branding/logo-horizontal-black-transparent.png",
+    description: "Horizontal logo with black icon and text, transparent background.",
+    type: "PNG",
+    bg: "bg-neutral-200",
+  },
+  {
+    id: 9,
+    name: "Horizontal Logo — Black on White",
+    url: "/branding/logo-horizontal-black-bg-white.png",
+    description: "Horizontal logo with black icon and text on a solid white background.",
+    type: "PNG",
+    bg: "bg-white",
+  },
 ];
 
 const brandColors = [

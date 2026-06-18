@@ -94,11 +94,7 @@ export function Footer() {
             <div>
               <h4 className="text-sm uppercase tracking-wider text-white font-semibold mb-4 md:mb-6">Community</h4>
               <ul className="space-y-3">
-                <li><Link to="/communities" className="text-xs text-white/50 hover:text-white transition-colors">Communities</Link></li>
-                <li><a href="https://discord.gg/8E7ER4wq" target="_blank" rel="noopener noreferrer" className="text-xs text-white/50 hover:text-white transition-colors">Discord Server</a></li>
-                <li><a href="https://t.me/apnacodingtech" target="_blank" rel="noopener noreferrer" className="text-xs text-white/50 hover:text-white transition-colors">Telegram Group</a></li>
-                <li><a href="https://chat.whatsapp.com/HqVg4ctR6QKJnfvemsEQ8H" target="_blank" rel="noopener noreferrer" className="text-xs text-white/50 hover:text-white transition-colors">WhatsApp Group</a></li>
-                <li><a href="https://whatsapp.com/channel/0029VbAedaw8aKvNRdkNJr3s" target="_blank" rel="noopener noreferrer" className="text-xs text-white/50 hover:text-white transition-colors">WhatsApp Channel</a></li>
+                <li><Link to="/social" className="text-xs text-white/50 hover:text-white transition-colors">Social</Link></li>
               </ul>
             </div>
 
