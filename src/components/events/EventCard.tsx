@@ -73,7 +73,7 @@ export function EventCard({ event, index, showDelete = false, onDelete }: EventC
           <img
             src={event.image || event.image_url}
             alt={event.title}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain bg-muted/50"
             onError={(e) => {
               const img = e.currentTarget;
               img.style.display = 'none';

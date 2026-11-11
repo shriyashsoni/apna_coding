@@ -455,6 +455,23 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleTogglePublishedCommunity = async (id: any, currentStatus: boolean) => {
+    if (!address) return;
+    try {
+      const { error } = await supabase
+        .from('communities')
+        .update({ is_published: !currentStatus })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast.success(`Community ${!currentStatus ? 'published' : 'unpublished'}`);
+      fetchAdminData();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to toggle published status");
+    }
+  };
+
   const handleToggleFeaturedProduct = async (id: any, currentStatus: boolean) => {
     if (!address) return;
     try {
@@ -559,10 +576,8 @@ export default function AdminDashboard() {
           title: newNewsPost.title,
           slug: newNewsPost.slug,
           content: newNewsPost.content,
-          excerpt: newNewsPost.excerpt || null,
           cover_image: newNewsPost.coverImage || null,
           category: newNewsPost.category,
-          tags: newNewsPost.tags.split(",").map(t => t.trim()).filter(t => t),
           is_published: newNewsPost.isPublished,
           is_featured: newNewsPost.isFeatured
         });
@@ -708,8 +723,10 @@ export default function AdminDashboard() {
         uploadedUrl = await uploadRemoteImageToSupabase(uploadedUrl, 'news');
       }
 
+      // Live news table has no excerpt/tags columns; only post existing columns
+      const { excerpt: _excerpt, tags: _tags, ...newsData } = result.data;
       const { error: insertError } = await supabase.from('news').insert({
-        ...result.data,
+        ...newsData,
         cover_image: uploadedUrl,
         image_url: uploadedUrl,
         wallet_address: address,
@@ -975,8 +992,8 @@ export default function AdminDashboard() {
             {/* Publisher Tab */}
             <TabsContent value="publisher" className="space-y-6">
               <ContentPublisher onSuccess={() => {
-                // Refresh approvals after successful publish
-                window.location.reload();
+                // Refresh data in place; a full reload silently wipes admin state
+                fetchAdminData();
               }} />
             </TabsContent>
 
@@ -1793,6 +1810,13 @@ export default function AdminDashboard() {
                             </div>
                           </div>
                           <div className="flex items-center gap-2 mt-2 ml-11">
+                            <Switch
+                              checked={community.is_published || false}
+                              onCheckedChange={() => handleTogglePublishedCommunity(community.id, community.is_published || false)}
+                            />
+                            <Label className="text-xs cursor-pointer" onClick={() => handleTogglePublishedCommunity(community.id, community.is_published || false)}>
+                              {community.is_published ? '✅ Published' : '⏸ Draft'}
+                            </Label>
                             <Switch
                               checked={community.is_featured || false}
                               onCheckedChange={() => handleToggleFeaturedCommunity(community.id, community.is_featured || false)}

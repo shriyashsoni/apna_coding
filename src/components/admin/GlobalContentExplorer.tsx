@@ -30,9 +30,28 @@ import {
   XCircle,
   Database,
   Clock,
+  Image as ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type ContentType = "event" | "hackathon" | "job" | "news" | "product" | "community";
 
@@ -54,6 +73,11 @@ export function GlobalContentExplorer() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState<ContentType | "all">("all");
   const [showOnlyApproved, setShowOnlyApproved] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<ContentItem | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [imageEditItem, setImageEditItem] = useState<ContentItem | null>(null);
+  const [imageUrlInput, setImageUrlInput] = useState("");
+  const [isSavingImage, setIsSavingImage] = useState(false);
 
   const fetchAllContent = async () => {
     setLoading(true);
@@ -69,9 +93,9 @@ export function GlobalContentExplorer() {
         communitiesRes,
       ] = await Promise.all([
         supabase.from("events").select("id, title, description, is_approved, is_featured, created_at"),
-        supabase.from("hackathons").select("id, title, description, is_approved, is_featured, created_at, slug"),
+        supabase.from("hackathons").select("id, title, name, description, is_approved, is_featured, created_at, slug"),
         supabase.from("jobs").select("id, title, company, is_approved, is_featured, created_at"),
-        supabase.from("news").select("id, title, excerpt, is_approved, is_published, is_featured, created_at, slug, category"),
+        supabase.from("news").select("id, title, is_approved, is_published, is_featured, created_at, slug, category"),
         supabase.from("products").select("id, name, description, status, is_featured, created_at, slug, category"),
         supabase.from("communities").select("id, name, description, is_published, is_featured, created_at, slug, category"),
       ]);
@@ -122,7 +146,7 @@ export function GlobalContentExplorer() {
           id: i.id,
           type: "news" as const, 
           title: i.title || "Untitled News", 
-          description: i.excerpt, 
+          description: undefined, 
           is_approved: !!(i.is_approved || i.is_published),
           is_featured: !!i.is_featured,
           created_at: i.created_at,
@@ -189,18 +213,63 @@ export function GlobalContentExplorer() {
     }
   };
 
-  const handleDelete = async (item: ContentItem) => {
-    if (!window.confirm(`Are you sure you want to delete this ${item.type}?`)) return;
-    
+  const handleDelete = async () => {
+    if (!itemToDelete) return;
+    setIsDeleting(true);
     try {
-      const table = getTableForType(item.type);
-      const { error } = await supabase.from(table).delete().eq("id", item.id);
+      const table = getTableForType(itemToDelete.type);
+      const { error } = await supabase.from(table).delete().eq("id", itemToDelete.id);
       if (error) throw error;
       
-      setItems(prev => prev.filter(i => !(i.id === item.id && i.type === item.type)));
+      setItems(prev => prev.filter(i => !(i.id === itemToDelete.id && i.type === itemToDelete.type)));
       toast.success("Item deleted successfully");
+      setItemToDelete(null);
     } catch (err: any) {
       toast.error(err.message || "Failed to delete item");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // Image-capable types and their live DB image columns (mirrored where the
+  // schema keeps two: events image+image_url, news cover_image+image_url)
+  const imageColumnsForType = (type: ContentType): string[] => {
+    switch (type) {
+      case "event": return ["image", "image_url"];
+      case "hackathon": return ["image"];
+      case "news": return ["cover_image", "image_url"];
+      default: return [];
+    }
+  };
+
+  const canEditImage = (type: ContentType) => imageColumnsForType(type).length > 0;
+
+  const handleSaveImage = async () => {
+    if (!imageEditItem) return;
+    const url = imageUrlInput.trim();
+    if (!url) {
+      toast.error("Please enter an image URL");
+      return;
+    }
+    try {
+      new URL(url);
+    } catch {
+      toast.error("Please enter a valid URL");
+      return;
+    }
+    setIsSavingImage(true);
+    try {
+      const table = getTableForType(imageEditItem.type);
+      const updates = Object.fromEntries(imageColumnsForType(imageEditItem.type).map(c => [c, url]));
+      const { error } = await supabase.from(table).update(updates).eq("id", imageEditItem.id);
+      if (error) throw error;
+      toast.success(`Image updated for "${imageEditItem.title}"`);
+      setImageEditItem(null);
+      setImageUrlInput("");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update image");
+    } finally {
+      setIsSavingImage(false);
     }
   };
 
@@ -389,11 +458,25 @@ export function GlobalContentExplorer() {
                           <Eye className="h-4 w-4" />
                         </Button>
                         
+                        {canEditImage(item.type) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            title="Edit image"
+                            onClick={() => {
+                              setImageEditItem(item);
+                              setImageUrlInput("");
+                            }}
+                          >
+                            <ImageIcon className="h-4 w-4" />
+                          </Button>
+                        )}
+                        
                         <Button
                           variant="destructive"
                           size="sm"
                           title="Delete"
-                          onClick={() => handleDelete(item)}
+                          onClick={() => setItemToDelete(item)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -406,6 +489,49 @@ export function GlobalContentExplorer() {
           </div>
         </CardContent>
       </Card>
+
+      {/* In-page delete confirmation (replaces native window.confirm, which
+          blocks automation and wedges the admin session) */}
+      <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && !isDeleting && setItemToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this {itemToDelete?.type}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              "{itemToDelete?.title}" will be permanently removed. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={isDeleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {isDeleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Image editor: set/replace the listing image without delete+repost */}
+      <Dialog open={!!imageEditItem} onOpenChange={(open) => !open && setImageEditItem(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit image</DialogTitle>
+            <DialogDescription>
+              Set the image URL for "{imageEditItem?.title}". The listing updates in place - no need to delete and repost.
+            </DialogDescription>
+          </DialogHeader>
+          <Input
+            type="url"
+            placeholder="https://example.com/image.png"
+            value={imageUrlInput}
+            onChange={(e) => setImageUrlInput(e.target.value)}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImageEditItem(null)} disabled={isSavingImage}>Cancel</Button>
+            <Button onClick={handleSaveImage} disabled={isSavingImage}>
+              {isSavingImage ? "Saving..." : "Save image"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
