@@ -88,25 +88,30 @@ export function CreateHackathonDialog({ onSuccess }: CreateHackathonDialogProps)
     try {
       const parseTags = formData.tags ? formData.tags.split(',').map(t => t.trim()).filter(Boolean) : [];
 
+      // Live hackathons table lacks category/website_url/discord_url/twitter_url/rules/min_team_size;
+      // keep only existing columns and preserve the extra details inside the description
+      const extraDetails = [
+        formData.websiteUrl.trim() && `Website: ${formData.websiteUrl.trim()}`,
+        formData.discordUrl.trim() && `Discord: ${formData.discordUrl.trim()}`,
+        formData.twitterUrl.trim() && `Twitter/X: ${formData.twitterUrl.trim()}`,
+        formData.rules.trim() && `Rules: ${formData.rules.trim()}`,
+        formData.minTeamSize && `Min team size: ${formData.minTeamSize}`,
+        formData.category && `Category: ${formData.category}`,
+      ].filter(Boolean).join('\n');
+
       const { error } = await supabase.from('hackathons').insert({
         name: formData.title.trim(),
-        description: formData.description.trim(),
+        description: formData.description.trim() + (extraDetails ? `\n\n${extraDetails}` : ''),
         start_date: startDate,
         end_date: endDate,
         prizes: formData.prizes.trim(),
         status: formData.status,
         image: formData.imageUrl.trim() || null,
         tags: parseTags,
-        category: formData.category,
+        eligibility: formData.eligibility.trim() || null,
+        max_team_size: parseInt(formData.maxTeamSize) || null,
         wallet_address: address,
         registration_link: formData.registrationLink.trim() || null,
-        website_url: formData.websiteUrl.trim() || null,
-        discord_url: formData.discordUrl.trim() || null,
-        twitter_url: formData.twitterUrl.trim() || null,
-        eligibility: formData.eligibility.trim() || null,
-        rules: formData.rules.trim() || null,
-        max_team_size: parseInt(formData.maxTeamSize) || null,
-        min_team_size: parseInt(formData.minTeamSize) || null,
         is_approved: false
       });
 

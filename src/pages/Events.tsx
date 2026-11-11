@@ -22,10 +22,11 @@ export default function Events() {
   const [limit, setLimit] = useState(10);
   
   const { data: results, loading: isLoading } = useSupabaseQuery('events', (q) => {
-    let base = q.order('date', { ascending: false }).limit(limit);
+    // Fetch the full set once: server-side limiting hid events from search/filters
+    let base = q.order('date', { ascending: false });
     if (locationFilter !== "all") base = base.eq('location', locationFilter);
     return base;
-  }, [limit, locationFilter, refreshKey]);
+  }, [locationFilter, refreshKey]);
 
   const { data: featuredEvents } = useSupabaseQuery('events', (q) => q.eq('is_featured', true).limit(10));
 
@@ -191,13 +192,13 @@ export default function Events() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {filteredResults.map((event: any, i: number) => (
+            {filteredResults.slice(0, limit).map((event: any, i: number) => (
               <EventCard key={event.id} event={event} index={i} showDelete={false} />
             ))}
           </div>
         )}
         
-        {results && results.length >= limit && (
+        {filteredResults.length > limit && (
           <div className="flex justify-center mt-12">
             <Button onClick={() => setLimit(limit + 10)} variant="outline" className="border-primary/50">
               Load More Events

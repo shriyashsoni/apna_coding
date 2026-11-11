@@ -71,7 +71,7 @@ export function HackathonCard({ hackathon, index, showDelete = true, onDelete }:
           <img
             src={hackathon.bannerImage || hackathon.posterImage || hackathon.image || hackathon.image_url}
             alt={hackathon.title || hackathon.name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain bg-muted/50"
             onError={(e) => {
               const img = e.currentTarget;
               if (img.src === hackathon.bannerImage && hackathon.posterImage) {

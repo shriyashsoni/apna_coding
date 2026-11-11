@@ -22,10 +22,11 @@ export default function Hackathons() {
   const [limit, setLimit] = useState(10);
   
   const { data: results, loading: isLoading } = useSupabaseQuery('hackathons', (q) => {
-    let base = q.order('start_date', { ascending: false }).limit(limit);
+    // Fetch the full set once: server-side limiting hid hackathons from search/filters
+    let base = q.order('start_date', { ascending: false });
     if (locationFilter !== "all") base = base.eq('location', locationFilter);
     return base;
-  }, [limit, locationFilter, refreshKey]);
+  }, [locationFilter, refreshKey]);
 
   // Extract unique locations from hackathons
   const uniqueLocations = useMemo(() => {
@@ -195,13 +196,13 @@ export default function Hackathons() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6">
-            {filteredResults.map((hackathon: any, i: number) => (
+            {filteredResults.slice(0, limit).map((hackathon: any, i: number) => (
               <HackathonCard key={hackathon.id} hackathon={hackathon} index={i} showDelete={false} />
             ))}
           </div>
         )}
         
-        {results && results.length >= limit && (
+        {filteredResults.length > limit && (
           <div className="flex justify-center mt-12">
             <Button onClick={() => setLimit(limit + 10)} variant="outline">
               Load More Hackathons
