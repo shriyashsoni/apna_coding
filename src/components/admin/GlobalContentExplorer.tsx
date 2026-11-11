@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { uploadRemoteImageToSupabase } from "@/utils/image-uploader";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -78,6 +79,25 @@ export function GlobalContentExplorer() {
   const [imageEditItem, setImageEditItem] = useState<ContentItem | null>(null);
   const [imageUrlInput, setImageUrlInput] = useState("");
   const [isSavingImage, setIsSavingImage] = useState(false);
+  const [mirrorToStorage, setMirrorToStorage] = useState(false);
+
+  // Storage folder per type for mirrored images (matches uploadRemoteImageToSupabase)
+  const folderForType = (type: ContentType): "events" | "hackathons" | "news" => {
+    switch (type) {
+      case "hackathon": return "hackathons";
+      case "news": return "news";
+      default: return "events";
+    }
+  };
+
+  // Confirm a mirrored URL actually decodes as an image before writing it to a record
+  const imageDecodes = (url: string) => new Promise<boolean>((resolve) => {
+    const img = new Image();
+    const timer = setTimeout(() => resolve(false), 8000);
+    img.onload = () => { clearTimeout(timer); resolve(true); };
+    img.onerror = () => { clearTimeout(timer); resolve(false); };
+    img.src = url;
+  });
 
   const fetchAllContent = async () => {
     setLoading(true);
@@ -259,13 +279,29 @@ export function GlobalContentExplorer() {
     }
     setIsSavingImage(true);
     try {
+      let finalUrl = url;
+      if (mirrorToStorage) {
+        // Copy the remote image into our own Supabase storage via the existing
+        // client-side uploader (same-origin URL sidesteps cross-origin CDN blocks).
+        const mirrored = await uploadRemoteImageToSupabase(url, folderForType(imageEditItem.type));
+        if (!mirrored.includes("supabase.co/storage")) {
+          toast.error("Mirror failed: the image could not be fetched. The record was left unchanged.");
+          return;
+        }
+        if (!(await imageDecodes(mirrored))) {
+          toast.error("Mirror failed: the stored file is not a displayable image. The record was left unchanged.");
+          return;
+        }
+        finalUrl = mirrored;
+      }
       const table = getTableForType(imageEditItem.type);
-      const updates = Object.fromEntries(imageColumnsForType(imageEditItem.type).map(c => [c, url]));
+      const updates = Object.fromEntries(imageColumnsForType(imageEditItem.type).map(c => [c, finalUrl]));
       const { error } = await supabase.from(table).update(updates).eq("id", imageEditItem.id);
       if (error) throw error;
       toast.success(`Image updated for "${imageEditItem.title}"`);
       setImageEditItem(null);
       setImageUrlInput("");
+      setMirrorToStorage(false);
     } catch (err: any) {
       toast.error(err.message || "Failed to update image");
     } finally {
@@ -524,10 +560,25 @@ export function GlobalContentExplorer() {
             value={imageUrlInput}
             onChange={(e) => setImageUrlInput(e.target.value)}
           />
+          <label className="flex items-start gap-2 text-sm text-muted-foreground cursor-pointer">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={mirrorToStorage}
+              onChange={(e) => setMirrorToStorage(e.target.checked)}
+              disabled={isSavingImage}
+            />
+            <span>
+              Mirror to site storage before saving. Copies the image into our own storage
+              (via the existing client-side uploader) so listings do not break when a
+              third-party CDN blocks cross-origin loading. Recommended for images hosted
+              on cdn.ethglobal.com or other blocked CDNs.
+            </span>
+          </label>
           <DialogFooter>
             <Button variant="outline" onClick={() => setImageEditItem(null)} disabled={isSavingImage}>Cancel</Button>
             <Button onClick={handleSaveImage} disabled={isSavingImage}>
-              {isSavingImage ? "Saving..." : "Save image"}
+              {isSavingImage ? (mirrorToStorage ? "Mirroring..." : "Saving...") : "Save image"}
             </Button>
           </DialogFooter>
         </DialogContent>
