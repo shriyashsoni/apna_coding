@@ -5,6 +5,13 @@ const PROXIES = [
   "https://api.codetabs.com/v1/proxy?quest=",
 ];
 
+// images.weserv.nl is an image-only proxy: it fetches the target server-side
+// and returns re-encoded image bytes with permissive CORS headers. It is the
+// most reliable path for CDNs (e.g. cdn.ethglobal.com) that send
+// Cross-Origin-Resource-Policy headers blocking direct browser fetches.
+const weservUrl = (imageUrl: string) =>
+  `https://images.weserv.nl/?url=${encodeURIComponent(imageUrl.replace(/^https?:\/\//, ""))}`;
+
 // Mirror safety bounds: public http(s) image URLs only, no credentials ever
 // leave the browser, and oversized/non-image payloads are refused.
 const MAX_IMAGE_BYTES = 15 * 1024 * 1024; // 15 MB
@@ -54,8 +61,23 @@ export async function uploadRemoteImageToSupabase(
     lastError = err;
   }
 
-  // 2. Try proxies if direct fetch failed. The proxies receive only the
-  // encoded target URL - no request headers from us.
+  // 2. Try the image proxy first (purpose-built for images), then generic proxies.
+  // The proxies receive only the encoded target URL - no request headers from us.
+  if (!blob) {
+    try {
+      const response = await fetch(weservUrl(imageUrl), { credentials: "omit" });
+      if (response.ok) {
+        const candidate = await response.blob();
+        if (isImageBlob(candidate)) {
+          blob = candidate;
+        }
+      }
+    } catch (err) {
+      lastError = err;
+    }
+  }
+
+  // 3. Generic proxies if the image proxy failed
   if (!blob) {
     for (const proxy of PROXIES) {
       try {
@@ -74,7 +96,7 @@ export async function uploadRemoteImageToSupabase(
     }
   }
 
-  // 3. Fallback to a third proxy (allorigins) which returns content in JSON
+  // 4. Fallback to a third proxy (allorigins) which returns content in JSON
   if (!blob) {
     try {
       const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(imageUrl)}`, { credentials: "omit" });

@@ -80,6 +80,7 @@ export function GlobalContentExplorer() {
   const [imageUrlInput, setImageUrlInput] = useState("");
   const [isSavingImage, setIsSavingImage] = useState(false);
   const [mirrorToStorage, setMirrorToStorage] = useState(false);
+  const [imageSaveError, setImageSaveError] = useState<string | null>(null);
 
   // Storage folder per type for mirrored images (matches uploadRemoteImageToSupabase)
   const folderForType = (type: ContentType): "events" | "hackathons" | "news" => {
@@ -287,10 +288,12 @@ export function GlobalContentExplorer() {
         // Guard is bound to THIS project's storage public path, not any supabase.co URL.
         const expectedPrefix = `${SUPABASE_PROJECT_URL}/storage/v1/object/public/event-footages/`;
         if (!mirrored.startsWith(expectedPrefix)) {
+          setImageSaveError("Mirror failed: the image could not be fetched from its host. The record was left unchanged - try again, or save the URL without mirroring.");
           toast.error("Mirror failed: the image could not be fetched. The record was left unchanged.");
           return;
         }
         if (!(await imageDecodes(mirrored))) {
+          setImageSaveError("Mirror failed: the stored file is not a displayable image. The record was left unchanged.");
           toast.error("Mirror failed: the stored file is not a displayable image. The record was left unchanged.");
           return;
         }
@@ -304,6 +307,7 @@ export function GlobalContentExplorer() {
       setImageEditItem(null);
       setImageUrlInput("");
       setMirrorToStorage(false);
+      setImageSaveError(null);
     } catch (err: any) {
       toast.error(err.message || "Failed to update image");
     } finally {
@@ -548,7 +552,7 @@ export function GlobalContentExplorer() {
       </AlertDialog>
 
       {/* Image editor: set/replace the listing image without delete+repost */}
-      <Dialog open={!!imageEditItem} onOpenChange={(open) => !open && setImageEditItem(null)}>
+      <Dialog open={!!imageEditItem} onOpenChange={(open) => { if (!open) { setImageEditItem(null); setImageSaveError(null); } }}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit image</DialogTitle>
@@ -560,7 +564,7 @@ export function GlobalContentExplorer() {
             type="url"
             placeholder="https://example.com/image.png"
             value={imageUrlInput}
-            onChange={(e) => setImageUrlInput(e.target.value)}
+            onChange={(e) => { setImageUrlInput(e.target.value); setImageSaveError(null); }}
           />
           <label className="flex items-start gap-2 text-sm text-muted-foreground cursor-pointer">
             <input
@@ -577,6 +581,9 @@ export function GlobalContentExplorer() {
               on cdn.ethglobal.com or other blocked CDNs.
             </span>
           </label>
+          {imageSaveError && (
+            <p role="alert" className="text-sm text-red-500">{imageSaveError}</p>
+          )}
           <DialogFooter>
             <Button variant="outline" onClick={() => setImageEditItem(null)} disabled={isSavingImage}>Cancel</Button>
             <Button onClick={handleSaveImage} disabled={isSavingImage}>
