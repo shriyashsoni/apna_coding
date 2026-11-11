@@ -5,6 +5,12 @@ const PROXIES = [
   "https://api.codetabs.com/v1/proxy?quest=",
 ];
 
+// Mirror safety bounds: public http(s) image URLs only, no credentials ever
+// leave the browser, and oversized/non-image payloads are refused.
+const MAX_IMAGE_BYTES = 15 * 1024 * 1024; // 15 MB
+const isImageBlob = (b: Blob | null): b is Blob =>
+  !!b && b.size > 0 && b.size <= MAX_IMAGE_BYTES && b.type.startsWith("image/");
+
 /**
  * Downloads a remote image (directly or via CORS proxies) and uploads it to the Supabase 'event-footages' storage bucket.
  * Returns the public URL of the uploaded image on success, or the original URL on failure.
@@ -15,6 +21,17 @@ export async function uploadRemoteImageToSupabase(
 ): Promise<string> {
   if (!imageUrl) return "";
 
+  // Only plain public http(s) URLs may be mirrored - never file:, data:, javascript:, etc.
+  try {
+    const parsed = new URL(imageUrl);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") {
+      console.warn(`[ImageUploader] Refusing to mirror non-http(s) URL: ${imageUrl}`);
+      return imageUrl;
+    }
+  } catch {
+    return imageUrl;
+  }
+
   // If the image is already a Supabase Storage URL, don't download and re-upload it
   if (imageUrl.includes("supabase.co/storage")) {
     return imageUrl;
@@ -23,25 +40,31 @@ export async function uploadRemoteImageToSupabase(
   let blob: Blob | null = null;
   let lastError: any = null;
 
-  // 1. Try direct fetch first
+  // 1. Try direct fetch first. credentials:"omit" guarantees no cookies/auth
+  // headers are attached, even if the URL ever points back at our own origin.
   try {
-    const response = await fetch(imageUrl);
+    const response = await fetch(imageUrl, { credentials: "omit" });
     if (response.ok) {
-      blob = await response.blob();
+      const candidate = await response.blob();
+      if (isImageBlob(candidate)) {
+        blob = candidate;
+      }
     }
   } catch (err) {
     lastError = err;
   }
 
-  // 2. Try proxies if direct fetch failed
+  // 2. Try proxies if direct fetch failed. The proxies receive only the
+  // encoded target URL - no request headers from us.
   if (!blob) {
     for (const proxy of PROXIES) {
       try {
         const targetUrl = `${proxy}${encodeURIComponent(imageUrl)}`;
-        const response = await fetch(targetUrl);
+        const response = await fetch(targetUrl, { credentials: "omit" });
         if (response.ok) {
-          blob = await response.blob();
-          if (blob && blob.size > 0 && blob.type.startsWith("image/")) {
+          const candidate = await response.blob();
+          if (isImageBlob(candidate)) {
+            blob = candidate;
             break;
           }
         }
@@ -54,7 +77,7 @@ export async function uploadRemoteImageToSupabase(
   // 3. Fallback to a third proxy (allorigins) which returns content in JSON
   if (!blob) {
     try {
-      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(imageUrl)}`);
+      const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(imageUrl)}`, { credentials: "omit" });
       if (response.ok) {
         const data = await response.json();
         if (data.contents) {
@@ -78,7 +101,7 @@ export async function uploadRemoteImageToSupabase(
     }
   }
 
-  if (!blob || blob.size === 0) {
+  if (!isImageBlob(blob)) {
     console.warn(`[ImageUploader] Failed to download remote image (${imageUrl}), using fallback. Error:`, lastError);
     return imageUrl; // Fallback to original URL
   }

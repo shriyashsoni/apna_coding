@@ -7,4 +7,5 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Database environment variables are missing; using local offline simulation.');
 }
 
+export const SUPABASE_PROJECT_URL = supabaseUrl;
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

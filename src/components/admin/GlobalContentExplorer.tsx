@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
+import { supabase, SUPABASE_PROJECT_URL } from "@/lib/supabase";
 import {
   Card,
   CardContent,
@@ -284,7 +284,9 @@ export function GlobalContentExplorer() {
         // Copy the remote image into our own Supabase storage via the existing
         // client-side uploader (same-origin URL sidesteps cross-origin CDN blocks).
         const mirrored = await uploadRemoteImageToSupabase(url, folderForType(imageEditItem.type));
-        if (!mirrored.includes("supabase.co/storage")) {
+        // Guard is bound to THIS project's storage public path, not any supabase.co URL.
+        const expectedPrefix = `${SUPABASE_PROJECT_URL}/storage/v1/object/public/event-footages/`;
+        if (!mirrored.startsWith(expectedPrefix)) {
           toast.error("Mirror failed: the image could not be fetched. The record was left unchanged.");
           return;
         }
