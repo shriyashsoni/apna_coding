@@ -48,7 +48,7 @@ export function InteractiveFeaturesSection() {
         ] = await Promise.all([
           supabase.from("products").select("*").order("created_at", { ascending: false }).limit(3),
           supabase.from("jobs").select("*").order("created_at", { ascending: false }).limit(3),
-          supabase.from("news").select("*").order("created_at", { ascending: false }).limit(3),
+          supabase.from("news").select("*").eq("is_published", true).order("created_at", { ascending: false }).limit(3),
           supabase.from("communities").select("*").eq("is_published", true).order("created_at", { ascending: false }).limit(3),
         ]);
         

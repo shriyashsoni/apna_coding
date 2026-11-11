@@ -1,0 +1,10 @@
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import {BrowserRouter,Routes,Route} from 'react-router';
+import {Toaster} from 'sonner';
+import AdminDashboard from '../../src/pages/AdminDashboard';
+import News from '../../src/pages/News';
+import NewsDetail from '../../src/pages/NewsDetail';
+import {InteractiveFeaturesSection} from '../../src/components/InteractiveFeaturesSection';
+import '../../src/index.css';
+createRoot(document.getElementById('root')!).render(<BrowserRouter><Routes><Route path='/admin' element={<AdminDashboard/>}/><Route path='/news' element={<News/>}/><Route path='/news/:slug' element={<NewsDetail/>}/><Route path='/' element={<InteractiveFeaturesSection/>}/></Routes><Toaster/></BrowserRouter>);
