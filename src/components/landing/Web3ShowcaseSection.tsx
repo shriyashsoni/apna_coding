@@ -1,60 +1,8 @@
-import React, { useEffect, useRef } from "react";
-import Hls from "hls.js";
+import { HlsVideo } from "./HlsVideo";
 import { ArrowUpRight, Play, ArrowRight } from "lucide-react";
 import { Link } from "react-router";
 
 export function Web3ShowcaseSection() {
-  const videoRef1 = useRef<HTMLVideoElement>(null);
-  const videoRef2 = useRef<HTMLVideoElement>(null);
-  const videoRef3 = useRef<HTMLVideoElement>(null);
-
-  useEffect(() => {
-    const videoStreams = [
-      {
-        ref: videoRef1,
-        src: "https://stream.mux.com/1RdbcBtpEUK6501pc6yaIvwo9UfSnOg02k1uHxat00xR3w.m3u8",
-      },
-      {
-        ref: videoRef2,
-        src: "https://stream.mux.com/t1TbTB8M1VYHkhxBuap4A8Vm1x015HTHyuQxqchDBago.m3u8",
-      },
-      {
-        ref: videoRef3,
-        src: "https://stream.mux.com/6yvj9SR5bjmXq9N3ak7gy427RwUs8R2ZoH4ndA7Q1018.m3u8",
-      },
-    ];
-
-    const hlsInstances: Hls[] = [];
-
-    videoStreams.forEach(({ ref, src }) => {
-      const video = ref.current;
-      if (!video) return;
-
-      if (Hls.isSupported()) {
-        const hls = new Hls({
-          capLevelToPlayerSize: true,
-          maxBufferLength: 10,
-        });
-        hls.loadSource(src);
-        hls.attachMedia(video);
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          video.play().catch((e) => console.log("Play failed", e));
-        });
-        hlsInstances.push(hls);
-      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        // Native HLS for Safari
-        video.src = src;
-        video.addEventListener("loadedmetadata", () => {
-          video.play().catch((e) => console.log("Play failed", e));
-        });
-      }
-    });
-
-    return () => {
-      hlsInstances.forEach((hls) => hls.destroy());
-    };
-  }, []);
-
   return (
     <section className="min-h-screen lg:h-screen flex flex-col lg:overflow-hidden bg-[#000000] text-foreground py-16 lg:py-24 relative z-10 font-['Poppins'] border-t border-border/30">
       <div className="container mx-auto px-5 lg:px-16 flex-1 flex flex-col justify-between h-full gap-8">
@@ -124,13 +72,8 @@ export function Web3ShowcaseSection() {
             <div className="relative rounded-[1.5rem] lg:rounded-[2.5rem] liquid-glass overflow-hidden flex-1 flex flex-col justify-between p-6 lg:p-10 group shadow-xl min-h-[260px] lg:min-h-0">
               {/* Background Video */}
               <div className="absolute inset-0 z-0">
-                <video
-                  ref={videoRef1}
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
+                <HlsVideo
+                  src="https://stream.mux.com/1RdbcBtpEUK6501pc6yaIvwo9UfSnOg02k1uHxat00xR3w.m3u8"
                   className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-[1.5s]"
                 />
               </div>
@@ -160,13 +103,8 @@ export function Web3ShowcaseSection() {
               <div className="relative rounded-[1.5rem] lg:rounded-[2.5rem] liquid-glass overflow-hidden flex flex-col justify-between p-6 lg:p-8 group shadow-lg min-h-[200px] sm:min-h-0">
                 {/* Background HLS Video */}
                 <div className="absolute inset-0 z-0">
-                  <video
-                    ref={videoRef2}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
+                  <HlsVideo
+                    src="https://stream.mux.com/t1TbTB8M1VYHkhxBuap4A8Vm1x015HTHyuQxqchDBago.m3u8"
                     className="absolute w-[150%] h-[150%] max-w-none object-cover opacity-45 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 group-hover:scale-105 transition-transform duration-[1.5s]"
                   />
                 </div>
@@ -198,13 +136,8 @@ export function Web3ShowcaseSection() {
               <div className="relative rounded-[1.5rem] lg:rounded-[2.5rem] liquid-glass overflow-hidden flex flex-col justify-between p-6 lg:p-8 group shadow-lg min-h-[200px] sm:min-h-0">
                 {/* Background HLS Video */}
                 <div className="absolute inset-0 z-0">
-                  <video
-                    ref={videoRef3}
-                    autoPlay
-                    muted
-                    loop
-                    playsInline
-                    preload="auto"
+                  <HlsVideo
+                    src="https://stream.mux.com/6yvj9SR5bjmXq9N3ak7gy427RwUs8R2ZoH4ndA7Q1018.m3u8"
                     className="absolute w-[280%] h-[280%] max-w-none object-cover opacity-45 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 group-hover:scale-105 transition-transform duration-[1.5s]"
                   />
                 </div>

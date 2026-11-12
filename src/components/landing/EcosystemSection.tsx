@@ -19,7 +19,7 @@ export function EcosystemSection() {
           </p>
           <span className="inline-flex items-center gap-2 text-sm font-medium text-foreground bg-muted/20 border border-border/50 rounded-full px-4 py-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-foreground animate-pulse" />
-            Engaging with 80+ Web3 Communities Worldwide
+            Discover Web3 ecosystems and tools
           </span>
         </motion.div>
         

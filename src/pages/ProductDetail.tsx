@@ -206,7 +206,7 @@ export default function ProductDetail() {
     return null;
   }
 
-  if (product === undefined) {
+  if (loading || product === undefined) {
     return (
       <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
         <Navbar />

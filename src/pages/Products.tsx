@@ -257,9 +257,9 @@ Perfect for developers and users looking to explore ${formData.category || "Web3
 
       <main className="flex-1 container mx-auto px-4 pt-32 pb-12">
         <div className="mb-12">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
             <div>
-              <h1 className="text-4xl font-bold mb-2 cyber-glitch" data-text="Web3 Products">
+              <h1 className="text-3xl sm:text-4xl font-bold mb-2 cyber-glitch" data-text="Web3 Products">
                 Web3 Products
               </h1>
               <p className="text-muted-foreground">
@@ -284,12 +284,12 @@ Perfect for developers and users looking to explore ${formData.category || "Web3
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <CardTitle className="flex items-center gap-2">
+                      <CardTitle className="flex items-center gap-2 break-words min-w-0">
                         <Package className="h-5 w-5" />
                         {product.name}
                       </CardTitle>
                       {isEthGlobalShowcase(product.website_url) && <Badge variant="secondary" className="mt-2">Third-party prototype</Badge>}
-                      <CardDescription className="mt-2">
+                      <CardDescription className="mt-2 line-clamp-4 break-words">
                         {product.description}
                       </CardDescription>
                     </div>

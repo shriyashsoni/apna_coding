@@ -1,3 +1,4 @@
+import { HlsVideo } from "@/components/landing/HlsVideo";
 import { motion } from "framer-motion";
 import { Plus, Shield, Coins, Globe } from "lucide-react";
 
@@ -36,12 +37,7 @@ export function SmartWorkflow() {
             className="md:col-span-1 md:row-span-2 rounded-3xl p-8 relative overflow-hidden group flex flex-col justify-between border border-white/10 bg-[#121212] hover:border-white/20 transition-all min-h-[500px] md:min-h-0"
           >
             {/* Background Media Placeholder */}
-            <div 
-              className="absolute inset-0 z-0"
-              dangerouslySetInnerHTML={{
-                __html: `<video src="/videos/8675541-hd_1920_1080_30fps.mp4" autoplay loop muted playsinline class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60"></video>`
-              }}
-            />
+            <div className="absolute inset-0 z-0"><HlsVideo src="/videos/8675541-hd_1920_1080_30fps.mp4" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60" /></div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40 z-0" />
             
             {/* Top Row */}
@@ -75,12 +71,7 @@ export function SmartWorkflow() {
             className="md:col-span-2 md:row-span-1 rounded-3xl p-8 relative overflow-hidden group flex flex-col justify-between border border-white/10 bg-[#121212] hover:border-white/20 transition-all min-h-[300px] md:min-h-0"
           >
             {/* Background Media Placeholder */}
-            <div 
-              className="absolute inset-0 z-0"
-              dangerouslySetInnerHTML={{
-                __html: `<video src="/videos/14630687_1920_1080_30fps.mp4" autoplay loop muted playsinline class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60"></video>`
-              }}
-            />
+            <div className="absolute inset-0 z-0"><HlsVideo src="/videos/14630687_1920_1080_30fps.mp4" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60" /></div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40 z-0" />
 
             <div className="flex justify-between items-start relative z-10 w-full">
@@ -107,12 +98,7 @@ export function SmartWorkflow() {
             className="md:col-span-1 md:row-span-1 rounded-3xl p-8 relative overflow-hidden group flex flex-col justify-between border border-white/10 bg-[#121212] hover:border-white/20 transition-all min-h-[300px] md:min-h-0"
           >
             {/* Background Media Placeholder */}
-            <div 
-              className="absolute inset-0 z-0"
-              dangerouslySetInnerHTML={{
-                __html: `<video src="/videos/11387730-hd_1920_1080_30fps.mp4" autoplay loop muted playsinline class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60"></video>`
-              }}
-            />
+            <div className="absolute inset-0 z-0"><HlsVideo src="/videos/11387730-hd_1920_1080_30fps.mp4" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60" /></div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40 z-0" />
 
             <div className="flex justify-between items-start relative z-10 w-full mb-8">
@@ -139,12 +125,7 @@ export function SmartWorkflow() {
             className="md:col-span-1 md:row-span-1 rounded-3xl p-8 relative overflow-hidden group flex flex-col justify-between border border-white/10 bg-[#121212] hover:border-white/20 transition-all min-h-[300px] md:min-h-0"
           >
             {/* Background Media Placeholder */}
-            <div 
-              className="absolute inset-0 z-0"
-              dangerouslySetInnerHTML={{
-                __html: `<video src="/videos/7782667-hd_1080_1920_25fps.mp4" autoplay loop muted playsinline class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60"></video>`
-              }}
-            />
+            <div className="absolute inset-0 z-0"><HlsVideo src="/videos/7782667-hd_1080_1920_25fps.mp4" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-60" /></div>
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40 z-0" />
 
             <div className="flex justify-between items-start relative z-10 w-full">
