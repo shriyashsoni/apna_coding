@@ -49,7 +49,10 @@ const PRODUCT_CATEGORIES = [
 
 import { PublicSubmissionDialog } from "@/components/PublicSubmissionDialog";
 
+import { isEthGlobalShowcase } from "@/utils/product-visibility";
+
 export default function Products() {
+  const [productsError, setProductsError] = useState("");
   const [products, setProducts] = useState<any[] | null>(null);
   const [featuredProducts, setFeaturedProducts] = useState<any[] | null>(null);
   const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
@@ -84,17 +87,19 @@ export default function Products() {
 
   const fetchProducts = async () => {
     try {
+      setProductsError("");
       const { data, error } = await supabase
         .from("products")
-        .select(`
-          *,
-          author:users!author_id(*)
-        `)
+        .select("*")
+        .eq("status", "approved")
+        .eq("is_approved", true)
         .order("created_at", { ascending: false });
       
       if (error) throw error;
       setProducts(data);
     } catch (error) {
+      setProductsError("Could not load products. Please try again.");
+      setProducts([]);
       console.error("Error fetching products:", error);
     }
   };
@@ -104,6 +109,8 @@ export default function Products() {
       const { data, error } = await supabase
         .from("products")
         .select("*")
+        .eq("status", "approved")
+        .eq("is_approved", true)
         .eq("is_featured", true)
         .order("created_at", { ascending: false });
       
@@ -281,6 +288,7 @@ Perfect for developers and users looking to explore ${formData.category || "Web3
                         <Package className="h-5 w-5" />
                         {product.name}
                       </CardTitle>
+                      {isEthGlobalShowcase(product.website_url) && <Badge variant="secondary" className="mt-2">Third-party prototype</Badge>}
                       <CardDescription className="mt-2">
                         {product.description}
                       </CardDescription>
@@ -312,6 +320,7 @@ Perfect for developers and users looking to explore ${formData.category || "Web3
           />
         )}
 
+        {productsError && <div role="alert" className="mb-6 space-y-2"><p>{productsError}</p><Button variant="outline" onClick={fetchProducts}>Try Again</Button></div>}
         {/* Products Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {!products ? (
@@ -326,7 +335,7 @@ Perfect for developers and users looking to explore ${formData.category || "Web3
                 </CardContent>
               </Card>
             ))
-          ) : products.length === 0 ? (
+          ) : productsError ? null : products.length === 0 ? (
             <div className="col-span-full text-center py-20 border border-dashed border-primary/20 rounded-lg">
               <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-xl font-bold mb-2">No products yet</h3>
@@ -345,11 +354,13 @@ Perfect for developers and users looking to explore ${formData.category || "Web3
               >
                 <Link to={`/products/${product.slug}`}>
                   <Card className="h-full hover:border-primary/30 transition-all cursor-pointer">
+                    {product.image_url && <img src={product.image_url} alt={product.name} className="w-full h-48 object-contain bg-background" />}
                     <CardHeader>
                       <div className="flex justify-between items-start mb-2">
-                        <Badge variant="outline" className="border-primary/50 text-primary">
-                          {product.category}
-                        </Badge>
+                        <div className="flex flex-wrap gap-2">
+                          <Badge variant="outline" className="border-primary/50 text-primary">{product.category}</Badge>
+                          {isEthGlobalShowcase(product.website_url) && <Badge variant="secondary">Third-party prototype</Badge>}
+                        </div>
                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Eye className="h-3 w-3" /> {product.views}
@@ -383,7 +394,7 @@ Perfect for developers and users looking to explore ${formData.category || "Web3
                             <User className="h-3 w-3" />
                           </AvatarFallback>
                         </Avatar>
-                        <span>{product.author?.name || "Anonymous"}</span>
+                        <span>{isEthGlobalShowcase(product.website_url) ? "Curated from ETHGlobal. Creator/source credits in details." : "Community-submitted product"}</span>
                       </div>
 
                       <div className="flex gap-2 pt-2">

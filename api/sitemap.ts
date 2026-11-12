@@ -205,14 +205,15 @@ export default async function handler(req: any, res: any) {
     if (sitemapType === 'products') {
       const { data: products } = await supabase
         .from('products')
-        .select('slug, updated_at');
+        .select('slug, created_at')
+        .eq('status', 'approved').eq('is_approved', true);
 
       const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   ${(products || []).map(p => `
   <url>
     <loc>${siteUrl}/products/${p.slug}</loc>
-    <lastmod>${new Date(p.updated_at || Date.now()).toISOString()}</lastmod>
+    <lastmod>${new Date(p.created_at || Date.now()).toISOString()}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>`).join('')}

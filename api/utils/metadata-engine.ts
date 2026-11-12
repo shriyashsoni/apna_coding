@@ -120,6 +120,7 @@ export async function getMetadataForPath(path: string) {
       .single();
 
     if (!data) throw new Error('Not found');
+    if (type === 'products' && (data.status !== 'approved' || data.is_approved !== true)) throw new Error('Not published');
 
     const getVal = (field: string | string[]) => {
       if (Array.isArray(field)) {

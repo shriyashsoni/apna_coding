@@ -23,6 +23,7 @@ export default function News() {
       const { data, error } = await supabase
         .from("news")
         .select("*")
+        .eq("is_published", true)
         .order("created_at", { ascending: false });
       
       if (error) throw error;

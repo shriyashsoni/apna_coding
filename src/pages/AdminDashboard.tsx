@@ -37,6 +37,8 @@ import { BackupRestore } from "@/components/admin/BackupRestore";
 import { SettingsManager } from "@/components/admin/SettingsManager";
 import { BulkImport } from "@/components/admin/BulkImport";
 import { BulkEmailSender } from "@/components/admin/BulkEmailSender";
+import { ProductManager } from "@/components/admin/ProductManager";
+import { NewsPostEditor } from "@/components/admin/NewsPostEditor";
 import { GlobalContentExplorer } from "@/components/admin/GlobalContentExplorer";
 import { AutonomousAgentManager } from "@/components/admin/AutonomousAgentManager";
 import { scrapeContentDirectly } from "@/utils/frontend-scraper";
@@ -114,6 +116,9 @@ export default function AdminDashboard() {
   const [allJobs, setAllJobs] = useState<any[]>([]);
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [allNews, setAllNews] = useState<any[]>([]);
+  const [editingNews, setEditingNews] = useState<any>(null);
+  const [newsMutationId, setNewsMutationId] = useState<string | null>(null);
+  const [newsStatusError, setNewsStatusError] = useState("");
   const [loading, setLoading] = useState(true);
 
   // Pagination statuses
@@ -248,7 +253,7 @@ export default function AdminDashboard() {
         supabase.from('events').select('*').limit(10),
         supabase.from('jobs').select('*').limit(10),
         supabase.from('products').select('*').limit(10),
-        supabase.from('news').select('*').limit(10)
+        supabase.from('news').select('*').order('created_at', { ascending: false }).order('id', { ascending: false }).limit(10)
       ]);
 
       setAllUsers(usersList || []);
@@ -257,6 +262,7 @@ export default function AdminDashboard() {
       setAllJobs(jobsList || []);
       setAllProducts(productsList || []);
       setAllNews(newsList || []);
+      setNewsStatus((newsList || []).length < (newsCount || 0) ? "CanLoadMore" : "AllLoaded");
 
     } catch (error) {
       console.error("Error fetching admin data:", error);
@@ -489,21 +495,42 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleToggleFeaturedNews = async (id: any, currentStatus: boolean) => {
-    if (!address) return;
+  const handleTogglePublishedNews = async (id: string, published: boolean) => {
+    if (newsMutationId) return;
+    setNewsMutationId(id);
+    setNewsStatusError("");
     try {
-      const { error } = await supabase
-        .from('news')
-        .update({ is_featured: !currentStatus })
-        .eq('id', id);
-
+      const { data, error } = await supabase.from('news')
+        .update({ is_published: published }).eq('id', id)
+        .select('id, is_published').single();
       if (error) throw error;
-      
-      toast.success(`News ${!currentStatus ? 'featured' : 'unfeatured'}`);
-      fetchAdminData();
+      if (!data || data.is_published !== published) {
+        throw new Error("The server did not confirm the publish change. Refresh before retrying.");
+      }
+      setAllNews(posts => posts.map(post => post.id === id ? { ...post, is_published: data.is_published } : post));
+      toast.success(published ? "News post published" : "News post saved as draft");
     } catch (error: any) {
-      toast.error(error.message || "Failed to toggle featured status");
-    }
+      setNewsStatusError(error.message || "Failed to update publish status. The previous state is still shown.");
+    } finally { setNewsMutationId(null); }
+  };
+
+  const handleToggleFeaturedNews = async (id: string, currentStatus: boolean) => {
+    if (!address || newsMutationId) return;
+    setNewsMutationId(id);
+    setNewsStatusError("");
+    try {
+      const { data, error } = await supabase.from('news')
+        .update({ is_featured: !currentStatus }).eq('id', id)
+        .select('id, is_featured').single();
+      if (error) throw error;
+      if (!data || data.is_featured !== !currentStatus) {
+        throw new Error("The server did not confirm the featured change. Refresh before retrying.");
+      }
+      setAllNews(posts => posts.map(post => post.id === id ? { ...post, is_featured: data.is_featured } : post));
+      toast.success(`News ${!currentStatus ? 'featured' : 'unfeatured'}`);
+    } catch (error: any) {
+      setNewsStatusError(error.message || "Failed to update featured status. The previous state is still shown.");
+    } finally { setNewsMutationId(null); }
   };
 
   const handleAddLeaderboardEntry = async () => {
@@ -836,7 +863,7 @@ export default function AdminDashboard() {
 
   const loadMoreNews = async (count: number) => {
     setNewsStatus("Loading");
-    const { data } = await supabase.from('news').select('*').range(allNews.length, allNews.length + count - 1);
+    const { data } = await supabase.from('news').select('*').order('created_at', { ascending: false }).order('id', { ascending: false }).range(allNews.length, allNews.length + count - 1);
     if (data && data.length > 0) {
       setAllNews([...allNews, ...data]);
       if (data.length < count) setNewsStatus("AllLoaded");
@@ -1462,57 +1489,7 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
 
-              {/* Products Section */}
-              <Card className="border-primary/20 bg-card/50">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="h-5 w-5 text-accent" />
-                    Manage Products
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {allProducts?.map((product: any) => (
-                      <div key={product.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-primary/10">
-                        <div className="flex-1">
-                          <p className="font-semibold">{product.name}</p>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
-                          <div className="flex gap-2 mt-2">
-                            <Badge variant="outline">{product.category}</Badge>
-                            <Badge variant={product.is_published ? "default" : "secondary"}>
-                              {product.is_published ? "Published" : "Draft"}
-                            </Badge>
-                            <Badge variant="outline">{product.likes} likes</Badge>
-                            <Badge variant="outline">{product.views} views</Badge>
-                            {product.is_featured && <Badge variant="default"><Star className="h-3 w-3 mr-1" />Featured</Badge>}
-                          </div>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Switch
-                              checked={product.is_featured || false}
-                              onCheckedChange={() => handleToggleFeaturedProduct(product.id, product.is_featured || false)}
-                            />
-                            <Label className="text-xs cursor-pointer" onClick={() => handleToggleFeaturedProduct(product.id, product.is_featured || false)}>
-                              {product.is_featured ? '⭐ Featured' : '☆ Not Featured'}
-                            </Label>
-                          </div>
-                        </div>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteProduct(product.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                    {productsStatus === "CanLoadMore" && (
-                      <Button onClick={() => loadMoreProducts(10)} variant="outline" className="w-full">
-                        Load More Products
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <ProductManager />
             </TabsContent>
 
             {/* Admins Tab */}
@@ -1971,21 +1948,23 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
+                    {newsStatusError && <p role="alert" className="text-destructive">{newsStatusError}</p>}
                     {allNews && allNews.length > 0 ? (
                       allNews.map((post: any) => (
                         <div
                           key={post.id}
-                          className="flex items-start justify-between p-4 border border-primary/20 rounded-lg bg-background/30"
+                          data-news-id={post.id}
+                          className="flex flex-col sm:flex-row items-start justify-between gap-3 p-4 border border-primary/20 rounded-lg bg-background/30"
                         >
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-2">
-                              <h3 className="font-semibold">{post.title}</h3>
-                              <Badge variant={post.isPublished ? "default" : "secondary"}>
-                                {post.isPublished ? "Published" : "Draft"}
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2 mb-2">
+                              <h3 className="font-semibold break-words">{post.title}</h3>
+                              <Badge variant={post.is_published ? "default" : "secondary"}>
+                                {post.is_published ? "Published" : "Draft"}
                               </Badge>
-                              {post.isFeatured && <Badge variant="default"><Star className="h-3 w-3 mr-1" />Featured</Badge>}
+                              {post.is_featured && <Badge variant="default"><Star className="h-3 w-3 mr-1" />Featured</Badge>}
                             </div>
-                            <p className="text-sm text-muted-foreground mb-2">
+                            <p className="text-sm text-muted-foreground mb-2 break-all">
                               /{post.slug}
                             </p>
                             <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -2001,16 +1980,29 @@ export default function AdminDashboard() {
                                 {post.category}
                               </Badge>
                             </div>
-                            <div className="flex items-center gap-2 mt-2">
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
                               <Switch
+                                id={`news-published-${post.id}`}
+                                checked={!!post.is_published}
+                                disabled={newsMutationId !== null}
+                                onCheckedChange={value => handleTogglePublishedNews(post.id, value)}
+                              />
+                              <Label htmlFor={`news-published-${post.id}`} className="text-xs">Published</Label>
+                              <Switch
+                                id={`news-featured-${post.id}`}
+                                disabled={newsMutationId !== null}
                                 checked={post.is_featured || false}
                                 onCheckedChange={() => handleToggleFeaturedNews(post.id, post.is_featured || false)}
                               />
-                              <Label className="text-xs cursor-pointer" onClick={() => handleToggleFeaturedNews(post.id, post.is_featured || false)}>
+                              <Label htmlFor={`news-featured-${post.id}`} className="text-xs cursor-pointer">
                                 {post.is_featured ? '⭐ Featured' : '☆ Not Featured'}
                               </Label>
                             </div>
                           </div>
+                          <div className="flex shrink-0 gap-2">
+                          <Button variant="outline" size="sm" disabled={newsMutationId !== null} aria-label={`Edit ${post.title}`} onClick={() => setEditingNews(post)}>
+                            <Edit className="h-4 w-4 mr-1" /> Edit
+                          </Button>
                           <Button
                             variant="destructive"
                             size="sm"
@@ -2021,6 +2013,7 @@ export default function AdminDashboard() {
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
+                          </div>
                         </div>
                       ))
                     ) : (
@@ -2034,6 +2027,11 @@ export default function AdminDashboard() {
                   </div>
                 </CardContent>
               </Card>
+              <NewsPostEditor
+                post={editingNews}
+                onClose={() => setEditingNews(null)}
+                onSaved={updated => setAllNews(posts => posts.map(post => post.id === updated.id ? updated : post))}
+              />
             </TabsContent>
 
           </Tabs>

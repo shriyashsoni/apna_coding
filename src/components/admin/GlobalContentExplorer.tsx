@@ -117,7 +117,7 @@ export function GlobalContentExplorer() {
         supabase.from("hackathons").select("id, title, name, description, is_approved, is_featured, created_at, slug"),
         supabase.from("jobs").select("id, title, company, is_approved, is_featured, created_at"),
         supabase.from("news").select("id, title, is_approved, is_published, is_featured, created_at, slug, category"),
-        supabase.from("products").select("id, name, description, status, is_featured, created_at, slug, category"),
+        supabase.from("products").select("id, name, description, status, is_approved, is_featured, created_at, slug, category"),
         supabase.from("communities").select("id, name, description, is_published, is_featured, created_at, slug, category"),
       ]);
 
@@ -179,7 +179,7 @@ export function GlobalContentExplorer() {
           type: "product" as const, 
           title: i.name || "Untitled Product", 
           description: i.description, 
-          is_approved: i.status === 'approved',
+          is_approved: i.status === 'approved' && i.is_approved === true,
           is_featured: !!i.is_featured,
           created_at: i.created_at,
           slug: i.slug,

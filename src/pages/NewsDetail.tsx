@@ -44,10 +44,13 @@ export default function NewsDetail() {
 
   const fetchPostAndComments = async () => {
     setLoading(true);
+    setPost(null);
+    setComments([]);
     try {
       const { data: postData, error: postError } = await supabase
         .from("news")
         .select("*")
+        .eq("is_published", true)
         .eq("slug", slug)
         .single();
       
