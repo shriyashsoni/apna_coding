@@ -2044,14 +2044,15 @@ export default function AdminDashboard() {
                 onClose={() => setEditingNews(null)}
                 onSaved={updated => setAllNews(posts => posts.map(post => post.id === updated.id ? updated : post))}
               />
-              <EditEventDialog
-                event={editingEvent}
-                onClose={() => setEditingEvent(null)}
-                onSuccess={updated => setAllEvents(list => (list || []).map(e => e.id === updated.id ? { ...e, ...updated } : e))}
-              />
             </TabsContent>
 
           </Tabs>
+          {/* Rendered outside TabsContent so it opens from any tab (e.g. Manage Content's Manage Events). */}
+          <EditEventDialog
+            event={editingEvent}
+            onClose={() => setEditingEvent(null)}
+            onSuccess={updated => setAllEvents(list => (list || []).map(e => e.id === updated.id ? { ...e, ...updated } : e))}
+          />
         </motion.div>
       </main>
 
