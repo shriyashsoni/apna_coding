@@ -4,6 +4,7 @@ import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { OnchainProofBadge } from "@/components/OnchainProofBadge";
 import { Globe, Twitter, MessageCircle, Send, Github, Users, CheckCircle, Calendar, MapPin, Edit, Plus, Trash2, PlusCircle, Check, ShieldAlert, Sparkles, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import { SEO } from "@/components/SEO";
@@ -475,6 +476,10 @@ export default function CommunityPage() {
             )}
 
             <h1 className="text-4xl md:text-6xl font-bold mb-4">{community.name}</h1>
+
+            <div className="flex justify-center mb-4">
+              <OnchainProofBadge category="community" listing={community} />
+            </div>
 
             {community.tagline && (
               <p className="text-xl text-primary mb-6">{community.tagline}</p>

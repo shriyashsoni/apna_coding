@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { OnchainProofBadge } from "@/components/OnchainProofBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Calendar, MapPin, Clock, Users, ExternalLink, Trash2, AlertCircle } from "lucide-react";
 import { motion } from "framer-motion";
@@ -151,6 +152,7 @@ export default function EventDetail() {
                   <h1 className="text-4xl md:text-5xl font-bold mb-3 cyber-glitch" data-text={event.title}>
                     {event.title}
                   </h1>
+                  <OnchainProofBadge category="event" listing={event} className="mb-3" />
                   {event.organizer_name && (
                     <p className="text-lg text-muted-foreground">
                       Organized by <span className="text-primary font-semibold">{event.organizer_name}</span>

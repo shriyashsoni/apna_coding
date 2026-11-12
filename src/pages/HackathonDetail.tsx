@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { OnchainProofBadge } from "@/components/OnchainProofBadge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -514,6 +515,7 @@ export default function HackathonDetail() {
           <div className="container mx-auto px-4 h-full flex flex-col justify-end pb-8 relative z-10">
             <Badge className="w-fit mb-4 bg-primary/20 text-primary border-primary/50">{hackathon.status}</Badge>
             <h1 className="text-5xl font-bold mb-2 cyber-glitch" data-text={hackathon.title}>{hackathon.title}</h1>
+            <OnchainProofBadge category="hackathon" listing={hackathon} className="mb-4" />
             {hackathon.tagline && <p className="text-xl text-muted-foreground mb-4">{hackathon.tagline}</p>}
             {hackathon.organized_by && <p className="text-sm text-muted-foreground mb-4">Organized by {hackathon.organized_by}</p>}
             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
