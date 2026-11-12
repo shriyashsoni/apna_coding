@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 
-// Prefer a fast, static page on phones, reduced-motion devices and data-saving
-// connections. Re-evaluate on resize so desktop animations remain available.
+// Keep the original background motion on phones and desktop. Only explicit
+// reduced-motion or data-saving preferences select the static alternative.
 export function useLightweightMedia() {
-  const [lightweight, setLightweight] = useState(true);
+  const [lightweight, setLightweight] = useState(() =>
+    typeof window === "undefined" || window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+    !!(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData
+  );
   useEffect(() => {
-    const query = window.matchMedia("(max-width: 767px), (prefers-reduced-motion: reduce)");
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setLightweight(query.matches || !!(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
     update();
     query.addEventListener("change", update);

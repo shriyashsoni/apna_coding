@@ -19,7 +19,7 @@ export function HeroSection() {
       <div className="absolute inset-0 z-0">
         <HlsVideo 
           src="https://stream.mux.com/4IMYGcL01xjs7ek5ANO17JC4VQVUTsojZlnw4fXzwSxc.m3u8"
-          poster="https://customer-cbeadsgr09pnsezs.cloudflarestream.com/257c7359efd4b4aaebcc03aa8fc78a36/thumbnails/thumbnail.jpg"
+          poster="/video-posters/hero.jpg"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-background/80 md:bg-background/60" />

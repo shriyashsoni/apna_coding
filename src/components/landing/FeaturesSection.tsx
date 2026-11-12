@@ -48,7 +48,9 @@ function ScrollVideo({ src }: { src: string }) {
       if (!entry.isIntersecting) return;
       observer.disconnect();
       if (isMp4 || video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.preload = "auto";
         video.src = src;
+        video.load();
       } else if (Hls.isSupported()) {
         hls = new Hls({ maxBufferLength: 10, capLevelToPlayerSize: true });
         hls.loadSource(src);
@@ -176,7 +178,7 @@ function ScrollFloat({ children }: { children: string }) {
           <span 
             key={lineIdx} 
             style={{ display: "block", fontSize: "clamp(3.5rem, 11vw, 220px)" }} 
-            className="text-center font-dirtyline text-white leading-[0.85] tracking-tight uppercase"
+            className="text-center font-dirtyline text-white leading-[1.05] tracking-tight uppercase overflow-hidden"
           >
             {words.map((word, wordIdx) => {
               const chars = Array.from(word);
@@ -184,7 +186,7 @@ function ScrollFloat({ children }: { children: string }) {
                 <span 
                   key={wordIdx} 
                   style={{ display: "inline-block", whiteSpace: "nowrap" }}
-                  className="scroll-float-text mr-4 md:mr-8"
+                  className="scroll-float-text mr-4 md:mr-8 last:mr-0"
                 >
                   {chars.map((char, charIdx) => (
                     <span key={charIdx} className="char">

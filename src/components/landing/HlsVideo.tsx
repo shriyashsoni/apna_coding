@@ -20,14 +20,17 @@ export function HlsVideo({ src, poster, className = "" }: HlsVideoProps) {
     const observer = new IntersectionObserver(([entry]) => {
       if (!entry.isIntersecting) { video.pause(); return; }
       if (hls || video.getAttribute("src")) { play(); return; }
-      if (src.endsWith(".m3u8") && !video.canPlayType("application/vnd.apple.mpegurl") && Hls.isSupported()) {
+      if (src.endsWith(".m3u8") && Hls.isSupported()) {
         hls = new Hls({ capLevelToPlayerSize: true, maxBufferLength: 10 });
         hls.loadSource(src);
         hls.attachMedia(video);
         hls.on(Hls.Events.MANIFEST_PARSED, play);
       } else {
+        video.preload = "auto";
         video.src = src;
         video.addEventListener("loadedmetadata", play);
+        video.load();
+        play();
       }
     }, { rootMargin: "100px" });
     observer.observe(video);
