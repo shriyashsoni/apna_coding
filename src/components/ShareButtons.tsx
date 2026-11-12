@@ -17,6 +17,7 @@ interface ShareButtonsProps {
   description?: string;
   hashtags?: string[];
   date?: string | number;
+  timezone?: string;
   location?: string;
   type?: 'event' | 'hackathon' | 'job' | 'general';
 }
@@ -27,6 +28,7 @@ export function ShareButtons({
   description, 
   hashtags = [], 
   date, 
+  timezone,
   location, 
   type = 'general' 
 }: ShareButtonsProps) {
@@ -71,7 +73,11 @@ export function ShareButtons({
     try {
       const d = new Date(Number(date));
       if (!isNaN(d.getTime())) {
-        return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+        // Date-only events carry the explicit timezone "TBA" marker; format
+        // their day in UTC so the shared day does not shift west of UTC.
+        const options: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+        if (timezone === 'TBA' && d.getTime() % 86400000 === 0) options.timeZone = 'UTC';
+        return d.toLocaleDateString(undefined, options);
       }
       return String(date);
     } catch {

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
 import { Link } from "react-router";
 import { isSuperAdmin } from "@/lib/admin-config";
+import { formatEventDate } from "@/lib/event-date";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,11 +32,8 @@ export function EventCard({ event, index, showDelete = false, onDelete }: EventC
 
   const formatDate = (timestamp: any) => {
     if (!timestamp) return "TBA";
-    return new Date(Number(timestamp)).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
+    // UTC-aware: date-only events (UTC-midnight marker) show the right day everywhere.
+    return formatEventDate(timestamp, false, event.timezone);
   };
 
   const handleDelete = async () => {
