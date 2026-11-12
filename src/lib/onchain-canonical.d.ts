@@ -1,0 +1,10 @@
+export const ONCHAIN_PROOF_VERSION: string;
+export const CATEGORY_PATH: Record<string, string>;
+export const PROOF_FIELDS: Record<string, string[]>;
+export function norm(value: unknown): string;
+export function deepCanonical(value: unknown): string;
+export function slugOf(row: any): string;
+export function titleOf(row: any): string;
+export function pageUrlOf(category: string, row: any): string;
+export function canonicalPayload(category: string, row: any): string;
+export function contentHashOf(category: string, row: any): string;

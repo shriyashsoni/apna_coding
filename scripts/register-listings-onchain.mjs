@@ -33,6 +33,14 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ethers } from "ethers";
+import {
+  ONCHAIN_PROOF_VERSION,
+  PROOF_FIELDS,
+  contentHashOf,
+  norm,
+  pageUrlOf,
+  titleOf,
+} from "../src/lib/onchain-canonical.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const artifact = JSON.parse(
@@ -48,9 +56,6 @@ const RPC_URL =
   process.env.SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com";
 const CHAIN_ID = 11155111;
 const EXPLORER = "https://sepolia.etherscan.io";
-const VERSION = "apna-coding-listing-v1";
-const PRUNE = process.argv.includes("--prune");
-
 const CATEGORY_ENUM = {
   hackathon: 0,
   job: 1,
@@ -59,36 +64,17 @@ const CATEGORY_ENUM = {
   community: 4,
   product: 5,
 };
-const CATEGORY_PATH = {
-  hackathon: "/hackathons/",
-  job: "/jobs/",
-  news: "/news/",
-  event: "/events/",
-  community: "/community/",
-  product: "/products/",
-};
+
 const TABLES = [
-  { category: "hackathon", table: "hackathons", filter: "", select: "id,title,name,slug" },
-  { category: "job", table: "jobs", filter: "", select: "id,title,slug" },
-  { category: "news", table: "news", filter: "&is_published=eq.true", select: "id,title,slug" },
-  { category: "event", table: "events", filter: "", select: "id,title,slug" },
-  { category: "community", table: "communities", filter: "&is_published=eq.true", select: "id,name,slug" },
-  { category: "product", table: "products", filter: "&status=eq.approved&is_approved=eq.true", select: "id,name,slug" },
+  { category: "hackathon", table: "hackathons", filter: "" },
+  { category: "job", table: "jobs", filter: "" },
+  { category: "news", table: "news", filter: "&is_published=eq.true" },
+  { category: "event", table: "events", filter: "" },
+  { category: "community", table: "communities", filter: "&is_published=eq.true" },
+  { category: "product", table: "products", filter: "&status=eq.approved&is_approved=eq.true" },
 ];
 
-// ---- canonicalization (MUST match src/lib/onchain-proof.ts) ----
-const norm = (v) =>
-  String(v ?? "")
-    .normalize("NFC")
-    .trim();
-const slugOf = (row) => norm(row.slug) || norm(row.id);
-const titleOf = (row) => norm(row.title) || norm(row.name);
-const pageUrlOf = (category, row) =>
-  `https://www.apnacoding.com${CATEGORY_PATH[category]}${slugOf(row)}`;
-const canonicalPayload = (category, row) =>
-  [VERSION, category, norm(row.id), titleOf(row), norm(row.slug), pageUrlOf(category, row)].join("\n");
-const contentHashOf = (category, row) =>
-  ethers.keccak256(ethers.toUtf8Bytes(canonicalPayload(category, row)));
+const PRUNE = process.argv.includes("--prune");
 
 async function fetchRows(table, filter, select) {
   const rows = [];
@@ -159,6 +145,8 @@ async function main() {
   proofs.contract = address;
   proofs.chainId = CHAIN_ID;
   proofs.explorer = EXPLORER;
+  proofs.version = ONCHAIN_PROOF_VERSION;
+  proofs.proofFields = PROOF_FIELDS;
   proofs.categories = proofs.categories || {};
 
   function flush() {
@@ -178,7 +166,8 @@ async function main() {
   // Phase 1: decide what needs a transaction.
   const work = [];
   const seen = {};
-  for (const { category, table, filter, select } of TABLES) {
+  for (const { category, table, filter } of TABLES) {
+    const select = [...new Set(["id", ...PROOF_FIELDS[category]])].join(",");
     const rows = await fetchRows(table, filter, select);
     console.log(`\n${category}: ${rows.length} public rows from ${table}`);
     proofs.categories[category] = proofs.categories[category] || {};

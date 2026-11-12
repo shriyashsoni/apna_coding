@@ -1,4 +1,14 @@
-import { keccak256, toUtf8Bytes } from "ethers";
+import {
+  ONCHAIN_PROOF_VERSION,
+  PROOF_FIELDS,
+  canonicalPayload,
+  contentHashOf as sharedContentHashOf,
+  deepCanonical,
+  norm,
+  pageUrlOf,
+  slugOf,
+  titleOf,
+} from "./onchain-canonical.js";
 
 /**
  * On-chain listing proofs (Sepolia testnet).
@@ -8,22 +18,21 @@ import { keccak256, toUtf8Bytes } from "ethers";
  * listing. The contract stores only public directory fields: the listing's
  * Supabase ID, its title and a keccak256 content hash.
  *
- * The content hash is computed over a canonical payload so anyone can
- * reproduce it:
- *
- *   keccak256( UTF8( [
- *     "apna-coding-listing-v1",
- *     category,            // "hackathon" | "job" | "news" | "event" | "community" | "product"
- *     contentId,           // Supabase row id (uuid)
- *     title,               // NFC-normalized, trimmed
- *     slug,                // NFC-normalized, trimmed, "" when the row has no slug
- *     pageUrl              // canonical public page URL
- *   ].join("\n") ) )
+ * The content hash (v2) covers the substantive PUBLIC content shown on the
+ * detail page - identity, title, body/description, dates, location,
+ * prize/salary, links and public media references - canonicalized by
+ * src/lib/onchain-canonical.js, the single implementation shared with the
+ * registrar script. Volatile counters (views, likes, member_count) and
+ * private/admin fields (wallets, approval metadata) are deliberately
+ * excluded.
  *
  * The badge on each listing page recomputes this hash from the live listing
  * row and only renders when it matches the hash captured in the registration
- * transaction. If a listing is edited after anchoring, the badge hides itself
- * instead of attesting stale content, until the listing is re-registered.
+ * transaction. It is a listing record/content proof: it attests that this
+ * public listing content was anchored on Sepolia at a point in time. It is
+ * NOT a verification of the opportunity's legitimacy, the organizer, or any
+ * partnership. An edited listing loses its badge instead of showing a stale
+ * proof, until it is re-registered on-chain.
  */
 
 export type OnchainCategory =
@@ -34,7 +43,18 @@ export type OnchainCategory =
   | "community"
   | "product";
 
-export const ONCHAIN_PROOF_VERSION = "apna-coding-listing-v1";
+// Re-export the shared canonicalization so existing imports keep working.
+export {
+  ONCHAIN_PROOF_VERSION,
+  PROOF_FIELDS,
+  canonicalPayload as canonicalProofPayload,
+  deepCanonical,
+  norm as normalizeField,
+  pageUrlOf as listingPageUrl,
+  slugOf as listingSlug,
+  titleOf as listingTitle,
+};
+export { canonicalPayload };
 
 export const ONCHAIN_CHAIN_ID = 11155111; // Ethereum Sepolia testnet
 export const ONCHAIN_CHAIN_NAME = "Sepolia testnet";
@@ -42,48 +62,8 @@ export const ONCHAIN_REGISTRY_ADDRESS =
   "0x84D6aB007816f678FCa2C19e43268043B3323254" as const; // set by scripts/register-listings-onchain.mjs
 export const ONCHAIN_EXPLORER = "https://sepolia.etherscan.io";
 
-const CATEGORY_PATH: Record<OnchainCategory, string> = {
-  hackathon: "/hackathons/",
-  job: "/jobs/",
-  news: "/news/",
-  event: "/events/",
-  community: "/community/",
-  product: "/products/",
-};
-
-export function normalizeField(value: unknown): string {
-  return String(value ?? "")
-    .normalize("NFC")
-    .trim();
-}
-
-export function listingSlug(category: OnchainCategory, listing: any): string {
-  // Mirrors how the site's cards build detail links: slug when present, id otherwise.
-  return normalizeField(listing?.slug) || normalizeField(listing?.id);
-}
-
-export function listingTitle(category: OnchainCategory, listing: any): string {
-  // hackathons/communities/products use `name`; jobs/news/events use `title`.
-  return normalizeField(listing?.title) || normalizeField(listing?.name);
-}
-
-export function listingPageUrl(category: OnchainCategory, listing: any): string {
-  return `https://www.apnacoding.com${CATEGORY_PATH[category]}${listingSlug(category, listing)}`;
-}
-
-export function canonicalProofPayload(category: OnchainCategory, listing: any): string {
-  return [
-    ONCHAIN_PROOF_VERSION,
-    category,
-    normalizeField(listing?.id),
-    listingTitle(category, listing),
-    normalizeField(listing?.slug),
-    listingPageUrl(category, listing),
-  ].join("\n");
-}
-
 export function contentHashOf(category: OnchainCategory, listing: any): string {
-  return keccak256(toUtf8Bytes(canonicalProofPayload(category, listing)));
+  return sharedContentHashOf(category, listing);
 }
 
 export interface OnchainProof {
@@ -100,6 +80,8 @@ export type OnchainProofsFile = {
   chainId: number;
   explorer: string;
   generatedAt: string;
+  version?: string;
+  proofFields?: { [category: string]: string[] };
   categories: {
     [category: string]: {
       [contentId: string]: OnchainProof;
@@ -113,10 +95,14 @@ export function proofFor(
   listing: any,
 ): OnchainProof | null {
   if (!proofs || !listing?.id) return null;
-  const proof = proofs.categories?.[category]?.[normalizeField(listing.id)];
+  const proof = proofs.categories?.[category]?.[norm(listing.id)];
   if (!proof) return null;
   // Only attest when the live row still matches the anchored content.
-  if (proof.contentHash.toLowerCase() !== contentHashOf(category, listing).toLowerCase()) return null;
+  if (
+    proof.contentHash.toLowerCase() !==
+    sharedContentHashOf(category, listing).toLowerCase()
+  )
+    return null;
   return proof;
 }
 

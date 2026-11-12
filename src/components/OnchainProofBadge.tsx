@@ -12,7 +12,10 @@ import {
 import proofsData from "@/data/onchain-proofs.json";
 
 /**
- * Shows the Sepolia on-chain proof for a public listing.
+ * Shows the Sepolia on-chain listing proof for a public listing: the listing's
+ * public content was anchored on Sepolia at registration time. This is a
+ * record/content proof only - not a verification of the opportunity's
+ * legitimacy, its organizer, or any partnership.
  *
  * Renders nothing unless the listing has a registration transaction whose
  * stored content hash still matches the live listing row (see
@@ -44,7 +47,7 @@ export function OnchainProofBadge({
       data-testid="onchain-proof-badge"
     >
       <ShieldCheck className="h-4 w-4 text-emerald-400" />
-      <span className="text-emerald-300 font-medium">On-chain proof</span>
+      <span className="text-emerald-300 font-medium">On-chain listing proof</span>
       <a
         href={txUrl(proof.txHash)}
         target="_blank"
