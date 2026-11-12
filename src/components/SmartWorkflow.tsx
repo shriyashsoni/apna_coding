@@ -10,13 +10,13 @@ export function SmartWorkflow() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
           <div>
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight mb-4 text-white">
-              Decentralized Workflow.
+              Opportunity Workflow.
             </h2>
             <h3 className="text-2xl md:text-4xl font-medium tracking-tight text-white/50 mb-2">
-              From Idea to <span className="font-serif italic">On-Chain</span> Reality.
+              From Draft to <span className="font-serif italic">Discovery.</span>
             </h3>
             <p className="text-lg text-white/40 max-w-xl">
-              Experience the most secure and transparent way to share opportunities in the Web3 ecosystem.
+              Share opportunities and review the requirements for each submission route.
             </p>
           </div>
           <button className="rounded-full px-6 py-3 border border-white/10 bg-white/5 hover:bg-white/10 backdrop-blur-md text-white transition-all text-sm font-medium shrink-0">
@@ -75,7 +75,7 @@ export function SmartWorkflow() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40 z-0" />
 
             <div className="flex justify-between items-start relative z-10 w-full">
-              <h3 className="text-2xl md:text-3xl font-bold text-white max-w-md">Ethereum Smart Contract Staking</h3>
+              <h3 className="text-2xl md:text-3xl font-bold text-white max-w-md">Testnet Submission Staking</h3>
               <span className="text-xs font-mono text-white/60">02/</span>
             </div>
             
@@ -84,7 +84,7 @@ export function SmartWorkflow() {
                 <Coins className="w-6 h-6 text-white" />
               </div>
               <p className="text-white/60 text-sm max-w-sm md:text-right">
-                A small 0.01 ETH anti-spam stake is processed through our secure Ethereum smart contract. Fully refundable.
+                The configured flow requests 0.01 Sepolia test ETH. The repository's refund logic is conditional on admin approval; check the deployed contract and transaction before submitting. Refunds are not guaranteed.
               </p>
             </div>
           </motion.div>
@@ -102,17 +102,17 @@ export function SmartWorkflow() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40 z-0" />
 
             <div className="flex justify-between items-start relative z-10 w-full mb-8">
-              <span className="text-sm font-medium text-white/80">Protocol Verification</span>
+              <span className="text-sm font-medium text-white/80">Submission Records</span>
               <span className="text-xs font-mono text-white/60">03/</span>
             </div>
 
             <div className="relative z-10 mt-auto">
               <p className="text-white/60 text-sm leading-relaxed mb-6">
-                Your data is permanently anchored to the blockchain, creating an immutable record.
+                A transaction can record a submission reference on-chain. This does not make the website's content immutable or verify its accuracy.
               </p>
-              <button className="rounded-full px-5 py-2.5 border border-white/20 bg-transparent hover:bg-white/10 text-white transition-all text-xs font-medium">
-                Verify on Explorer
-              </button>
+              <p className="text-white/50 text-xs leading-relaxed">
+                Check the network and transaction details in your wallet.
+              </p>
             </div>
           </motion.div>
 

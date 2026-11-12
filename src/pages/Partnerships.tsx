@@ -31,6 +31,7 @@ export default function Partnerships() {
       const { data, error } = await supabase
         .from('communities')
         .select('*')
+        .eq('is_published', true)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
@@ -126,14 +127,30 @@ export default function Partnerships() {
 
       <main className="flex-1 container mx-auto px-4 pt-32 pb-12">
         <div className="mb-12 text-center">
-          <h1 className="text-4xl font-bold mb-2 cyber-glitch" data-text="Our Partners">
-            Our Partners
+          <h1 className="text-4xl font-bold mb-2 cyber-glitch" data-text="Collaborations & Communities">
+            Collaborations & Communities
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            We're proud to collaborate with amazing communities, sponsors, and organizations
-            in the Web3 ecosystem to bring you the best learning and networking opportunities.
+            Source-linked past event credits and a separate directory of Web3 communities.
           </p>
         </div>
+
+        <section aria-labelledby="past-collaborations-heading" className="mb-12">
+          <h2 id="past-collaborations-heading" className="text-2xl font-semibold mb-4">Past collaborations</h2>
+          <Card>
+            <CardHeader>
+              <Badge variant="outline" className="w-fit">Past event · November 4, 2026</Badge>
+              <CardTitle className="text-xl">HSK Chain Horizon · Mumbai Demo Day</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p>Apna Coding co-hosted the HSK Chain Horizon · Mumbai Demo Day (Mumbai, Nov 4, 2026) with 021Lab, HSK Chain and Luvon Labs.</p>
+              <p className="text-sm text-muted-foreground">This credit is for that event, not a claim of an ongoing partnership.</p>
+              <a href="https://luma.com/hashkey-demo-day-mumbai" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm underline underline-offset-4">
+                Official event page <ExternalLink className="h-4 w-4" aria-hidden="true" />
+              </a>
+            </CardContent>
+          </Card>
+        </section>
 
         {/* Admin AI Scraper Section */}
         {isAdmin && (
@@ -146,10 +163,10 @@ export default function Partnerships() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sparkles className="h-5 w-5 text-primary" />
-                  AI Partner Scraper (Admin Only)
+                  Community Directory Import (Admin Only)
                 </CardTitle>
                 <CardDescription>
-                  Paste any partner/community website URL and AI will automatically extract and create a partner page
+                  Import a community directory entry. A listing does not establish a partnership.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -181,15 +198,18 @@ export default function Partnerships() {
                   </Button>
                 </form>
                 <p className="text-xs text-muted-foreground mt-3">
-                  💡 Tip: Works best with official partner websites (DAOs, protocols, communities).
-                  Partners will be immediately visible on this page after scraping.
+                  Use official community websites. Imported entries are directory listings, not verified collaborations.
                 </p>
               </CardContent>
             </Card>
           </motion.div>
         )}
 
-        {/* Partners Grid */}
+        <section aria-labelledby="community-directory-heading" className="mb-6">
+          <h2 id="community-directory-heading" className="text-2xl font-semibold mb-2">Community directory</h2>
+          <p className="text-muted-foreground">These are community resources, not claims of sponsorship, endorsement or partnership with Apna Coding.</p>
+        </section>
+        {/* Community directory grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {!communities ? (
             Array.from({ length: 6 }).map((_, i) => (
@@ -206,8 +226,8 @@ export default function Partnerships() {
           ) : communities.length === 0 ? (
             <div className="col-span-full text-center py-20 border border-dashed border-primary/20 rounded-lg">
               <Globe className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-xl font-bold mb-2">No partnerships yet</h3>
-              <p className="text-muted-foreground">Check back soon for exciting collaborations!</p>
+              <h3 className="text-xl font-bold mb-2">No directory entries yet</h3>
+              <p className="text-muted-foreground">Community directory entries will appear here.</p>
             </div>
           ) : (
             communities.map((community: any, i: number) => (
@@ -228,7 +248,7 @@ export default function Partnerships() {
                         />
                       )}
                       <Badge className={getPartnershipColor(community.partnership_type)}>
-                        {community.partnership_type}
+                        Community directory
                       </Badge>
                     </div>
                     <CardTitle className="text-xl group-hover:text-primary transition-colors">
