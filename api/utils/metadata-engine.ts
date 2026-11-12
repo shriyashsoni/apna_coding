@@ -141,7 +141,7 @@ export function cardText(type: string, data: any, config: MetadataConfig) {
   return { title, sub: String(sub || ''), kind: kinds[type] || 'LISTING' };
 }
 
-export async function getMetadataForPath(path: string) {
+export async function getMetadataForPath(path: string): Promise<any> {
   const parts = path.split('/').filter(Boolean);
   const type = parts[0];
   const slug = parts[1];
