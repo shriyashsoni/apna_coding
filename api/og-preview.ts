@@ -28,9 +28,21 @@ export default async function handler(req: any, res: any) {
     
     // Use the actual image from the database (hackathon banner, event image, etc.)
     // Fallback to the default site banner only if no specific image is found.
-    const finalOgImage = metadata.image && metadata.image.startsWith('http') 
+    let finalOgImage = metadata.image && metadata.image.startsWith('http') 
       ? metadata.image 
       : `${siteUrl}/logo_bg.png`;
+
+    // Some image hosts block hotlinking or are down. If the listing's own image is not
+    // fetchable as an image, use the card generated from the listing's title instead.
+    if (!(metadata as any).generated && (metadata as any).data && !finalOgImage.startsWith(siteUrl)) {
+      let ok = false;
+      try {
+        const r = await fetch(finalOgImage, { headers: { 'user-agent': 'facebookexternalhit/1.1' }, signal: AbortSignal.timeout(3000) });
+        ok = r.ok && (r.headers.get('content-type') || '').startsWith('image/') && !/svg|icon/.test(r.headers.get('content-type') || '');
+        try { await r.body?.cancel(); } catch (_) {}
+      } catch (_) { ok = false; }
+      if (!ok) finalOgImage = `${siteUrl}/api/og-image?path=${encodeURIComponent(String(path))}`;
+    }
 
     // Prepare Structured Data (JSON-LD)
     const jsonLd: any = {
@@ -53,7 +65,13 @@ export default async function handler(req: any, res: any) {
     // Specialize Structured Data based on type
     if (metadata.type === 'event') {
       jsonLd["@type"] = "Event";
-      jsonLd["startDate"] = metadata.data?.start_date || metadata.data?.date || new Date().toISOString();
+      const rawStart = metadata.data?.start_date || metadata.data?.date;
+      const startMs = typeof rawStart === 'string' && /^\d+$/.test(rawStart) ? Number(rawStart) : rawStart;
+      const startDate = typeof startMs === 'number' ? new Date(startMs) : (rawStart ? new Date(rawStart) : null);
+      if (startDate && !isNaN(startDate.getTime())) {
+        // Events with an unannounced time are stored at midnight UTC with timezone "TBA": date only.
+        jsonLd["startDate"] = metadata.data?.timezone === 'TBA' ? startDate.toISOString().slice(0, 10) : startDate.toISOString();
+      }
       jsonLd["location"] = {
         "@type": "Place",
         "name": metadata.data?.location || "Online",

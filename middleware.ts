@@ -23,7 +23,15 @@ export default function middleware(request: Request) {
     'Pinterestbot',
     'SkypeUriPreview',
     'Instagram',
-    'AppleNewsBot'
+    'AppleNewsBot',
+    'Slack-ImgProxy',
+    'Signal',
+    'Viber',
+    'redditbot',
+    'Mastodon',
+    'Embedly',
+    'vkShare',
+    'Applebot'
   ];
 
   const isBot = bots.some(bot => userAgent.toLowerCase().includes(bot.toLowerCase()));

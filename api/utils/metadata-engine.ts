@@ -1,9 +1,7 @@
-import { createClient } from '@supabase/supabase-js';
-
 // Configuration for all dynamic modules
 export interface MetadataConfig {
   table: string;
-  titleField: string;
+  titleField: string | string[];
   descField: string | string[]; // Can check multiple fields
   imageField: string | string[]; // Can check multiple fields
   type: 'website' | 'article' | 'event' | 'product';
@@ -14,9 +12,9 @@ export interface MetadataConfig {
 export const METADATA_MAPPING: Record<string, MetadataConfig> = {
   hackathons: {
     table: 'hackathons',
-    titleField: 'title',
+    titleField: ['title', 'name'],
     descField: ['short_description', 'tagline', 'description'],
-    imageField: ['banner_image', 'image', 'poster_image'],
+    imageField: ['banner_image', 'image', 'image_url', 'poster_image'],
     type: 'event',
     pathPrefix: '/hackathons/',
     slugField: 'slug'
@@ -25,7 +23,7 @@ export const METADATA_MAPPING: Record<string, MetadataConfig> = {
     table: 'jobs',
     titleField: 'title',
     descField: 'description',
-    imageField: 'image_url',
+    imageField: ['image_url', 'image'],
     type: 'article',
     pathPrefix: '/jobs/',
     slugField: 'slug'
@@ -34,7 +32,7 @@ export const METADATA_MAPPING: Record<string, MetadataConfig> = {
     table: 'events',
     titleField: 'title',
     descField: 'description',
-    imageField: ['image_url', 'banner_image'],
+    imageField: ['image_url', 'image', 'banner_image'],
     type: 'event',
     pathPrefix: '/events/',
     slugField: 'slug'
@@ -43,7 +41,7 @@ export const METADATA_MAPPING: Record<string, MetadataConfig> = {
     table: 'news',
     titleField: 'title',
     descField: ['excerpt', 'content'],
-    imageField: ['cover_image', 'image'],
+    imageField: ['cover_image', 'image_url', 'image'],
     type: 'article',
     pathPrefix: '/news/',
     slugField: 'slug'
@@ -61,7 +59,7 @@ export const METADATA_MAPPING: Record<string, MetadataConfig> = {
     table: 'communities',
     titleField: 'name',
     descField: 'description',
-    imageField: 'logo',
+    imageField: ['logo', 'image_url', 'cover_image'],
     type: 'website',
     pathPrefix: '/community/',
     slugField: 'slug'
@@ -88,77 +86,110 @@ export const METADATA_MAPPING: Record<string, MetadataConfig> = {
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://yjgjfurrvyvhncjxqcre.supabase.co';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqZ2pmdXJydnl2aG5janhxY3JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2ODkzNjQsImV4cCI6MjA5NDI2NTM2NH0.6n15TfLnuAfWCRF8oT2P0F5TooeiLHi3P79XpLF3o1I';
-const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+export const SITE_URL = 'https://apnacoding.com';
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+// Only records that are publicly listed may appear in a preview.
+// Tables that carry publish flags must have them set to true.
+const PUBLISH_FILTERS: Record<string, string> = {
+  hackathons: '&is_published=eq.true&is_approved=eq.true',
+  jobs: '&is_published=eq.true&is_approved=eq.true',
+  events: '&is_published=eq.true&is_approved=eq.true&is_cancelled=not.eq.true',
+  news: '&is_published=eq.true&is_approved=eq.true',
+  community: '&is_published=eq.true'
+};
+
+const pick = (data: any, field: string | string[]) => {
+  const fields = Array.isArray(field) ? field : [field];
+  for (const f of fields) {
+    if (f && typeof data[f] === 'string' && data[f].trim()) return data[f].trim();
+  }
+  return null;
+};
+
+/** Fetch one publicly listed record by slug or id. Returns null if missing/unpublished. */
+export async function fetchPublicRecord(type: string, slug: string) {
+  const config = METADATA_MAPPING[type];
+  if (!config || !slug) return null;
+  const isUuid = UUID_RE.test(slug);
+  const key = isUuid ? 'id' : config.slugField;
+  if (!isUuid && !/^[A-Za-z0-9._~%-]+$/.test(slug)) return null;
+  const url = `${supabaseUrl}/rest/v1/${config.table}?select=*&${key}=eq.${encodeURIComponent(decodeURIComponent(slug))}${PUBLISH_FILTERS[type] || ''}&limit=1`;
+  const res = await fetch(url, { headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` } });
+  if (!res.ok) return null;
+  const rows = await res.json();
+  const data = Array.isArray(rows) ? rows[0] : null;
+  if (!data) return null;
+  if (type === 'products' && (data.status !== 'approved' || data.is_approved !== true)) return null;
+  return { config, data };
+}
+
+/** Title, subtitle and kind label used by the generated share card. */
+export function cardText(type: string, data: any, config: MetadataConfig) {
+  const title = pick(data, config.titleField) || 'Apna Coding';
+  const kinds: Record<string, string> = {
+    hackathons: 'HACKATHON', jobs: 'JOB', events: 'EVENT', news: 'NEWS', community: 'COMMUNITY',
+    products: 'PRODUCT', 'event-groups': 'EVENT GROUP', verify: 'CERTIFICATE'
+  };
+  let sub = '';
+  if (type === 'jobs') sub = [data.company, data.location].filter(Boolean).join('  |  ');
+  else if (type === 'events') sub = [data.location].filter(Boolean).join('');
+  else if (type === 'hackathons') sub = [data.organized_by || data.organizer_name, data.prize_pool].filter(Boolean).join('  |  ');
+  else if (type === 'news') sub = data.category || '';
+  else if (type === 'community') sub = data.tagline || data.category || '';
+  return { title, sub: String(sub || ''), kind: kinds[type] || 'LISTING' };
+}
 
 export async function getMetadataForPath(path: string) {
   const parts = path.split('/').filter(Boolean);
   const type = parts[0];
   const slug = parts[1];
 
-  const siteUrl = 'https://apnacoding.com';
   const defaultTitle = "Apna Coding - India's Premier Web3 Opportunity Layer";
   const defaultDesc = "Join India's fastest-growing Web3 & AI community. Discover hackathons, jobs, events, and build products. Learn blockchain, smart contracts, DeFi, NFTs & more.";
-  const defaultImage = `${siteUrl}/logo_bg.png`;
+  const defaultImage = `${SITE_URL}/logo_bg.png`;
+  const fallback = {
+    title: defaultTitle,
+    description: defaultDesc,
+    image: defaultImage,
+    url: `${SITE_URL}${path}`,
+    type: 'website'
+  };
 
-  if (!slug || !METADATA_MAPPING[type]) {
-    return {
-      title: defaultTitle,
-      description: defaultDesc,
-      image: defaultImage,
-      url: `${siteUrl}${path}`,
-      type: 'website'
-    };
-  }
-
-  const config = METADATA_MAPPING[type];
+  if (!slug || !METADATA_MAPPING[type]) return fallback;
 
   try {
-    const { data } = await supabase
-      .from(config.table)
-      .select('*')
-      .or(`${config.slugField}.eq."${slug}",id.eq."${slug}"`)
-      .single();
+    const found = await fetchPublicRecord(type, slug);
+    if (!found) return fallback;
+    const { config, data } = found;
 
-    if (!data) throw new Error('Not found');
-    if (type === 'products' && (data.status !== 'approved' || data.is_approved !== true)) throw new Error('Not published');
-
-    const getVal = (field: string | string[]) => {
-      if (Array.isArray(field)) {
-        for (const f of field) {
-          if (data[f]) return data[f];
-        }
-        return null;
-      }
-      return data[field];
-    };
-
-    let title = getVal(config.titleField);
+    let title = pick(data, config.titleField);
+    if (!title) return fallback;
     if (type === 'jobs' && data.company) title = `${title} at ${data.company}`;
     if (type === 'verify') title = `Verified Certificate: ${title}`;
 
-    let description = getVal(config.descField) || defaultDesc;
-    // Strip HTML if news content
-    if (typeof description === 'string') {
-      description = description.replace(/<[^>]*>/g, '').substring(0, 160);
-    }
+    let description = pick(data, config.descField) || defaultDesc;
+    description = description.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().substring(0, 160);
 
-    let image = getVal(config.imageField) || defaultImage;
+    // Real listing image first; otherwise a card generated from this listing's own title.
+    let image = pick(data, config.imageField);
+    let generated = false;
+    if (!image || !/^https?:\/\//i.test(image)) {
+      image = `${SITE_URL}/api/og-image?path=${encodeURIComponent(`/${type}/${slug}`)}`;
+      generated = true;
+    }
 
     return {
       title: `${title} | Apna Coding`,
       description,
       image,
-      url: `${siteUrl}${path}`,
+      generated,
+      url: `${SITE_URL}${path}`,
       type: config.type,
-      data // Return raw data for image generation/structured data
+      data
     };
   } catch (error) {
-    return {
-      title: defaultTitle,
-      description: defaultDesc,
-      image: defaultImage,
-      url: `${siteUrl}${path}`,
-      type: 'website'
-    };
+    return fallback;
   }
 }
