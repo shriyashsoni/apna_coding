@@ -305,7 +305,12 @@ export function PendingApprovals() {
                           {item.start_date || item.date ? (
                             <span className="flex items-center gap-1">
                               <Calendar className="h-3 w-3" />
-                              {new Date(item.start_date || item.date).toLocaleDateString()}
+                              {(() => {
+                                const ms = Number(item.start_date || item.date);
+                                const opts: Intl.DateTimeFormatOptions = {};
+                                if (item.timezone === 'TBA' && ms % 86400000 === 0) opts.timeZone = 'UTC';
+                                return new Date(ms).toLocaleDateString(undefined, opts);
+                              })()}
                             </span>
                           ) : null}
                           {item.location && (

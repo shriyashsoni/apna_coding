@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { ShareButtons } from "@/components/ShareButtons";
+import { eventStartDateISO, formatEventDate, formatEventTime, isEventUpcoming } from "@/lib/event-date";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -91,8 +92,7 @@ export default function EventDetail() {
     );
   }
 
-  const eventDate = new Date(event.date);
-  const isUpcoming = eventDate > new Date();
+  const isUpcoming = isEventUpcoming(event.date, event.timezone);
 
   const canDelete = () => {
     if (!user || !address) return false;
@@ -121,7 +121,7 @@ export default function EventDetail() {
         url={`/events/${event.slug || event.id}`}
         type="event"
         publishedTime={new Date(event.created_at || Date.now()).toISOString()}
-        startDate={event.date}
+        startDate={eventStartDateISO(event.date, event.timezone) || undefined}
         location={event.location}
         organization={event.organizer_name}
       />
@@ -207,18 +207,10 @@ export default function EventDetail() {
                     <h3 className="font-semibold">Date & Time</h3>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {eventDate.toLocaleDateString("en-US", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
+                    {formatEventDate(event.date, true, event.timezone)}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {eventDate.toLocaleTimeString("en-US", {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    {formatEventTime(event.date, event.timezone)}
                   </p>
                 </CardContent>
               </Card>
@@ -279,6 +271,7 @@ export default function EventDetail() {
                   title={event.title}
                   description={event.description}
                   date={event.date}
+                  timezone={event.timezone}
                   location={event.location}
                   type="event"
                   hashtags={['web3', 'event', 'blockchain', 'apnacoding']}

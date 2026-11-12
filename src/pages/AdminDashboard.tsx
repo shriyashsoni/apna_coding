@@ -38,6 +38,7 @@ import { SettingsManager } from "@/components/admin/SettingsManager";
 import { BulkImport } from "@/components/admin/BulkImport";
 import { BulkEmailSender } from "@/components/admin/BulkEmailSender";
 import { ProductManager } from "@/components/admin/ProductManager";
+import { EditEventDialog } from "@/components/events/EditEventDialog";
 import { NewsPostEditor } from "@/components/admin/NewsPostEditor";
 import { GlobalContentExplorer } from "@/components/admin/GlobalContentExplorer";
 import { AutonomousAgentManager } from "@/components/admin/AutonomousAgentManager";
@@ -118,6 +119,7 @@ export default function AdminDashboard() {
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [allNews, setAllNews] = useState<any[]>([]);
   const [editingNews, setEditingNews] = useState<any>(null);
+  const [editingEvent, setEditingEvent] = useState<any>(null);
   const [newsMutationId, setNewsMutationId] = useState<string | null>(null);
   const [newsStatusError, setNewsStatusError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -1300,13 +1302,22 @@ export default function AdminDashboard() {
                             </Label>
                           </div>
                         </div>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteEvent(event.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex flex-col gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingEvent(event)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => handleDeleteEvent(event.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     ))}
                     {eventsStatus === "CanLoadMore" && (
@@ -2032,6 +2043,11 @@ export default function AdminDashboard() {
                 post={editingNews}
                 onClose={() => setEditingNews(null)}
                 onSaved={updated => setAllNews(posts => posts.map(post => post.id === updated.id ? updated : post))}
+              />
+              <EditEventDialog
+                event={editingEvent}
+                onClose={() => setEditingEvent(null)}
+                onSuccess={updated => setAllEvents(list => (list || []).map(e => e.id === updated.id ? { ...e, ...updated } : e))}
               />
             </TabsContent>
 

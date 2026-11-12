@@ -9,6 +9,7 @@ import { Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { usePrivy } from "@privy-io/react-auth";
 import { supabase } from "@/lib/supabase";
+import { browserTimeZone, isValidTimeZone, resolveZonedTimestamp, buildEventTimestamp, timezoneForSubmit, timeZoneOptions } from "@/lib/event-date";
 
 interface CreateEventDialogProps {
   onSuccess: () => void;
@@ -43,6 +44,8 @@ export function CreateEventDialog({ onSuccess }: CreateEventDialogProps) {
     title: "",
     description: "",
     date: "",
+    time: "",
+    timeZone: browserTimeZone(),
     location: "",
     type: "meetup",
     registrationLink: "",
@@ -63,16 +66,25 @@ export function CreateEventDialog({ onSuccess }: CreateEventDialogProps) {
       return;
     }
 
-    const eventDate = new Date(formData.date).getTime();
+    // No time selected -> stored as exact UTC midnight, the site's date-only
+    // ("time to be announced") marker. See src/lib/event-date.ts.
+    const eventDate = buildEventTimestamp(formData.date, formData.time, formData.timeZone);
 
-    if (isNaN(eventDate)) {
-      toast.error("Invalid date format. Please select a valid date and time.");
+    if (eventDate === null) {
+      const detailed = formData.time && isValidTimeZone(formData.timeZone)
+        ? resolveZonedTimestamp(formData.date, formData.time, formData.timeZone)
+        : null;
+      toast.error(detailed?.error || "Invalid date format. Please select a valid date.");
       return;
     }
 
-    // Check if the event date is in the past
-    const now = new Date().getTime();
-    if (eventDate < now) {
+    // Check if the event date is in the past. A date-only event stays valid
+    // through its whole UTC day; a timed event must still be ahead of now.
+    const now = Date.now();
+    const isPast = formData.time
+      ? eventDate < now
+      : eventDate < Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate());
+    if (isPast) {
       toast.error("Event date cannot be in the past. Please select a future date.");
       return;
     }
@@ -99,6 +111,7 @@ export function CreateEventDialog({ onSuccess }: CreateEventDialogProps) {
         wallet_address: address,
         registration_link: formData.registrationLink.trim() || null,
         event_group_id: formData.eventGroupId || null,
+        timezone: timezoneForSubmit(formData.time, formData.timeZone),
         is_approved: false
       });
 
@@ -110,6 +123,8 @@ export function CreateEventDialog({ onSuccess }: CreateEventDialogProps) {
         title: "",
         description: "",
         date: "",
+        time: "",
+        timeZone: browserTimeZone(),
         location: "",
         type: "meetup",
         registrationLink: "",
@@ -162,14 +177,41 @@ export function CreateEventDialog({ onSuccess }: CreateEventDialogProps) {
             <Label htmlFor="date">Event Date *</Label>
             <Input
               id="date"
-              type="datetime-local"
+              type="date"
               value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              min={new Date().toISOString().slice(0, 16)}
+              min={new Date().toISOString().slice(0, 10)}
               required
             />
+          </div>
+
+          <div>
+            <Label htmlFor="time">Start Time (optional)</Label>
+            <Input
+              id="time"
+              type="time"
+              value={formData.time}
+              onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+            />
             <p className="text-xs text-muted-foreground mt-1">
-              Select the exact date and time for your event
+              Leave empty if the organizer has not announced a start time - the event will show "Time to be announced" instead of a made-up hour.
+            </p>
+          </div>
+
+          <div>
+            <Label htmlFor="create-tz">Timezone (applies when a start time is set)</Label>
+            <Select value={formData.timeZone} onValueChange={(value) => setFormData({ ...formData, timeZone: value })}>
+              <SelectTrigger id="create-tz">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {timeZoneOptions().map((tz) => (
+                  <SelectItem key={tz} value={tz}>{tz}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground mt-1">
+              Pick the venue&apos;s timezone - e.g. Asia/Dubai for a &quot;9:00 doors, Dubai&quot; time. Defaults to your browser timezone. The instant is stored unambiguously and each visitor sees it in their own time.
             </p>
           </div>
 
