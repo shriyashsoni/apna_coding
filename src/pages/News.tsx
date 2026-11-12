@@ -86,7 +86,7 @@ export default function News() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 text-foreground">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
             Latest News & Updates
           </h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
