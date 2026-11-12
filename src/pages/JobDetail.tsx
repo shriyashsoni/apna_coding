@@ -6,6 +6,7 @@ import { Footer } from "@/components/Footer";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { OnchainProofBadge } from "@/components/OnchainProofBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Briefcase, MapPin, DollarSign, Building, ExternalLink, Trash2, AlertCircle, Calendar } from "lucide-react";
 import { motion } from "framer-motion";
@@ -147,6 +148,7 @@ export default function JobDetail() {
                   <h1 className="text-4xl md:text-5xl font-bold mb-3 cyber-glitch" data-text={job.title}>
                     {job.title}
                   </h1>
+                  <OnchainProofBadge category="job" listing={job} className="mb-3" />
                   <div className="flex items-center gap-2 text-xl text-muted-foreground">
                     <Building className="h-5 w-5 text-primary" />
                     <span>{job.company}</span>

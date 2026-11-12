@@ -1,0 +1,69 @@
+name: On-chain listing sync (Sepolia)
+
+# Keeps src/data/onchain-proofs.json in step with the public listings:
+# registers new listings, re-registers edited ones, revokes removed ones.
+# One transaction per changed listing, signed by the listing-registry
+# deployer key held in the APNA_REGISTRY_DEPLOYER_KEY repo secret (Sepolia
+# testnet only, no mainnet, no cost).
+#
+# Security: runs ONLY on schedule and manual dispatch. Never on
+# pull_request, so code from untrusted forks can never reach the secret.
+
+on:
+  schedule:
+    - cron: "33 20 * * *" # daily 20:33 UTC (~02:03 IST, off-peak)
+  workflow_dispatch:
+
+permissions:
+  contents: write # push the updated proofs JSON back to this branch
+
+concurrency:
+  group: onchain-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY_ADDRESS: 0x84D6aB007816f678FCa2C19e43268043B3323254
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Register new and edited listings on Sepolia
+        env:
+          PRIVATE_KEY: ${{ secrets.APNA_REGISTRY_DEPLOYER_KEY }}
+        run: |
+          if [ -z "$PRIVATE_KEY" ]; then
+            echo "APNA_REGISTRY_DEPLOYER_KEY secret not set; skipping on-chain sync."
+            exit 0
+          fi
+          node scripts/register-listings-onchain.mjs
+
+      - name: Revoke proofs for listings no longer public
+        env:
+          PRIVATE_KEY: ${{ secrets.APNA_REGISTRY_DEPLOYER_KEY }}
+        run: |
+          if [ -z "$PRIVATE_KEY" ]; then
+            echo "APNA_REGISTRY_DEPLOYER_KEY secret not set; skipping prune."
+            exit 0
+          fi
+          node scripts/register-listings-onchain.mjs --prune
+
+      - name: Commit updated proofs
+        run: |
+          if git diff --quiet -- src/data/onchain-proofs.json; then
+            echo "No proof changes."
+            exit 0
+          fi
+          git config user.name "apna-coding-onchain-bot"
+          git config user.email "8989976990+apna-coding-bot@users.noreply.github.com"
+          git add src/data/onchain-proofs.json
+          git commit -m "chore(onchain): sync listing proofs with public directory"
+          git push

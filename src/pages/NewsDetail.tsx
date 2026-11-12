@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Calendar, Eye, User, ArrowLeft, MessageCircle, Trash2, Newspaper } from "lucide-react";
 import { Link, useParams, useNavigate } from "react-router";
 import { Badge } from "@/components/ui/badge";
+import { OnchainProofBadge } from "@/components/OnchainProofBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -292,6 +293,7 @@ export default function NewsDetail() {
             <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
               {post.title}
             </h1>
+            <OnchainProofBadge category="news" listing={post} className="mb-6" />
 
             {/* Excerpt */}
             {post.excerpt && (

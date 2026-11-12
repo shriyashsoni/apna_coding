@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Calendar, Eye, User, ArrowLeft, MessageCircle, Heart, ExternalLink, Github, FileText, Package, Trash2 } from "lucide-react";
 import { Link, useParams, useNavigate } from "react-router";
 import { Badge } from "@/components/ui/badge";
+import { OnchainProofBadge } from "@/components/OnchainProofBadge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
@@ -290,6 +291,7 @@ export default function ProductDetail() {
               <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 {product.name}
               </h1>
+              <OnchainProofBadge category="product" listing={product} className="mb-6" />
 
               <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
                 <div className="flex items-center gap-2">

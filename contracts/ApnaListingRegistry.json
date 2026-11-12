@@ -1,0 +1,423 @@
+{
+  "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "recordId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum ApnaListingRegistry.Category",
+          "name": "category",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "contentId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "contentHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "title",
+          "type": "string"
+        }
+      ],
+      "name": "ListingRegistered",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "recordId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum ApnaListingRegistry.Category",
+          "name": "category",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "contentId",
+          "type": "string"
+        }
+      ],
+      "name": "ListingRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "recordId",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "enum ApnaListingRegistry.Category",
+          "name": "category",
+          "type": "uint8"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "contentId",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "contentHash",
+          "type": "bytes32"
+        },
+        {
+          "indexed": false,
+          "internalType": "string",
+          "name": "title",
+          "type": "string"
+        }
+      ],
+      "name": "ListingUpdated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousRegistrar",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newRegistrar",
+          "type": "address"
+        }
+      ],
+      "name": "RegistrarChanged",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum ApnaListingRegistry.Category",
+          "name": "_category",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "_contentId",
+          "type": "string"
+        }
+      ],
+      "name": "getRecord",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum ApnaListingRegistry.Status",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "contentHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "updatedAt",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum ApnaListingRegistry.Category",
+          "name": "_category",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "_contentId",
+          "type": "string"
+        }
+      ],
+      "name": "keyFor",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "recordCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "recordIds",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "name": "records",
+      "outputs": [
+        {
+          "internalType": "enum ApnaListingRegistry.Category",
+          "name": "category",
+          "type": "uint8"
+        },
+        {
+          "internalType": "enum ApnaListingRegistry.Status",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "contentHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "contentId",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "internalType": "uint256",
+          "name": "updatedAt",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum ApnaListingRegistry.Category",
+          "name": "_category",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "_contentId",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_contentHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "_title",
+          "type": "string"
+        }
+      ],
+      "name": "register",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "registrar",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum ApnaListingRegistry.Category",
+          "name": "_category",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "_contentId",
+          "type": "string"
+        }
+      ],
+      "name": "revoke",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_newRegistrar",
+          "type": "address"
+        }
+      ],
+      "name": "setRegistrar",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum ApnaListingRegistry.Category",
+          "name": "_category",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "_contentId",
+          "type": "string"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_contentHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "string",
+          "name": "_title",
+          "type": "string"
+        }
+      ],
+      "name": "update",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x608060405234801561000f575f80fd5b505f8054336001600160a01b031991821681178355600180549092161790556111ef90819061003d90395ff3fe608060405234801561000f575f80fd5b50600436106100b1575f3560e01c8063c33104131161006e578063c33104131461016a578063e1d302671461017f578063f2fde38b14610192578063f4582200146101a5578063f5a92e56146101c4578063faab9d39146101d7575f80fd5b80632b20e397146100b557806334461067146100e55780636927a30a1461010a57806370c0794a1461012e5780638da5cb5b1461014f578063900407bc14610161575b5f80fd5b6001546100c8906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6100f86100f3366004610b4c565b6101ea565b6040516100dc96959493929190610bd8565b61011d610118366004610c91565b610330565b6040516100dc959493929190610ce0565b61014161013c366004610d1d565b610480565b6040519081526020016100dc565b5f546100c8906001600160a01b031681565b61014160025481565b61017d610178366004610c91565b61071e565b005b61017d61018d366004610d1d565b610840565b61017d6101a0366004610da1565b610984565b6101416101b3366004610b4c565b60046020525f908152604090205481565b6101416101d2366004610de2565b610a68565b61017d6101e5366004610da1565b610aab565b60036020525f908152604090208054600182015460028301805460ff808516956101009095041693919061021d90610e9e565b80601f016020809104026020016040519081016040528092919081815260200182805461024990610e9e565b80156102945780601f1061026b57610100808354040283529160200191610294565b820191905f5260205f20905b81548152906001019060200180831161027757829003601f168201915b5050505050908060030180546102a990610e9e565b80601f01602080910402602001604051908101604052809291908181526020018280546102d590610e9e565b80156103205780601f106102f757610100808354040283529160200191610320565b820191905f5260205f20905b81548152906001019060200180831161030357829003601f168201915b5050505050908060040154905086565b5f805f60605f806103768989898080601f0160208091040260200160405190810160405280939291908181526020018383808284375f92019190915250610a6892505050565b5f8181526004602052604081205497509091508690036103b15760405162461bcd60e51b81526004016103a890610ed6565b60405180910390fd5b5f868152600360208190526040909120805460018201546004830154938301805493948b9461010090940460ff169382906103eb90610e9e565b80601f016020809104026020016040519081016040528092919081815260200182805461041790610e9e565b80156104625780601f1061043957610100808354040283529160200191610462565b820191905f5260205f20905b81548152906001019060200180831161044557829003601f168201915b50505050509150965096509650965096505050939792965093509350565b6001545f906001600160a01b03163314806104a457505f546001600160a01b031633145b6104c05760405162461bcd60e51b81526004016103a890610efe565b5f6105008888888080601f0160208091040260200160405190810160405280939291908181526020018383808284375f92019190915250610a6892505050565b5f81815260046020526040902054909150156105535760405162461bcd60e51b8152602060048201526012602482015271105b1c9958591e481c9959da5cdd195c995960721b60448201526064016103a8565b60028054905f61056283610f26565b91905055506040518060c0016040528089600581111561058457610584610b63565b81526020016001815260200186815260200188888080601f0160208091040260200160405190810160405280939291908181526020018383808284375f92019190915250505090825250604080516020601f8801819004810282018101909252868152918101919087908790819084018382808284375f92018290525093855250504260209384015250600254815260039091526040902081518154829060ff1916600183600581111561063a5761063a610b63565b021790555060208201518154829061ff00191661010083600281111561066257610662610b63565b021790555060408201516001820155606082015160028201906106859082610f98565b506080820151600382019061069a9082610f98565b5060a091909101516004918201556002545f8381526020929092526040909120558760058111156106cd576106cd610b63565b6002547f71cc5e029d337e234f98de26cae197afcea54f0bcb940c256f593b183d599caf898989898960405161070795949392919061107c565b60405180910390a350506002549695505050505050565b6001546001600160a01b031633148061074057505f546001600160a01b031633145b61075c5760405162461bcd60e51b81526004016103a890610efe565b5f61079c8484848080601f0160208091040260200160405190810160405280939291908181526020018383808284375f92019190915250610a6892505050565b5f818152600460205260408120549192508190036107cc5760405162461bcd60e51b81526004016103a890610ed6565b5f818152600360205260409020805461ff001916610200178155426004909101558460058111156107ff576107ff610b63565b817f04c4a7ae070bc29475d3177f1791eb03a0af9a2fefb4ac272a4f6179d8b2a04286866040516108319291906110b4565b60405180910390a35050505050565b6001546001600160a01b031633148061086257505f546001600160a01b031633145b61087e5760405162461bcd60e51b81526004016103a890610efe565b5f6108be8787878080601f0160208091040260200160405190810160405280939291908181526020018383808284375f92019190915250610a6892505050565b5f818152600460205260408120549192508190036108ee5760405162461bcd60e51b81526004016103a890610ed6565b5f818152600360208190526040909120600181018790559081016109138587836110cf565b50805461ff00191661010017815542600482015588600581111561093957610939610b63565b827fbdae442838a20ef30f241c3483fc58670b43138bd2e3aa5c05bffb45618e89378a8a8a8a8a60405161097195949392919061107c565b60405180910390a3505050505050505050565b5f546001600160a01b031633146109ca5760405162461bcd60e51b815260206004820152600a60248201526927b7363c9037bbb732b960b11b60448201526064016103a8565b6001600160a01b038116610a0f5760405162461bcd60e51b815260206004820152600c60248201526b5a65726f206164647265737360a01b60448201526064016103a8565b5f80546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a35f80546001600160a01b0319166001600160a01b0392909216919091179055565b5f826005811115610a7b57610a7b610b63565b82604051602001610a8d92919061118b565b60405160208183030381529060405280519060200120905092915050565b5f546001600160a01b03163314610af15760405162461bcd60e51b815260206004820152600a60248201526927b7363c9037bbb732b960b11b60448201526064016103a8565b6001546040516001600160a01b038084169216907f9bf4a5b30267728df68663e14adb47e559863967c419dc6030638883408bed2e905f90a3600180546001600160a01b0319166001600160a01b0392909216919091179055565b5f60208284031215610b5c575f80fd5b5035919050565b634e487b7160e01b5f52602160045260245ffd5b60038110610b8757610b87610b63565b9052565b5f5b83811015610ba5578181015183820152602001610b8d565b50505f910152565b5f8151808452610bc4816020860160208601610b8b565b601f01601f19169290920160200192915050565b5f60068810610be957610be9610b63565b878252610bf96020830188610b77565b85604083015260c06060830152610c1360c0830186610bad565b8281036080840152610c258186610bad565b9150508260a0830152979650505050505050565b803560068110610c47575f80fd5b919050565b5f8083601f840112610c5c575f80fd5b50813567ffffffffffffffff811115610c73575f80fd5b602083019150836020828501011115610c8a575f80fd5b9250929050565b5f805f60408486031215610ca3575f80fd5b610cac84610c39565b9250602084013567ffffffffffffffff811115610cc7575f80fd5b610cd386828701610c4c565b9497909650939450505050565b858152610cf06020820186610b77565b83604082015260a060608201525f610d0b60a0830185610bad565b90508260808301529695505050505050565b5f805f805f8060808789031215610d32575f80fd5b610d3b87610c39565b9550602087013567ffffffffffffffff80821115610d57575f80fd5b610d638a838b01610c4c565b9097509550604089013594506060890135915080821115610d82575f80fd5b50610d8f89828a01610c4c565b979a9699509497509295939492505050565b5f60208284031215610db1575f80fd5b81356001600160a01b0381168114610dc7575f80fd5b9392505050565b634e487b7160e01b5f52604160045260245ffd5b5f8060408385031215610df3575f80fd5b610dfc83610c39565b9150602083013567ffffffffffffffff80821115610e18575f80fd5b818501915085601f830112610e2b575f80fd5b813581811115610e3d57610e3d610dce565b604051601f8201601f19908116603f01168101908382118183101715610e6557610e65610dce565b81604052828152886020848701011115610e7d575f80fd5b826020860160208301375f6020848301015280955050505050509250929050565b600181811c90821680610eb257607f821691505b602082108103610ed057634e487b7160e01b5f52602260045260245ffd5b50919050565b6020808252600e908201526d139bdd081c9959da5cdd195c995960921b604082015260600190565b6020808252600e908201526d27b7363c903932b3b4b9ba3930b960911b604082015260600190565b5f60018201610f4357634e487b7160e01b5f52601160045260245ffd5b5060010190565b601f821115610f93575f81815260208120601f850160051c81016020861015610f705750805b601f850160051c820191505b81811015610f8f57828155600101610f7c565b5050505b505050565b815167ffffffffffffffff811115610fb257610fb2610dce565b610fc681610fc08454610e9e565b84610f4a565b602080601f831160018114610ff9575f8415610fe25750858301515b5f19600386901b1c1916600185901b178555610f8f565b5f85815260208120601f198616915b8281101561102757888601518255948401946001909101908401611008565b508582101561104457878501515f19600388901b60f8161c191681555b5050505050600190811b01905550565b81835281816020850137505f828201602090810191909152601f909101601f19169091010190565b606081525f61108f606083018789611054565b85602084015282810360408401526110a8818587611054565b98975050505050505050565b602081525f6110c7602083018486611054565b949350505050565b67ffffffffffffffff8311156110e7576110e7610dce565b6110fb836110f58354610e9e565b83610f4a565b5f601f84116001811461112c575f85156111155750838201355b5f19600387901b1c1916600186901b178355611184565b5f83815260209020601f19861690835b8281101561115c578685013582556020948501946001909201910161113c565b5086821015611178575f1960f88860031b161c19848701351681555b505060018560011b0183555b5050505050565b60ff60f81b8360f81b1681525f82516111ab816001850160208701610b8b565b91909101600101939250505056fea26469706673582212206ba17df7614064cfc1d32de24ec2785be530379df72bc9ffc8daaa8f243a97f664736f6c63430008140033"
+}
