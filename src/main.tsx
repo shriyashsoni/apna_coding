@@ -1,8 +1,10 @@
+import { NextSeo } from '@/components/next-seo';
+import { PUBLIC_PAGES, PRIVATE_PATH, canonicalUrl } from '@/lib/seo';
 import { Toaster } from "@/components/ui/sonner";
 import { InstrumentationProvider } from "@/instrumentation.tsx";
 import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router";
 import { PrivyProvider } from '@privy-io/react-auth';
 import { HelmetProvider } from 'react-helmet-async';
 import { ScrollToTop } from '@/components/ScrollToTop';
@@ -63,6 +65,17 @@ const PublicProfile = lazy(() => import("./pages/PublicProfile.tsx"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback.tsx"));
 const Social = lazy(() => import("./pages/Social.tsx"));
 
+function RouteSEO() {
+  const {pathname} = useLocation();
+  const page = PUBLIC_PAGES[pathname];
+  const privatePage = PRIVATE_PATH.test(pathname);
+  const knownDetail = /^\/(events|hackathons|jobs|news|products|community|event-groups)\/[^/]+\/?$/.test(pathname);
+  // Pages with their own SEO own the head; this fallback covers otherwise-unmanaged routes.
+  const hasPageSEO = knownDetail || ['/', '/events', '/event-groups', '/hackathons', '/jobs', '/products', '/news', '/communities', '/contact'].includes(pathname);
+  if (hasPageSEO && !privatePage) return null;
+  return <NextSeo title={page?.[0]} description={page?.[1]} canonical={canonicalUrl(pathname)} noindex={privatePage || (!page && !knownDetail)} />;
+}
+
 // Simple loading fallback for route transitions
 function RouteLoading() {
   return (
@@ -75,6 +88,8 @@ function RouteLoading() {
   );
 }
 
+// React 19 owns metadata after takeover. Do not retain duplicate server tags.
+document.querySelectorAll('[data-server-seo]').forEach(node => node.remove());
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HelmetProvider>
@@ -98,6 +113,7 @@ createRoot(document.getElementById("root")!).render(
           <InitialLoader>
             <BrowserRouter>
               <ScrollToTop />
+              <RouteSEO />
               <Suspense fallback={<RouteLoading />}>
                 <Routes>
                   <Route path="/" element={<Landing />} />

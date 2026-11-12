@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Trophy, Calendar, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 import { useSupabaseMutation } from "@/hooks/useSupabase";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/use-auth";
@@ -26,7 +26,6 @@ interface HackathonCardProps {
 }
 
 export function HackathonCard({ hackathon, index, showDelete = true, onDelete }: HackathonCardProps) {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { mutate: deleteHackathonMutate } = useSupabaseMutation('hackathons');
 
@@ -114,12 +113,12 @@ export function HackathonCard({ hackathon, index, showDelete = true, onDelete }:
             {startLabel} - {endLabel}
           </div>
           <div className="flex items-center gap-2 ml-auto">
-            <button
-              onClick={() => navigate(`/hackathons/${hackathon.slug || hackathon.id}`)}
+            <Link
+              to={`/hackathons/${hackathon.slug || hackathon.id}`}
               className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-medium px-4 py-2 rounded-xl transition-all text-sm"
             >
               View Details
-            </button>
+            </Link>
             {canDelete && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>

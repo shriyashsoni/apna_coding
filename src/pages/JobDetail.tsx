@@ -112,11 +112,12 @@ export default function JobDetail() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <SEO
+        noindex={!job.is_published || !job.is_approved}
         title={`${job.title} at ${job.company}`}
         description={job.description}
         image={job.image_url || undefined}
         url={`/jobs/${job.slug || job.id}`}
-        type="article"
+        type="job"
         publishedTime={new Date(job.created_at || Date.now()).toISOString()}
       />
       <Navbar />

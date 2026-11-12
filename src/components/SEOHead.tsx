@@ -1,3 +1,4 @@
+import { SITE_URL, canonicalUrl } from '@/lib/seo';
 import { NextSeo } from "./next-seo";
 
 interface SEOHeadProps {
@@ -27,13 +28,11 @@ export function SEOHead({
   structuredData,
   noindex = false,
 }: SEOHeadProps) {
-  const siteUrl = typeof window !== 'undefined'
-    ? window.location.origin
-    : "https://apnacoding.com";
+  const siteUrl = SITE_URL;
   const siteName = "Apna Coding";
   const siteSlogan = "Web3 Opportunity Layer";
   const fullTitle = title.includes(siteName) ? title : `${title} | ${siteName} - ${siteSlogan}`;
-  const canonicalUrl = canonical || `${siteUrl}${window.location.pathname}`;
+  const finalCanonical = canonicalUrl(canonical);
   const imageUrl = ogImage || `${siteUrl}/og-image.png`;
 
   // Merge structured schemas if provided
@@ -43,14 +42,7 @@ export function SEOHead({
     "name": siteName,
     "url": siteUrl,
     "description": "Learn Web3, find hackathons, events, and job opportunities in blockchain and crypto",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": `${siteUrl}/search?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
+
   };
 
   const baseOrgSchema = {
@@ -60,10 +52,7 @@ export function SEOHead({
     "url": siteUrl,
     "logo": `${siteUrl}/logo.png`,
     "description": "Web3 learning platform for blockchain, crypto, and decentralized technologies",
-    "sameAs": [
-      "https://twitter.com/apnacoding",
-      "https://github.com/apnacoding",
-    ],
+
   };
 
   const schemas = [baseWebsiteSchema, baseOrgSchema];
@@ -80,7 +69,7 @@ export function SEOHead({
     type: ogType,
     title: fullTitle,
     description: description,
-    url: canonicalUrl,
+    url: finalCanonical,
     siteName: `${siteName} - ${siteSlogan}`,
     locale: "en_IN",
     images: [
@@ -130,7 +119,7 @@ export function SEOHead({
         titleTemplate={`%s | ${siteName} - ${siteSlogan}`}
         defaultTitle={`${siteName} - ${siteSlogan}`}
         description={description}
-        canonical={canonicalUrl}
+        canonical={finalCanonical}
         noindex={noindex}
         nofollow={noindex}
         openGraph={openGraphData}

@@ -247,6 +247,7 @@ export default function ProductDetail() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <SEO
+        noindex={product.status !== "approved" || !product.is_approved}
         title={product.name}
         description={product.description}
         image={product.image_url || undefined}

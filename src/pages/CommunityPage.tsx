@@ -405,6 +405,7 @@ export default function CommunityPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <SEO
+        noindex={!community.is_published}
         title={community.name}
         description={community.description}
         image={community.cover_image || community.logo || undefined}

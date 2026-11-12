@@ -76,18 +76,18 @@ export default function Landing() {
             {featuredHackathons && featuredHackathons.length > 0 ? (
               featuredHackathons.map((hackathon: any, idx: number) => (
                 <motion.div key={hackathon.id} {...fadeUp(0.2 + idx * 0.1)}>
-                  <Link to={`/hackathons/${hackathon.slug}`} className="block h-full group">
+                  <Link to={`/hackathons/${hackathon.slug || hackathon.id}`} className="block h-full group">
                     <div className="liquid-glass rounded-2xl overflow-hidden h-full flex flex-col">
                       <div className="h-48 relative bg-muted/30">
                         {(hackathon.image || hackathon.image_url) ? (
-                          <img src={hackathon.image || hackathon.image_url} alt={hackathon.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                          <img src={hackathon.image || hackathon.image_url} alt={hackathon.title || hackathon.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center"><Trophy className="h-10 w-10 text-muted-foreground/30" /></div>
                         )}
                       </div>
                       <div className="p-6 flex-1 flex flex-col justify-between">
                         <div>
-                          <h3 className="text-xl font-semibold mb-2 group-hover:text-white transition-colors line-clamp-2" title={hackathon.title}>{hackathon.title}</h3>
+                          <h3 className="text-xl font-semibold mb-2 group-hover:text-white transition-colors line-clamp-2" title={hackathon.title || hackathon.name}>{hackathon.title || hackathon.name}</h3>
                           <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{hackathon.description}</p>
                         </div>
                         <div className="flex flex-col gap-3 pt-4 border-t border-white/5 mt-auto">

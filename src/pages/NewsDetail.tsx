@@ -218,13 +218,14 @@ export default function NewsDetail() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <SEO
+        noindex={!post.is_published || !post.is_approved}
         title={post.title}
         description={post.excerpt || post.content?.substring(0, 160) || ""}
-        image={post.cover_image || undefined}
+        image={post.cover_image || post.image_url || undefined}
         url={`/news/${post.slug}`}
         type="article"
         keywords={post.tags || []}
-        author="Apna Coding"
+        author={post.author || undefined}
         publishedTime={new Date(post.created_at || Date.now()).toISOString()}
         section={post.category}
         tags={post.tags || []}

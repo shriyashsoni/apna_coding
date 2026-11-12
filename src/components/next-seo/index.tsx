@@ -1,4 +1,5 @@
 import React from 'react';
+import { PRIVATE_PATH, canonicalUrl } from '@/lib/seo';
 import { Helmet } from 'react-helmet-async';
 
 // ==========================================
@@ -130,6 +131,8 @@ export function NextSeo({
   additionalMetaTags = [],
   additionalLinkTags = [],
 }: NextSeoProps) {
+  noindex = noindex || (typeof window !== 'undefined' && PRIVATE_PATH.test(window.location.pathname));
+  canonical = canonicalUrl(canonical);
   // Format the title
   let displayTitle = '';
   if (title) {

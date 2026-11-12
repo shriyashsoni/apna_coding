@@ -13,11 +13,7 @@ export function MetaTags({ title, description, image, url, type = "website" }: M
   const cleanTitle = title.replace(" | Apna Coding", "").replace(" - Web3 Opportunity Layer", "");
 
   // Resolve relative urls to absolute paths for canonical validation
-  const finalUrl = url && url.startsWith("/") 
-    ? url 
-    : url && url.includes("window.location.origin")
-    ? url.replace("window.location.origin", "")
-    : undefined;
+  const finalUrl = url;
 
   return (
     <SEO

@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { SEO } from "@/components/SEO";
 
@@ -474,7 +474,7 @@ export default function Jobs() {
                   
                   <div className="flex-1 min-w-0 w-full md:w-auto">
                     <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <h3 className="text-lg font-bold break-words max-w-full group-hover:text-primary transition-colors">{job.title}</h3>
+                      <h3 className="text-lg font-bold break-words max-w-full group-hover:text-primary transition-colors"><Link to={`/jobs/${job.slug || job.id}`} onClick={(e) => e.stopPropagation()}>{job.title}</Link></h3>
                       <Badge variant="outline" className="border-primary/30 text-primary text-xs">{job.type}</Badge>
                     </div>
                     <div className="flex flex-wrap items-center text-sm text-muted-foreground gap-x-4 gap-y-1.5">
