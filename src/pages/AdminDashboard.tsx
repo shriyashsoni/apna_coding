@@ -42,6 +42,7 @@ import { NewsPostEditor } from "@/components/admin/NewsPostEditor";
 import { GlobalContentExplorer } from "@/components/admin/GlobalContentExplorer";
 import { AutonomousAgentManager } from "@/components/admin/AutonomousAgentManager";
 import { scrapeContentDirectly } from "@/utils/frontend-scraper";
+import { isTeamRole } from "@/lib/admin-config";
 import { uploadRemoteImageToSupabase } from "@/utils/image-uploader";
 
 export default function AdminDashboard() {
@@ -50,7 +51,7 @@ export default function AdminDashboard() {
   const { user: authUser, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
   const isSuperAdmin = authUser?.role === "admin";
-  const isTeamMember = authUser?.role && authUser.role !== "user";
+  const isTeamMember = authenticated && !isAuthLoading && isTeamRole(authUser?.role);
 
   const isTabAuthorized = (tab: string) => {
     if (!authUser) return false;
@@ -171,7 +172,7 @@ export default function AdminDashboard() {
   }, [authenticated, ready, navigate]);
 
   useEffect(() => {
-    if (ready && authenticated && !isAuthLoading && authUser && !isTeamMember) {
+    if (ready && authenticated && !isAuthLoading && !isTeamMember) {
       navigate("/");
       toast.error("You don't have admin or team privileges");
     }

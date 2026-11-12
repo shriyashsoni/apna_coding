@@ -23,3 +23,8 @@ export const isSuperAdmin = (address?: string, email?: string) => {
   
   return isWalletAdmin || isEmailAdmin;
 };
+
+// Explicit UI roles. Unknown or missing roles never grant dashboard access.
+export const TEAM_ROLES = ['admin', 'content_manager', 'event_manager', 'community_manager', 'recruiter', 'moderator'] as const;
+export const isTeamRole = (role: unknown): boolean =>
+  typeof role === 'string' && (TEAM_ROLES as readonly string[]).includes(role);

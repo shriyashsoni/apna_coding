@@ -1,5 +1,5 @@
 import { useAuth } from '@/hooks/use-auth';
-import { useWallets, usePrivy } from '@privy-io/react-auth';
+import { useWallets, usePrivy, useLogin } from '@privy-io/react-auth';
 import { Button } from '@/components/ui/button';
 import { Wallet, LogOut, User, FileText, Shield, ChevronDown, RefreshCw, Network } from 'lucide-react';
 import {
@@ -14,6 +14,8 @@ import {
   DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Link } from "react-router";
+import { useState } from "react";
+import { toast } from "sonner";
 
 const SUPPORTED_CHAINS = [
   { id: 1, name: 'Ethereum', hex: 'eip155:1' },
@@ -24,7 +26,23 @@ const SUPPORTED_CHAINS = [
 ];
 
 export function WalletConnect() {
-  const { isAuthenticated, user, privyUser, signIn, signOut } = useAuth();
+  const { isAuthenticated, isLoading, isSigningOut, user, privyUser, signOut } = useAuth();
+  const [loginPending, setLoginPending] = useState(false);
+  const { login } = useLogin({
+    onComplete: () => setLoginPending(false),
+    onError: (error) => {
+      setLoginPending(false);
+      if (error !== 'exited_auth_flow') toast.error('Login failed. Please try again.');
+    },
+  });
+  const handleLogin = () => {
+    if (loginPending) return;
+    setLoginPending(true);
+    try { login(); } catch { setLoginPending(false); toast.error('Login could not open. Please try again.'); }
+  };
+  const handleLogout = async () => {
+    try { await signOut(); } catch { toast.error('Sign out failed. Please try again.'); }
+  };
   const { wallets } = useWallets();
   const { linkWallet } = usePrivy();
   const address = privyUser?.wallet?.address;
@@ -59,6 +77,10 @@ export function WalletConnect() {
   const email = privyUser?.email?.address || user?.email;
   const name = user?.name || user?.username || email?.split('@')[0] || "Builder";
   const isAdmin = user?.role === 'admin';
+
+  if (isSigningOut || (isLoading && !isAuthenticated)) {
+    return <Button disabled aria-busy="true">{isSigningOut ? 'Signing out...' : 'Checking login...'}</Button>;
+  }
 
   if (isAuthenticated) {
     const avatarUrl = user?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${name || "apnacoding"}`;
@@ -172,7 +194,7 @@ export function WalletConnect() {
           <DropdownMenuSeparator className="bg-primary/10 my-1" />
           
           <DropdownMenuItem 
-            onClick={signOut}
+            onClick={handleLogout}
             className="cursor-pointer py-2 text-rose-400 focus:text-white focus:bg-rose-500/20 flex items-center"
           >
             <LogOut className="mr-2 h-4 w-4" />
@@ -185,7 +207,8 @@ export function WalletConnect() {
 
   return (
     <Button
-      onClick={signIn}
+      onClick={handleLogin}
+      disabled={loginPending}
       className="bg-primary text-primary-foreground hover:bg-primary/95 shadow-[0_0_15px_rgba(59,130,246,0.25)] font-medium gap-2 px-5 py-2.5 rounded-full border border-primary/20 hover:scale-[1.02] transition-all duration-200 select-none cursor-pointer"
     >
       <User className="h-4 w-4 text-black" />
