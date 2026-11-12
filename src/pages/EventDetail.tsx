@@ -115,6 +115,7 @@ export default function EventDetail() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <SEO
+        noindex={!event.is_published || !event.is_approved}
         title={event.title}
         description={event.description}
         image={event.image || event.image_url || undefined}

@@ -5,10 +5,26 @@
       "has": [
         {
           "type": "host",
+          "value": "apnacoding.com"
+        }
+      ],
+      "destination": "https://www.apnacoding.com/$1",
+      "permanent": true
+    },
+    {
+      "source": "/index.html",
+      "destination": "/",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
           "value": "apnacoding.site"
         }
       ],
-      "destination": "https://apnacoding.com/$1",
+      "destination": "https://www.apnacoding.com/$1",
       "permanent": true
     },
     {
@@ -19,7 +35,7 @@
           "value": "www.apnacoding.site"
         }
       ],
-      "destination": "https://apnacoding.com/$1",
+      "destination": "https://www.apnacoding.com/$1",
       "permanent": true
     }
   ],
@@ -66,7 +82,12 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/api/seo-page?path=$1"
     }
-  ]
+  ],
+  "functions": {
+    "api/seo-page.ts": {
+      "includeFiles": "dist/index.html"
+    }
+  }
 }

@@ -1,8 +1,11 @@
+import { Helmet } from 'react-helmet-async';
+import { NextSeo } from '@/components/next-seo';
+import { PUBLIC_PAGES, PRIVATE_PATH, canonicalUrl, jsonLd } from '@/lib/seo';
 import { Toaster } from "@/components/ui/sonner";
 import { InstrumentationProvider } from "@/instrumentation.tsx";
 import { StrictMode, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes } from "react-router";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router";
 import { PrivyProvider } from '@privy-io/react-auth';
 import { HelmetProvider } from 'react-helmet-async';
 import { ScrollToTop } from '@/components/ScrollToTop';
@@ -63,6 +66,14 @@ const PublicProfile = lazy(() => import("./pages/PublicProfile.tsx"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback.tsx"));
 const Social = lazy(() => import("./pages/Social.tsx"));
 
+function RouteSEO() {
+  const {pathname} = useLocation();
+  const page = PUBLIC_PAGES[pathname];
+  const privatePage = PRIVATE_PATH.test(pathname);
+  const knownDetail = /^\/(events|hackathons|jobs|news|products|community|event-groups)\/[^/]+\/?$/.test(pathname);
+  return <><NextSeo title={page?.[0]} description={page?.[1]} canonical={canonicalUrl(pathname)} noindex={privatePage || (!page && !knownDetail)} /><Helmet><script id="server-schema" type="application/ld+json">{jsonLd(page ? {'@context':'https://schema.org','@type':pathname === '/'?'WebSite':'WebPage',name:page[0],description:page[1],url:canonicalUrl(pathname)} : {})}</script></Helmet></>;
+}
+
 // Simple loading fallback for route transitions
 function RouteLoading() {
   return (
@@ -98,6 +109,7 @@ createRoot(document.getElementById("root")!).render(
           <InitialLoader>
             <BrowserRouter>
               <ScrollToTop />
+              <RouteSEO />
               <Suspense fallback={<RouteLoading />}>
                 <Routes>
                   <Route path="/" element={<Landing />} />

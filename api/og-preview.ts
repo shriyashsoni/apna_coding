@@ -1,3 +1,4 @@
+import { SITE_URL, contentSchema, jsonLd } from '../src/lib/seo.js';
 import { getMetadataForPath } from './utils/metadata-engine.js';
 
 /**
@@ -21,7 +22,7 @@ export default async function handler(req: any, res: any) {
   const { path } = req.query;
   if (!path) return res.status(400).send('Path required');
 
-  const siteUrl = 'https://apnacoding.com';
+  const siteUrl = SITE_URL;
   
   try {
     const metadata = await getMetadataForPath(path);
@@ -44,47 +45,9 @@ export default async function handler(req: any, res: any) {
       if (!ok) finalOgImage = `${siteUrl}/api/og-image?path=${encodeURIComponent(String(path))}`;
     }
 
-    // Prepare Structured Data (JSON-LD)
-    const jsonLd: any = {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "name": metadata.title,
-      "description": metadata.description,
-      "url": metadata.url,
-      "image": finalOgImage,
-      "publisher": {
-        "@type": "Organization",
-        "name": "Apna Coding",
-        "logo": {
-          "@type": "ImageObject",
-          "url": `${siteUrl}/logo.png`
-        }
-      }
-    };
-
-    // Specialize Structured Data based on type
-    if (metadata.type === 'event') {
-      jsonLd["@type"] = "Event";
-      const rawStart = metadata.data?.start_date || metadata.data?.date;
-      const startMs = typeof rawStart === 'string' && /^\d+$/.test(rawStart) ? Number(rawStart) : rawStart;
-      const startDate = typeof startMs === 'number' ? new Date(startMs) : (rawStart ? new Date(rawStart) : null);
-      if (startDate && !isNaN(startDate.getTime())) {
-        // Events with an unannounced time are stored at midnight UTC with timezone "TBA": date only.
-        jsonLd["startDate"] = metadata.data?.timezone === 'TBA' ? startDate.toISOString().slice(0, 10) : startDate.toISOString();
-      }
-      jsonLd["location"] = {
-        "@type": "Place",
-        "name": metadata.data?.location || "Online",
-        "address": metadata.data?.location || "Online"
-      };
-    } else if (metadata.type === 'product') {
-      jsonLd["@type"] = "Product";
-      jsonLd["brand"] = { "@type": "Brand", "name": "Apna Coding" };
-    } else if (metadata.type === 'article') {
-      jsonLd["@type"] = "Article";
-      jsonLd["headline"] = metadata.title;
-      jsonLd["datePublished"] = metadata.data?.created_at || new Date().toISOString();
-    }
+    const jsonLdData = contentSchema(String(path).split('/').filter(Boolean)[0], metadata.data || {}, metadata.url, metadata.title, metadata.description, finalOgImage);
+    const missing = !metadata.data;
+    if (missing) res.setHeader('X-Robots-Tag', 'noindex, follow');
 
     const html = `<!DOCTYPE html>
 <html lang="en">
@@ -97,7 +60,7 @@ export default async function handler(req: any, res: any) {
   
   <!-- Primary Meta Tags -->
   <meta name="title" content="${safeAttr(metadata.title)}">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="${missing ? 'noindex, follow' : 'index, follow'}">
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="${metadata.type === 'website' ? 'website' : 'article'}">
@@ -122,7 +85,7 @@ export default async function handler(req: any, res: any) {
 
   <!-- Structured Data -->
   <script type="application/ld+json">
-    ${JSON.stringify(jsonLd)}
+    ${jsonLd(jsonLdData)}
   </script>
 
   <!-- Fallback Redirect -->
@@ -145,7 +108,7 @@ export default async function handler(req: any, res: any) {
 
     res.setHeader('Content-Type', 'text/html');
     res.setHeader('Cache-Control', 'public, s-maxage=3600, stale-while-revalidate=59');
-    res.status(200).send(html);
+    res.status(missing ? 404 : 200).send(html);
 
   } catch (error) {
     console.error("OG Preview Error:", error);

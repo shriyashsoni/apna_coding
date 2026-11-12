@@ -491,7 +491,8 @@ export default function HackathonDetail() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground pt-24">
       <SEO
-        title={hackathon.title}
+        noindex={!hackathon.is_published || !hackathon.is_approved}
+        title={hackathon.title || hackathon.name}
         description={metaDescription}
         image={metaImage || undefined}
         url={currentUrl}

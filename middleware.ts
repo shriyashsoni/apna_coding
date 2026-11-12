@@ -30,8 +30,7 @@ export default function middleware(request: Request) {
     'redditbot',
     'Mastodon',
     'Embedly',
-    'vkShare',
-    'Applebot'
+    'vkShare'
   ];
 
   const isBot = bots.some(bot => userAgent.toLowerCase().includes(bot.toLowerCase()));
@@ -47,7 +46,6 @@ export default function middleware(request: Request) {
     '/products/',
     '/news/',
     '/community/',
-    '/verify/',
     '/blog/',
     '/courses/',
     '/internships/',
@@ -59,7 +57,7 @@ export default function middleware(request: Request) {
   const isDynamicPath = dynamicPaths.some(p => pathname.startsWith(p));
 
   // If it's a bot hitting a dynamic path, rewrite to our production SEO engine
-  if (isBot && isDynamicPath) {
+  if (isBot && isDynamicPath && pathname.split('/').filter(Boolean).length === 2) {
     const previewUrl = new URL('/api/og-preview', request.url);
     previewUrl.searchParams.set('path', pathname);
     return rewrite(previewUrl);
@@ -79,7 +77,6 @@ export const config = {
     '/products/:path*',
     '/news/:path*',
     '/community/:path*',
-    '/verify/:path*',
     '/blog/:path*',
     '/courses/:path*',
     '/internships/:path*',

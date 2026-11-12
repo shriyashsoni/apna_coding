@@ -87,17 +87,20 @@ export const METADATA_MAPPING: Record<string, MetadataConfig> = {
 const supabaseUrl = process.env.VITE_SUPABASE_URL || 'https://yjgjfurrvyvhncjxqcre.supabase.co';
 const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlqZ2pmdXJydnl2aG5janhxY3JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2ODkzNjQsImV4cCI6MjA5NDI2NTM2NH0.6n15TfLnuAfWCRF8oT2P0F5TooeiLHi3P79XpLF3o1I';
 
-export const SITE_URL = 'https://apnacoding.com';
+export { SITE_URL } from '../../src/lib/seo.js';
+import { SITE_URL } from '../../src/lib/seo.js';
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 // Only records that are publicly listed may appear in a preview.
 // Tables that carry publish flags must have them set to true.
-const PUBLISH_FILTERS: Record<string, string> = {
+export const PUBLISH_FILTERS: Record<string, string> = {
   hackathons: '&is_published=eq.true&is_approved=eq.true',
   jobs: '&is_published=eq.true&is_approved=eq.true',
   events: '&is_published=eq.true&is_approved=eq.true&is_cancelled=not.eq.true',
   news: '&is_published=eq.true&is_approved=eq.true',
-  community: '&is_published=eq.true'
+  community: '&is_published=eq.true',
+  products: '&status=eq.approved&is_approved=eq.true',
+  'event-groups': '&is_published=eq.true'
 };
 
 const pick = (data: any, field: string | string[]) => {
@@ -111,13 +114,15 @@ const pick = (data: any, field: string | string[]) => {
 /** Fetch one publicly listed record by slug or id. Returns null if missing/unpublished. */
 export async function fetchPublicRecord(type: string, slug: string) {
   const config = METADATA_MAPPING[type];
-  if (!config || !slug) return null;
+  if (!Object.prototype.hasOwnProperty.call(METADATA_MAPPING,type) || !config || !slug || type === 'verify') return null;
   const isUuid = UUID_RE.test(slug);
   const key = isUuid ? 'id' : config.slugField;
   if (!isUuid && !/^[A-Za-z0-9._~%-]+$/.test(slug)) return null;
-  const url = `${supabaseUrl}/rest/v1/${config.table}?select=*&${key}=eq.${encodeURIComponent(decodeURIComponent(slug))}${PUBLISH_FILTERS[type] || ''}&limit=1`;
-  const res = await fetch(url, { headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` } });
-  if (!res.ok) return null;
+  let decoded: string;
+  try { decoded = decodeURIComponent(slug); } catch { return null; }
+  const url = `${supabaseUrl}/rest/v1/${config.table}?select=*&${key}=eq.${encodeURIComponent(decoded)}${PUBLISH_FILTERS[type] || ''}&limit=1`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(7000), headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` } });
+  if (!res.ok) throw new Error(`Public metadata unavailable (${res.status})`);
   const rows = await res.json();
   const data = Array.isArray(rows) ? rows[0] : null;
   if (!data) return null;
@@ -141,7 +146,7 @@ export function cardText(type: string, data: any, config: MetadataConfig) {
   return { title, sub: String(sub || ''), kind: kinds[type] || 'LISTING' };
 }
 
-export async function getMetadataForPath(path: string): Promise<any> {
+export async function getMetadataForPath(path: string, record?: any): Promise<any> {
   const parts = path.split('/').filter(Boolean);
   const type = parts[0];
   const slug = parts[1];
@@ -160,7 +165,7 @@ export async function getMetadataForPath(path: string): Promise<any> {
   if (!slug || !METADATA_MAPPING[type]) return fallback;
 
   try {
-    const found = await fetchPublicRecord(type, slug);
+    const found = record || await fetchPublicRecord(type, slug);
     if (!found) return fallback;
     const { config, data } = found;
 
@@ -193,3 +198,20 @@ export async function getMetadataForPath(path: string): Promise<any> {
     return fallback;
   }
 }
+
+/** Paginated public-only reads, shared by discovery HTML and sitemaps. */
+export async function fetchPublicRecords(type: string) {
+  const config = METADATA_MAPPING[type];
+  if (!config || !PUBLISH_FILTERS[type]) throw new Error('Unsupported public category');
+  const result: any[] = [];
+  for (let offset = 0; ; offset += 500) {
+    const url = `${supabaseUrl}/rest/v1/${config.table}?select=*${PUBLISH_FILTERS[type]}&order=id.asc&limit=500&offset=${offset}`;
+    const response = await fetch(url, { signal: AbortSignal.timeout(7000), headers: { apikey: supabaseAnonKey, Authorization: `Bearer ${supabaseAnonKey}` } });
+    if (!response.ok) throw new Error(`Public listing lookup failed (${response.status})`);
+    const rows = await response.json();
+    result.push(...rows);
+    if (rows.length < 500) break;
+  }
+  return result;
+}
+export const recordPath = (type: string, row: any) => `/${type}/${encodeURIComponent(row.slug || row.id)}`;
