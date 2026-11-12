@@ -1,7 +1,20 @@
 import { usePrivy } from "@privy-io/react-auth";
 import { supabase } from "@/lib/supabase";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { isSuperAdmin } from "@/lib/admin-config";
+
+// Shared across hook instances so all menus and admin screens hide privileges
+// while logout is pending. This is UI state, not server authorization.
+let logoutPending = false;
+const logoutListeners = new Set<() => void>();
+const setLogoutPending = (value: boolean) => {
+  logoutPending = value;
+  logoutListeners.forEach(listener => listener());
+};
+const subscribeLogout = (listener: () => void) => {
+  logoutListeners.add(listener);
+  return () => { logoutListeners.delete(listener); };
+};
 
 export function useAuth() {
   const { 
@@ -12,6 +25,7 @@ export function useAuth() {
     ready 
   } = usePrivy();
   
+  const isSigningOut = useSyncExternalStore(subscribeLogout, () => logoutPending);
   const address = privyUser?.wallet?.address;
   const email = privyUser?.email?.address;
   // Support GitHub login: extract GitHub account info
@@ -24,11 +38,23 @@ export function useAuth() {
   const twitterSubject = twitterAccount?.subject;
   const [user, setUser] = useState<any>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
+  const identity = authenticated && !isSigningOut
+    ? [privyUser?.id, address, email, githubSubject, twitterSubject].join('|')
+    : '';
+  const [resolvedIdentity, setResolvedIdentity] = useState('');
 
   useEffect(() => {
+    let active = true;
+    let requestVersion = 0;
+    // Clear the old account before reading another account's profile.
+    setUser(null);
+    setResolvedIdentity('');
     async function fetchUser() {
+      const version = ++requestVersion;
+      const isCurrent = () => active && version === requestVersion;
       if (!address && !email && !githubSubject && !twitterSubject) {
         setUser(null);
+        setResolvedIdentity(identity);
         setIsLoadingUser(false);
         return;
       }
@@ -36,6 +62,8 @@ export function useAuth() {
       setIsLoadingUser(true);
       try {
         let userData = null;
+
+        if (!isCurrent()) return;
 
         // 1. Try fetching by email if it exists (highly unique for Gmail/Google login)
         if (email) {
@@ -45,6 +73,8 @@ export function useAuth() {
             .eq('email', email)
             .maybeSingle();
           
+          if (!isCurrent()) return;
+          if (error) throw error;
           if (data) {
             userData = data;
             // Sync wallet address in DB if it's available in Privy but not in DB
@@ -67,6 +97,8 @@ export function useAuth() {
             .select('*')
             .eq('wallet_address', address)
             .maybeSingle();
+          if (!isCurrent()) return;
+          if (error) throw error;
           if (data) userData = data;
         }
 
@@ -78,6 +110,8 @@ export function useAuth() {
             .select('*')
             .eq('wallet_address', ghWallet)
             .maybeSingle();
+          if (!isCurrent()) return;
+          if (error) throw error;
           if (data) userData = data;
         }
 
@@ -89,6 +123,8 @@ export function useAuth() {
             .select('*')
             .eq('wallet_address', twWallet)
             .maybeSingle();
+          if (!isCurrent()) return;
+          if (error) throw error;
           if (data) userData = data;
         }
 
@@ -104,6 +140,7 @@ export function useAuth() {
                 : 'unknown';
 
         // 3. If authenticated but doesn't exist in our DB yet, automatically register them!
+        if (!isCurrent()) return;
         if (!userData) {
           const username = email
             ? email.split('@')[0]
@@ -124,13 +161,17 @@ export function useAuth() {
               username: username,
               name: name,
               auth_provider: authProvider,
-              role: isSuperAdmin(address || '', email || '') ? 'admin' : 'user'
+              role: 'user'
             })
             .select()
             .maybeSingle();
 
+          if (!isCurrent()) return;
+          if (error) throw error;
           if (data) userData = data;
         }
+
+        if (!isCurrent()) return;
 
         // Backfill auth_provider for existing users who don't have it set
         if (userData && !userData.auth_provider) {
@@ -146,11 +187,15 @@ export function useAuth() {
           userData = { ...userData, role: 'admin' };
         }
 
-        setUser(userData);
+        if (isCurrent()) {
+          setUser(userData);
+          setResolvedIdentity(identity);
+        }
       } catch (err) {
         console.error("Error fetching/syncing user from Supabase:", err);
         // Fallback for super admins
-        if (isSuperAdmin(address || '', email || '')) {
+        if (isCurrent() && isSuperAdmin(address || '', email || '')) {
+          setResolvedIdentity(identity);
           setUser({
             wallet_address: address || `email:${email}`,
             email: email,
@@ -158,39 +203,51 @@ export function useAuth() {
           });
         }
       } finally {
-        setIsLoadingUser(false);
+        if (isCurrent()) { setResolvedIdentity(identity); setIsLoadingUser(false); }
       }
     }
 
-    if (ready && authenticated) {
+    if (ready && authenticated && !isSigningOut) {
       fetchUser();
-    } else if (ready && !authenticated) {
+    } else if (ready && (!authenticated || isSigningOut)) {
       setUser(null);
       setIsLoadingUser(false);
     }
 
     // Listen for profile updates
     const handleUserUpdate = () => {
-      if (ready && authenticated) {
+      if (ready && authenticated && !isSigningOut) {
         fetchUser();
       }
     };
     window.addEventListener('user-updated', handleUserUpdate);
 
     return () => {
+      active = false;
       window.removeEventListener('user-updated', handleUserUpdate);
     };
-  }, [address, email, githubSubject, twitterSubject, authenticated, ready]);
+  }, [identity, authenticated, ready, isSigningOut]);
 
-  const isLoading = !ready || isLoadingUser;
-  const isAuthenticated = authenticated;
+  const isLoading = !ready || isLoadingUser || (authenticated && !isSigningOut && !!identity && resolvedIdentity !== identity);
+  const isAuthenticated = authenticated && !isSigningOut;
+  const visibleUser = isAuthenticated && ready && resolvedIdentity === identity ? user : null;
+  const signOut = async () => {
+    if (logoutPending) return;
+    setLogoutPending(true);
+    try {
+      await logout();
+    } finally {
+      setLogoutPending(false);
+    }
+  };
 
   return {
     isLoading,
     isAuthenticated,
-    user,
+    user: visibleUser,
+    isSigningOut,
     privyUser,
     signIn: login,
-    signOut: logout,
+    signOut,
   };
 }
