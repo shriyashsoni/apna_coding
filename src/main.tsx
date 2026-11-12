@@ -1,6 +1,5 @@
-import { Helmet } from 'react-helmet-async';
 import { NextSeo } from '@/components/next-seo';
-import { PUBLIC_PAGES, PRIVATE_PATH, canonicalUrl, jsonLd } from '@/lib/seo';
+import { PUBLIC_PAGES, PRIVATE_PATH, canonicalUrl } from '@/lib/seo';
 import { Toaster } from "@/components/ui/sonner";
 import { InstrumentationProvider } from "@/instrumentation.tsx";
 import { StrictMode, lazy, Suspense } from "react";
@@ -71,7 +70,7 @@ function RouteSEO() {
   const page = PUBLIC_PAGES[pathname];
   const privatePage = PRIVATE_PATH.test(pathname);
   const knownDetail = /^\/(events|hackathons|jobs|news|products|community|event-groups)\/[^/]+\/?$/.test(pathname);
-  return <><NextSeo title={page?.[0]} description={page?.[1]} canonical={canonicalUrl(pathname)} noindex={privatePage || (!page && !knownDetail)} /><Helmet><script id="server-schema" type="application/ld+json">{jsonLd(page ? {'@context':'https://schema.org','@type':pathname === '/'?'WebSite':'WebPage',name:page[0],description:page[1],url:canonicalUrl(pathname)} : {})}</script></Helmet></>;
+  return <NextSeo title={page?.[0]} description={page?.[1]} canonical={canonicalUrl(pathname)} noindex={privatePage || (!page && !knownDetail)} />;
 }
 
 // Simple loading fallback for route transitions
