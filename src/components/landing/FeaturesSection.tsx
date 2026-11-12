@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
+import { useLightweightMedia } from "@/hooks/useLightweightMedia";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Trophy, Briefcase, Package } from "lucide-react";
@@ -14,8 +15,7 @@ if (typeof window !== "undefined") {
 function ScrollVideo({ src }: { src: string }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [loadProgress, setLoadProgress] = useState(0);
-  const [isLoaded, setIsLoaded] = useState(false);
+
 
   useEffect(() => {
     const video = videoRef.current;
@@ -42,60 +42,20 @@ function ScrollVideo({ src }: { src: string }) {
 
     video.addEventListener("seeked", handleSeeked);
 
-    const handleProgress = () => {
-      if (video.duration && video.buffered.length > 0) {
-        const bufferedEnd = video.buffered.end(video.buffered.length - 1);
-        const progress = Math.min(100, Math.round((bufferedEnd / video.duration) * 100));
-        setLoadProgress(progress);
-      }
-    };
-    video.addEventListener("progress", handleProgress);
-
     const isMp4 = src.toLowerCase().endsWith(".mp4") || !src.includes(".m3u8");
 
-    if (isMp4) {
-      video.src = src;
-    } else {
-      // HLS initialization
-      if (Hls.isSupported()) {
-        hls = new Hls({
-          maxBufferLength: 120,
-          maxMaxBufferLength: 600,
-          maxBufferSize: 200 * 1024 * 1024,
-          startPosition: 0,
-          capLevelToPlayerSize: false,
-          startLevel: -1,
-          autoStartLoad: true,
-        });
-
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return;
+      observer.disconnect();
+      if (isMp4 || video.canPlayType("application/vnd.apple.mpegurl")) {
+        video.src = src;
+      } else if (Hls.isSupported()) {
+        hls = new Hls({ maxBufferLength: 10, capLevelToPlayerSize: true });
         hls.loadSource(src);
         hls.attachMedia(video);
-
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          const maxLevel = hls!.levels.length - 1;
-          hls!.currentLevel = maxLevel;
-          hls!.startLevel = maxLevel;
-        });
-
-        hls.on(Hls.Events.FRAG_BUFFERED, (event, data) => {
-          if (video.duration) {
-            const bufferedEnd = video.buffered.length > 0 ? video.buffered.end(video.buffered.length - 1) : 0;
-            const progress = Math.min(100, Math.round((bufferedEnd / video.duration) * 100));
-            setLoadProgress(progress);
-          }
-        });
-      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-        // Safari native HLS support
-        video.src = src;
       }
-    }
-
-    const handleCanPlay = () => {
-      setIsLoaded(true);
-      setLoadProgress(100);
-    };
-
-    video.addEventListener("canplay", handleCanPlay);
+    }, { rootMargin: "200px" });
+    if (containerRef.current) observer.observe(containerRef.current);
 
     // Scroll seek setup
     const trigger = ScrollTrigger.create({
@@ -130,8 +90,7 @@ function ScrollVideo({ src }: { src: string }) {
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       video.removeEventListener("seeked", handleSeeked);
-      video.removeEventListener("canplay", handleCanPlay);
-      video.removeEventListener("progress", handleProgress);
+      observer.disconnect();
       trigger.kill();
       if (hls) {
         hls.destroy();
@@ -141,15 +100,6 @@ function ScrollVideo({ src }: { src: string }) {
 
   return (
     <>
-      {/* Loading Overlay */}
-      {!isLoaded && (
-        <div className="fixed inset-0 bg-black z-50 flex flex-col items-center justify-center text-white">
-          <span className="text-2xl font-medium tracking-wider">
-            Loading Cinematic Web3 Experience... {loadProgress}%
-          </span>
-        </div>
-      )}
-
       {/* Video Container Wrapper */}
       <div 
         ref={containerRef} 
@@ -158,6 +108,8 @@ function ScrollVideo({ src }: { src: string }) {
         <video
           ref={videoRef}
           className="w-full h-full object-cover scale-[1.35]"
+          preload="none"
+          aria-hidden="true"
           muted
           playsInline
           crossOrigin="anonymous"
@@ -399,6 +351,21 @@ function GlassPanel() {
 // Master Assembly Container
 // ----------------------------------------------------
 export function FeaturesSection() {
+  const lightweight = useLightweightMedia();
+  if (lightweight) return (
+    <section className="px-4 py-16 border-y border-white/10 bg-black" aria-label="Web3 opportunities">
+      <div className="max-w-5xl mx-auto">
+        <h2 className="text-3xl font-medium mb-8">Web3 Opportunity Layer</h2>
+        <div className="grid sm:grid-cols-3 gap-4">
+          {[
+            { Icon: Trophy, title: "Epic Hackathons", desc: "Compete globally, build innovative projects, and win prizes in Web3 ecosystems." },
+            { Icon: Briefcase, title: "Career Opportunities", desc: "Connect with Web3 companies and explore career opportunities." },
+            { Icon: Package, title: "Discover Products", desc: "Explore Web3 applications and tools shared by the community." },
+          ].map(({ Icon, title, desc }) => <div key={title} className="liquid-glass rounded-2xl p-6"><Icon className="h-6 w-6 mb-4" /><h3 className="text-lg font-semibold mb-2">{title}</h3><p className="text-sm text-muted-foreground">{desc}</p></div>)}
+        </div>
+      </div>
+    </section>
+  );
   return (
     <section 
       id="scroll-sequence-container" 

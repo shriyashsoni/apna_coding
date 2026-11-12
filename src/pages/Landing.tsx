@@ -106,7 +106,7 @@ export default function Landing() {
                 </motion.div>
               ))
             ) : (
-              <div className="col-span-3 text-center py-12 text-muted-foreground">No featured hackathons found.</div>
+              <div className="col-span-full text-center py-12 text-muted-foreground">No featured hackathons found.</div>
             )}
           </div>
 
@@ -153,7 +153,7 @@ export default function Landing() {
                 </motion.div>
               ))
             ) : (
-              <div className="col-span-3 text-center py-12 text-muted-foreground">No featured events found.</div>
+              <div className="col-span-full text-center py-12 text-muted-foreground">No featured events found.</div>
             )}
           </div>
 

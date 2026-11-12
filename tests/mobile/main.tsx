@@ -1,0 +1,15 @@
+import {createRoot} from 'react-dom/client';
+import {BrowserRouter,Routes,Route} from 'react-router';
+import {ProductManager} from '../../src/components/admin/ProductManager';
+import {GlobalContentExplorer} from '../../src/components/admin/GlobalContentExplorer';
+import Landing from '../../src/pages/Landing';
+import Events from '../../src/pages/Events';
+import Hackathons from '../../src/pages/Hackathons';
+import Jobs from '../../src/pages/Jobs';
+import News from '../../src/pages/News';
+import Products from '../../src/pages/Products';
+import ProductDetail from '../../src/pages/ProductDetail';
+import {ScrollToTop} from '../../src/components/ScrollToTop';
+import {InitialLoader} from '../../src/components/InitialLoader';
+import '../../src/index.css';
+createRoot(document.getElementById('root')!).render(<InitialLoader><BrowserRouter><ScrollToTop/><Routes><Route path='/manage' element={<ProductManager/>}/><Route path='/library' element={<GlobalContentExplorer/>}/><Route path='/' element={<Landing/>}/><Route path='/events' element={<Events/>}/><Route path='/hackathons' element={<Hackathons/>}/><Route path='/jobs' element={<Jobs/>}/><Route path='/news' element={<News/>}/><Route path='/products' element={<Products/>}/><Route path='/products/:slug' element={<ProductDetail/>}/></Routes></BrowserRouter></InitialLoader>);

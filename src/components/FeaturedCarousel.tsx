@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
+import { useLightweightMedia } from "@/hooks/useLightweightMedia";
 
 interface FeaturedCarouselProps {
   items: any[];
@@ -17,17 +18,19 @@ export function FeaturedCarousel({
   autoPlayInterval = 5000
 }: FeaturedCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const lightweight = useLightweightMedia();
+  useEffect(() => { setCurrentIndex(index => Math.min(index, Math.max(0, items.length - 1))); }, [items.length]);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
 
   useEffect(() => {
-    if (!isAutoPlaying || items.length <= 1) return;
+    if (lightweight || !isAutoPlaying || items.length <= 1) return;
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % items.length);
     }, autoPlayInterval);
 
     return () => clearInterval(interval);
-  }, [isAutoPlaying, items.length, autoPlayInterval]);
+  }, [lightweight, isAutoPlaying, items.length, autoPlayInterval]);
 
   const goToPrevious = () => {
     setIsAutoPlaying(false);
@@ -62,7 +65,8 @@ export function FeaturedCarousel({
             <Button
               variant="outline"
               size="icon"
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
+              aria-label="Previous featured item"
+              className="absolute left-0 bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
               onClick={goToPrevious}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -70,7 +74,8 @@ export function FeaturedCarousel({
             <Button
               variant="outline"
               size="icon"
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
+              aria-label="Next featured item"
+              className="absolute right-0 bottom-0 sm:bottom-auto sm:top-1/2 sm:-translate-y-1/2 z-10 rounded-full bg-background/80 backdrop-blur-sm"
               onClick={goToNext}
             >
               <ChevronRight className="h-4 w-4" />
@@ -79,7 +84,7 @@ export function FeaturedCarousel({
         )}
 
         {/* Carousel Container */}
-        <div className="overflow-hidden px-12">
+        <div className="overflow-hidden sm:px-12">
           <motion.div
             key={currentIndex}
             initial={{ opacity: 0, x: 100 }}
@@ -88,13 +93,13 @@ export function FeaturedCarousel({
             transition={{ duration: 0.5 }}
             className="w-full"
           >
-            {renderCard(items[currentIndex], currentIndex)}
+            {renderCard(items[Math.min(currentIndex, items.length - 1)], currentIndex)}
           </motion.div>
         </div>
 
         {/* Dots Indicator */}
         {items.length > 1 && (
-          <div className="flex justify-center gap-2 mt-6">
+          <div className="flex flex-wrap justify-center gap-2 mt-6 px-12">
             {items.map((_, index) => (
               <button
                 key={index}
@@ -103,10 +108,10 @@ export function FeaturedCarousel({
                   setCurrentIndex(index);
                   setTimeout(() => setIsAutoPlaying(true), 10000);
                 }}
-                className={`h-2 rounded-full transition-all ${
+                className={`h-6 rounded-full transition-all ${
                   index === currentIndex
                     ? "w-8 bg-primary"
-                    : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                    : "w-6 bg-muted-foreground/30 hover:bg-muted-foreground/50"
                 }`}
                 aria-label={`Go to slide ${index + 1}`}
               />

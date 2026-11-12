@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,6 +28,8 @@ export function ProductManager() {
   const [post, setPost] = useState<any>(null);
   const [form, setForm] = useState<Form | null>(null);
   const [saving, setSaving] = useState(false);
+  const saveLock = useRef(false);
+  const creating = !!post?.__draft;
   const [error, setError] = useState("");
   const load = async (append = false) => {
     setLoading(true); setError("");
@@ -44,6 +46,11 @@ export function ProductManager() {
     finally { setLoading(false); }
   };
   useEffect(() => { void load(); }, []);
+  const createDraft = () => {
+    setError("");
+    setPost({ id: crypto.randomUUID(), __draft: true });
+    setForm({ name: "", slug: "", category: "", website_url: "", github_url: "", image_url: "", description: "", published: false, is_featured: false });
+  };
   const edit = (row: any) => {
     setError(""); setPost(row);
     setForm({ name: row.name || "", slug: row.slug || "", category: row.category || "",
@@ -52,7 +59,7 @@ export function ProductManager() {
   };
   const save = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!form || !post || saving) return;
+    if (!form || !post || saveLock.current) return;
     if (!form.name.trim() || !form.description.trim() || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(form.slug.trim())) {
       setError("Name, description, and a lowercase hyphenated URL slug are required."); return;
     }
@@ -69,23 +76,42 @@ export function ProductManager() {
     const payload = { name: form.name.trim(), slug: form.slug.trim(), description: form.description,
       category: form.category.trim() || null, website_url: form.website_url.trim() || null,
       github_url: form.github_url.trim() || null, image_url: form.image_url.trim() || null,
-      status: post.on_chain_id != null ? post.status : form.published ? "approved" : "pending",
-      is_approved: post.on_chain_id != null ? post.is_approved : form.published,
-      is_featured: form.is_featured };
+      status: creating ? "pending" : post.on_chain_id != null ? post.status : form.published ? "approved" : "pending",
+      is_approved: creating ? false : post.on_chain_id != null ? post.is_approved : form.published,
+      is_featured: creating ? false : form.is_featured };
+    saveLock.current = true;
     setSaving(true); setError("");
     try {
-      const { data, error } = await supabase.from("products").update(payload).eq("id", post.id).select("*").single();
-      if (error) throw error;
-      if (!data || Object.entries(payload).some(([key, value]) => data[key] !== value)) throw new Error("The server did not confirm the requested values. Refresh before retrying.");
-      setProducts(previous => previous.map(row => row.id === data.id ? data : row));
-      setPost(null); setForm(null); toast.success("Project updated");
+      let saved: any;
+      if (creating) {
+        // A stable client-generated row ID survives an uncertain response. A
+        // retry recovers that exact save rather than creating a second row.
+        const { data: existing, error: lookupError } = await supabase.from("products").select("*").eq("slug", payload.slug).maybeSingle();
+        if (lookupError) throw lookupError;
+        if (existing) {
+          if (existing.id !== post.id) throw new Error("That slug already exists. Use Edit for the saved project instead of creating a duplicate.");
+          saved = existing;
+        } else {
+          const { data, error } = await supabase.from("products").insert({ ...payload, id: post.id }).select("*").single();
+          if (error) throw error;
+          saved = data;
+        }
+      } else {
+        const { data, error } = await supabase.from("products").update(payload).eq("id", post.id).select("*").single();
+        if (error) throw error;
+        saved = data;
+      }
+      if (!saved || saved.id !== post.id || Object.entries(payload).some(([key, value]) => saved[key] !== value)) throw new Error("The server did not confirm the requested values. Refresh before retrying.");
+      setProducts(previous => creating ? [saved, ...previous.filter(row => row.id !== saved.id)] : previous.map(row => row.id === saved.id ? saved : row));
+      setPost(null); setForm(null); toast.success(creating ? "Draft created. Review its image and credits before publishing." : "Project updated");
     } catch (err: any) { setError(err.message || "Could not save. Your input has been kept."); }
-    finally { setSaving(false); }
+    finally { saveLock.current = false; setSaving(false); }
   };
   return <Card className="border-primary/20 bg-card/50">
     <CardHeader><CardTitle>Manage Products</CardTitle></CardHeader>
     <CardContent className="space-y-4">
       <p className="text-sm text-muted-foreground">Edit project facts, source links, creator credits, and prototype limitations before publishing. Both approval fields must agree for public display.</p>
+      <Button onClick={createDraft} disabled={loading}>Create Project Draft</Button>
       {error && !post && <p role="alert" className="text-destructive">{error}</p>}
       {loading && <p role="status">Loading projects...</p>}
       {!loading && !products.length && !error && <p>No saved projects yet.</p>}
@@ -100,14 +126,14 @@ export function ProductManager() {
     </CardContent>
     <Dialog open={!!post} onOpenChange={open => { if (!open && !saving) { setPost(null); setForm(null); } }}>
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-2xl">
-        <DialogHeader><DialogTitle>Edit Project</DialogTitle><DialogDescription>Preserves the row ID. Changing the slug changes its link. Credit the linked creators or repository accurately; do not imply Apna Coding built a third-party project.</DialogDescription></DialogHeader>
+        <DialogHeader><DialogTitle>{creating ? "Create Project Draft" : "Edit Project"}</DialogTitle><DialogDescription>New drafts stay unpublished until a separate reviewed edit. Existing rows keep their ID; changing the slug changes its link. Credit the linked creators or repository accurately; do not imply Apna Coding built a third-party project.</DialogDescription></DialogHeader>
         {form && <form onSubmit={save} className="space-y-4">
           {fields.map(([key, label]) => <div key={key} className="space-y-2"><Label htmlFor={`product-${key}`}>{label}</Label><Input id={`product-${key}`} value={form[key]} disabled={saving} onChange={e => setForm({ ...form, [key]: e.target.value })} /></div>)}
           <div className="space-y-2"><Label htmlFor="product-description">Description, creator/source credits, and prototype limitations</Label><Textarea id="product-description" className="min-h-[160px]" value={form.description} disabled={saving} onChange={e => setForm({ ...form, description: e.target.value })} /><p className="text-xs text-muted-foreground">Plain text. Keep technical claims source-grounded and label hackathon prototypes as prototypes.</p></div>
-          <label className="flex items-center gap-2"><input type="checkbox" checked={form.published} disabled={saving || post.on_chain_id != null} onChange={e => setForm({ ...form, published: e.target.checked })} />Published (approved for public display)</label>
-          <label className="flex items-center gap-2"><input type="checkbox" checked={form.is_featured} disabled={saving} onChange={e => setForm({ ...form, is_featured: e.target.checked })} />Featured</label>
+          <label className="flex items-center gap-2"><input type="checkbox" checked={form.published} disabled={saving || creating || post.on_chain_id != null} onChange={e => setForm({ ...form, published: e.target.checked })} />Published (approved for public display)</label>
+          <label className="flex items-center gap-2"><input type="checkbox" checked={form.is_featured} disabled={saving || creating} onChange={e => setForm({ ...form, is_featured: e.target.checked })} />Featured</label>
           {error && <p role="alert" className="text-destructive">{error}</p>}
-          <div className="flex justify-end gap-2"><Button type="button" variant="outline" disabled={saving} onClick={() => { setPost(null); setForm(null); }}>Cancel</Button><Button type="submit" disabled={saving}>{saving ? "Saving..." : "Save Project"}</Button></div>
+          <div className="flex justify-end gap-2"><Button type="button" variant="outline" disabled={saving} onClick={() => { setPost(null); setForm(null); }}>Cancel</Button><Button type="submit" disabled={saving}>{saving ? "Saving..." : creating ? "Create Draft" : "Save Project"}</Button></div>
         </form>}
       </DialogContent>
     </Dialog>

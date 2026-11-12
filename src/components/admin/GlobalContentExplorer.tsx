@@ -83,10 +83,11 @@ export function GlobalContentExplorer() {
   const [imageSaveError, setImageSaveError] = useState<string | null>(null);
 
   // Storage folder per type for mirrored images (matches uploadRemoteImageToSupabase)
-  const folderForType = (type: ContentType): "events" | "hackathons" | "news" => {
+  const folderForType = (type: ContentType): "events" | "hackathons" | "news" | "products" => {
     switch (type) {
       case "hackathon": return "hackathons";
       case "news": return "news";
+      case "product": return "products";
       default: return "events";
     }
   };
@@ -259,6 +260,7 @@ export function GlobalContentExplorer() {
       case "event": return ["image", "image_url"];
       case "hackathon": return ["image"];
       case "news": return ["cover_image", "image_url"];
+      case "product": return ["image_url"];
       default: return [];
     }
   };
@@ -273,12 +275,13 @@ export function GlobalContentExplorer() {
       return;
     }
     try {
-      new URL(url);
+      if (!["http:", "https:"].includes(new URL(url).protocol)) throw new Error();
     } catch {
       toast.error("Please enter a valid URL");
       return;
     }
     setIsSavingImage(true);
+    setImageSaveError(null);
     try {
       let finalUrl = url;
       if (mirrorToStorage) {
@@ -301,14 +304,16 @@ export function GlobalContentExplorer() {
       }
       const table = getTableForType(imageEditItem.type);
       const updates = Object.fromEntries(imageColumnsForType(imageEditItem.type).map(c => [c, finalUrl]));
-      const { error } = await supabase.from(table).update(updates).eq("id", imageEditItem.id);
+      const { data, error } = await supabase.from(table).update(updates).eq("id", imageEditItem.id).select(["id", ...Object.keys(updates)].join(",")).single();
       if (error) throw error;
+      if (!data || (data as any).id !== imageEditItem.id || Object.keys(updates).some(column => (data as any)[column] !== finalUrl)) throw new Error("The server did not confirm the saved image. Please reload and check the record.");
       toast.success(`Image updated for "${imageEditItem.title}"`);
       setImageEditItem(null);
       setImageUrlInput("");
       setMirrorToStorage(false);
       setImageSaveError(null);
     } catch (err: any) {
+      setImageSaveError(err.message || "Failed to update image. Your input has been kept.");
       toast.error(err.message || "Failed to update image");
     } finally {
       setIsSavingImage(false);
@@ -321,6 +326,7 @@ export function GlobalContentExplorer() {
       case "hackathon": return "hackathons";
       case "job": return "jobs";
       case "news": return "news";
+      case "product": return "products";
       case "product": return "products";
       case "community": return "communities";
     }
