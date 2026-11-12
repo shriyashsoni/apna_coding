@@ -25,6 +25,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+import { isEthGlobalShowcase } from "@/utils/product-visibility";
+
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
@@ -44,13 +46,14 @@ export default function ProductDetail() {
 
   const fetchProduct = async () => {
     setLoading(true);
+    setProduct(null);
+    setComments([]);
     try {
       const { data, error } = await supabase
         .from("products")
-        .select(`
-          *,
-          author:users!author_id(*)
-        `)
+        .select("*")
+        .eq("status", "approved")
+        .eq("is_approved", true)
         .eq("slug", slug)
         .single();
       
@@ -271,7 +274,7 @@ export default function ProductDetail() {
                 <img
                   src={product.image_url}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
               </div>
@@ -279,6 +282,10 @@ export default function ProductDetail() {
 
             <div className="mb-8">
               <Badge className="mb-4">{product.category}</Badge>
+              {isEthGlobalShowcase(product.website_url) && <div className="mb-4 rounded-lg border border-primary/20 p-4 space-y-1">
+                <p className="font-semibold">Third-party hackathon prototype</p>
+                <p className="text-sm text-muted-foreground">Curated from ETHGlobal, not built by Apna Coding. Project claims are team-described and are not a security audit or endorsement. See the description and original source for credits and limitations.</p>
+              </div>}
 
               <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
                 {product.name}
@@ -287,7 +294,7 @@ export default function ProductDetail() {
               <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-6">
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  <span>{product.author?.name || product.wallet_address?.slice(0, 6) + "..." || "Anonymous"}</span>
+                  <span>{isEthGlobalShowcase(product.website_url) ? "Curated third-party showcase" : "Community-submitted product"}</span>
                 </div>
                 <span>•</span>
                 <div className="flex items-center gap-2">
@@ -333,7 +340,7 @@ export default function ProductDetail() {
                   <a href={product.website_url} target="_blank" rel="noopener noreferrer">
                     <Button variant="outline">
                       <ExternalLink className="mr-2 h-4 w-4" />
-                      Visit Website
+                      {isEthGlobalShowcase(product.website_url) ? "Original ETHGlobal Showcase" : "Visit Website"}
                     </Button>
                   </a>
                 )}

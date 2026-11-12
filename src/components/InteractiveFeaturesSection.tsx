@@ -12,6 +12,8 @@ import {
   Users
 } from "lucide-react";
 
+import { isEthGlobalShowcase } from "@/utils/product-visibility";
+
 const tabs = [
   { id: "news", label: "News", link: "/news" },
   { id: "jobs", label: "Jobs", link: "/jobs" },
@@ -46,7 +48,7 @@ export function InteractiveFeaturesSection() {
           { data: nData },
           { data: cData }
         ] = await Promise.all([
-          supabase.from("products").select("*").order("created_at", { ascending: false }).limit(3),
+          supabase.from("products").select("*").eq("status", "approved").eq("is_approved", true).order("created_at", { ascending: false }).limit(3),
           supabase.from("jobs").select("*").order("created_at", { ascending: false }).limit(3),
           supabase.from("news").select("*").eq("is_published", true).order("created_at", { ascending: false }).limit(3),
           supabase.from("communities").select("*").eq("is_published", true).order("created_at", { ascending: false }).limit(3),
@@ -195,6 +197,7 @@ export function InteractiveFeaturesSection() {
                           {title}
                         </h3>
                         
+                        {activeTab === "products" && isEthGlobalShowcase(item.website_url) && <p className="text-xs text-gray-400 mb-2">Third-party hackathon prototype</p>}
                         <p className="text-gray-400 text-sm leading-relaxed flex-grow line-clamp-4 mb-6">
                           {description}
                         </p>

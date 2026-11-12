@@ -37,6 +37,7 @@ import { BackupRestore } from "@/components/admin/BackupRestore";
 import { SettingsManager } from "@/components/admin/SettingsManager";
 import { BulkImport } from "@/components/admin/BulkImport";
 import { BulkEmailSender } from "@/components/admin/BulkEmailSender";
+import { ProductManager } from "@/components/admin/ProductManager";
 import { NewsPostEditor } from "@/components/admin/NewsPostEditor";
 import { GlobalContentExplorer } from "@/components/admin/GlobalContentExplorer";
 import { AutonomousAgentManager } from "@/components/admin/AutonomousAgentManager";
@@ -1488,57 +1489,7 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
 
-              {/* Products Section */}
-              <Card className="border-primary/20 bg-card/50">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Package className="h-5 w-5 text-accent" />
-                    Manage Products
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {allProducts?.map((product: any) => (
-                      <div key={product.id} className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border border-primary/10">
-                        <div className="flex-1">
-                          <p className="font-semibold">{product.name}</p>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{product.description}</p>
-                          <div className="flex gap-2 mt-2">
-                            <Badge variant="outline">{product.category}</Badge>
-                            <Badge variant={product.is_published ? "default" : "secondary"}>
-                              {product.is_published ? "Published" : "Draft"}
-                            </Badge>
-                            <Badge variant="outline">{product.likes} likes</Badge>
-                            <Badge variant="outline">{product.views} views</Badge>
-                            {product.is_featured && <Badge variant="default"><Star className="h-3 w-3 mr-1" />Featured</Badge>}
-                          </div>
-                          <div className="flex items-center gap-2 mt-2">
-                            <Switch
-                              checked={product.is_featured || false}
-                              onCheckedChange={() => handleToggleFeaturedProduct(product.id, product.is_featured || false)}
-                            />
-                            <Label className="text-xs cursor-pointer" onClick={() => handleToggleFeaturedProduct(product.id, product.is_featured || false)}>
-                              {product.is_featured ? '⭐ Featured' : '☆ Not Featured'}
-                            </Label>
-                          </div>
-                        </div>
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={() => handleDeleteProduct(product.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    ))}
-                    {productsStatus === "CanLoadMore" && (
-                      <Button onClick={() => loadMoreProducts(10)} variant="outline" className="w-full">
-                        Load More Products
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <ProductManager />
             </TabsContent>
 
             {/* Admins Tab */}

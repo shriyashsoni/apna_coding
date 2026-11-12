@@ -105,17 +105,22 @@ export function PendingApprovals() {
         "products";
         
       const updateData = 
-        type === "product" ? { status: 'approved' } : 
+        type === "product" ? { status: 'approved', is_approved: true } :
         type === "community" ? { is_published: true } :
         { is_approved: true };
 
-      const { error } = await supabase
-        .from(table)
-        .update(updateData)
-        .eq('id', item.id);
+      const query = supabase.from(table).update(updateData).eq('id', item.id);
+      if (type === "product") {
+        const { data, error } = await query.select('id, status, is_approved').single();
+        if (error) throw error;
+        if (!data || data.status !== 'approved' || data.is_approved !== true) {
+          throw new Error("The server did not confirm project approval. Refresh before retrying.");
+        }
+      } else {
+        const { error } = await query;
+        if (error) throw error;
+      }
 
-      if (error) throw error;
-      
       toast.success(`✅ ${type.charAt(0).toUpperCase() + type.slice(1)} approved and published!`);
       fetchPendingItems();
     } catch (error: any) {

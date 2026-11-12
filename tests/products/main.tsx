@@ -1,0 +1,11 @@
+import React from 'react';
+import {createRoot} from 'react-dom/client';
+import {BrowserRouter,Routes,Route} from 'react-router';
+import {Toaster} from 'sonner';
+import {ProductManager} from '../../src/components/admin/ProductManager';
+import {PendingApprovals} from '../../src/components/admin/PendingApprovals';
+import Products from '../../src/pages/Products';
+import ProductDetail from '../../src/pages/ProductDetail';
+import {InteractiveFeaturesSection} from '../../src/components/InteractiveFeaturesSection';
+import '../../src/index.css';
+createRoot(document.getElementById('root')!).render(<BrowserRouter><Routes><Route path='/manage' element={<ProductManager/>}/><Route path='/approvals' element={<PendingApprovals/>}/><Route path='/products' element={<Products/>}/><Route path='/products/:slug' element={<ProductDetail/>}/><Route path='/' element={<InteractiveFeaturesSection/>}/></Routes><Toaster/></BrowserRouter>);
