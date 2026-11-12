@@ -7,9 +7,13 @@ dist-ssr
 build
 out
 
-# Large media files
+# Exclude unused large media, but ship the four original workflow backgrounds.
 public/videos/*.mp4
 *.mp4
+!public/videos/8675541-hd_1920_1080_30fps.mp4
+!public/videos/14630687_1920_1080_30fps.mp4
+!public/videos/11387730-hd_1920_1080_30fps.mp4
+!public/videos/7782667-hd_1080_1920_25fps.mp4
 
 # Dev/editor files
 .vscode
