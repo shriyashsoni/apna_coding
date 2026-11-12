@@ -13,9 +13,9 @@ export function EcosystemSection() {
           className="text-center mb-16"
         >
           <span className="text-sm font-medium text-muted-foreground uppercase tracking-[0.2em] mb-4 block">Ecosystem</span>
-          <h2 className="text-3xl md:text-5xl font-bold mb-4 px-2">Built with the Global Web3 Community</h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4 px-2">Explore the Web3 Ecosystem</h2>
           <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto mb-3 px-4">
-            Connecting developers and innovators across blockchain ecosystems
+            A visual collection of blockchain ecosystems and tools. Logos do not imply sponsorship, endorsement or a partnership with Apna Coding.
           </p>
           <span className="inline-flex items-center gap-2 text-sm font-medium text-foreground bg-muted/20 border border-border/50 rounded-full px-4 py-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-foreground animate-pulse" />
