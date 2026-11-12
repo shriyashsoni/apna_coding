@@ -55,7 +55,7 @@ export function CTASection() {
           {...fadeUp(0.3)} 
           className="text-white/60 text-base sm:text-lg md:text-xl max-w-xl mb-12 font-sans"
         >
-          Join thousands of developers who are already building the future of Web3.
+          Explore hackathons, events, products, and developer opportunities in Web3.
         </motion.p>
 
         {/* Email Subscribe Pill (exactly like the photo!) */}

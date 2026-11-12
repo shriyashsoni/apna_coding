@@ -32,21 +32,21 @@ export function HeroSection() {
           <div className="flex -space-x-2.5">
             <img 
               src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80" 
-              alt="Builder Avatar" 
+              alt=""
               className="w-8 h-8 rounded-full border-2 border-background object-cover"
             />
             <img 
               src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80" 
-              alt="Builder Avatar" 
+              alt=""
               className="w-8 h-8 rounded-full border-2 border-background object-cover"
             />
             <img 
               src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&h=120&q=80" 
-              alt="Builder Avatar" 
+              alt=""
               className="w-8 h-8 rounded-full border-2 border-background object-cover"
             />
           </div>
-          <span className="text-muted-foreground text-sm">20,000+ people already building</span>
+          <span className="text-muted-foreground text-sm">Find your next Web3 opportunity</span>
         </motion.div>
 
         {/* Badge - adapted from Datacore */}
