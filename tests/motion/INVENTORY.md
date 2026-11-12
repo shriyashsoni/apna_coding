@@ -4,7 +4,7 @@ Baseline: repository49fd073, before assistant repair commits, compared against a
 
 Restored removals:
 - First-tab logo entrance, blue background glow, splash fade and page reveal. The original2.5second hold is retained, once per tab, independent of media loading. Explicit reduced motion skips it.
-- Featured community logo rows, continuous horizontal movement, category title's3Dflip, gradient/glass styling. Retains visible names, official logos, fallback marks, published/featured filtering and truthful directory wording. Pause/resume, hover/focus pause and reduced-motion layout remain available.
+- Featured community logo rows, continuous horizontal movement, neutral directory title's3Dflip, gradient/glass styling. Retains visible names, official logos, contrast-safe dYdX/Internet Computer tiles, fallback marks, published/featured filtering and truthful directory wording. Pause/resume, hover/focus pause and reduced-motion layout remain available.
 - Original transparent floating navigation surface, keeping functional responsive breakpoint, escape and route-closing fixes.
 - News title gradient treatment restored with readable light gradient stops.
 - Removed save-data suppression of original motion. Only explicit reduced-motion accessibility setting substitutes static media.

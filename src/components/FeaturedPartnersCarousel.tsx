@@ -4,10 +4,11 @@ import { Link } from "react-router";
 import { supabase } from "@/lib/supabase";
 import { useLightweightMedia } from "@/hooks/useLightweightMedia";
 
-const CATEGORIES = ["Communities", "Conferences", "Workshops", "Organizations"];
+const CATEGORIES = ["Communities", "Ecosystems", "Resources", "Directory"];
 function CommunityMark({ name, logo }: { name: string; logo?: string }) {
   const [failed, setFailed] = useState(false);
-  return <div className="h-16 w-16 md:h-20 md:w-20 shrink-0 rounded-lg bg-white text-black flex items-center justify-center p-3 shadow-md border border-primary/20" aria-hidden="true">
+  const darkTile = /dydx|internet computer/i.test(name);
+  return <div className={`h-16 w-16 md:h-20 md:w-20 shrink-0 rounded-lg ${darkTile ? "bg-zinc-900 text-white" : "bg-white text-black"} flex items-center justify-center p-3 shadow-md border border-white/20`} aria-hidden="true">
     {logo && !failed ? <img src={logo} alt="" className="w-full h-full object-contain" onError={() => setFailed(true)} /> : <span className="text-xl font-bold">{name.slice(0, 2).toUpperCase()}</span>}
   </div>;
 }
