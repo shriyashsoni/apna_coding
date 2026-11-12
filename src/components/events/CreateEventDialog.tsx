@@ -247,14 +247,15 @@ export function CreateEventDialog({ onSuccess }: CreateEventDialogProps) {
             <div>
               <Label htmlFor="eventGroup">Event Group (Optional)</Label>
               <Select
-                value={formData.eventGroupId}
-                onValueChange={(value) => setFormData({ ...formData, eventGroupId: value })}
+                value={formData.eventGroupId || "__none__"}
+                onValueChange={(value) => setFormData({ ...formData, eventGroupId: value === "__none__" ? "" : value })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="No group (standalone event)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No group (standalone event)</SelectItem>
+                  {/* Radix SelectItem rejects an empty-string value; "__none__" maps back to "". */}
+                  <SelectItem value="__none__">No group (standalone event)</SelectItem>
                   {eventGroups.map((group) => (
                     <SelectItem key={group.id} value={group.id}>
                       {group.group_name} - {group.location}
