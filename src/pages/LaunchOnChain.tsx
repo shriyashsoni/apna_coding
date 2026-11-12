@@ -159,7 +159,7 @@ export default function LaunchOnChain() {
                 Launch Your Product On-Chain
               </h1>
               <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-6">
-                Deploy your Web3 product to the blockchain with permanent, immutable records. Enable community upvoting and staking support.
+                Review the network, contract and transaction details before using this on-chain product launch flow. A blockchain record does not verify a project's accuracy or safety.
               </p>
 
               {productCount && (

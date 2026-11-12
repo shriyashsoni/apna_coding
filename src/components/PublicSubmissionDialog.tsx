@@ -166,7 +166,7 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
           Submit {typeLabels[type]}
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] bg-card border-primary/20">
+      <DialogContent className="sm:max-w-[500px] max-h-[calc(100dvh-2rem)] overflow-y-auto bg-card border-primary/20">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold flex items-center gap-2">
             {step === 1 ? <Plus className="text-primary" /> : <Shield className="text-primary" />}
@@ -174,10 +174,10 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
           </DialogTitle>
           <DialogDescription>
             {step === 1 
-              ? `Fill in the details for your ${type}. Once saved, you'll need to stake 0.01 ETH.`
+              ? `Fill in the details for your ${type}. The configured staking step requests 0.01 Sepolia test ETH. Refunds are not guaranteed.`
               : (
                 <div className="space-y-2">
-                  <p>To prevent spam, a small stake of 0.01 ETH is required. It will be refunded once an admin approves your submission.</p>
+                  <p>The configured flow requests 0.01 Sepolia test ETH. The repository's refund logic is conditional on admin approval; check the deployed contract and transaction before submitting. Refunds are not guaranteed.</p>
                   <p className="text-xs text-primary font-medium">
                     Don't have Sepolia ETH? <a href="https://sepoliafaucet.com/" target="_blank" rel="noopener noreferrer" className="underline hover:text-primary/80 transition-colors">Claim free test tokens here</a>
                   </p>
@@ -278,16 +278,16 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
                   <Coins className="h-12 w-12 text-primary" />
                 </div>
                 <div className="space-y-1">
-                  <p className="text-3xl font-bold text-primary">0.01 ETH</p>
-                  <p className="text-sm text-muted-foreground">Required Stake (Ethereum Sepolia)</p>
+                  <p className="text-3xl font-bold text-primary">0.01 Sepolia test ETH</p>
+                  <p className="text-sm text-muted-foreground">Configured stake (Sepolia testnet)</p>
                 </div>
                 <div className="text-sm bg-background/50 p-3 rounded border border-primary/10">
                   <p className="font-semibold text-primary mb-1">How it works:</p>
                   <ul className="text-left space-y-1 opacity-80 list-disc pl-4">
-                    <li>Submit your stake to verify authenticity</li>
-                    <li>Admin reviews your submission</li>
-                    <li>On approval, your **0.01 ETH is fully refunded**</li>
-                    <li>On rejection, the stake is kept in the contract</li>
+                    <li>A transaction records a submission reference, not proof of authenticity</li>
+                    <li>The repository provides admin review functions</li>
+                    <li>Repository logic refunds the stake only through a successful admin approval transaction</li>
+                    <li>Repository logic does not refund rejected stakes or set an automatic refund deadline</li>
                   </ul>
                 </div>
               </div>
@@ -298,11 +298,11 @@ export function PublicSubmissionDialog({ type, onSuccess }: PublicSubmissionDial
                     Confirming...
                   </>
                 ) : (
-                  "Stake & Publish"
+                  "Submit testnet stake"
                 )}
               </Button>
               <p className="text-xs text-muted-foreground">
-                Network: Ethereum Sepolia Testnet
+                Network: Ethereum Sepolia Testnet. Network fees are separate from the stake.
               </p>
             </motion.div>
           )}
