@@ -30,7 +30,7 @@ export function Navbar() {
   ];
 
   return (
-    <nav aria-label="Main navigation" className="fixed top-0 inset-x-0 z-50 w-full px-4 sm:px-6 xl:px-10 py-4 xl:py-6 flex justify-between items-center bg-black/90 backdrop-blur-md border-b border-white/10 pointer-events-none">
+    <nav aria-label="Main navigation" className="fixed top-0 inset-x-0 z-50 w-full px-4 sm:px-6 xl:px-10 py-4 xl:py-6 flex justify-between items-center pointer-events-none">
       
       {/* Left: Original Logo */}
       <div className="pointer-events-auto">

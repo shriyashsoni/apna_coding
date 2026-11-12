@@ -286,3 +286,15 @@
 .scroll-float-text { display: inline-block; }
 .char { display: inline-block; }
 
+
+/* Original featured-directory logo movement, with inspectable pause controls. */
+@keyframes community-logo-drift {
+  from { transform: translateX(-50%); }
+  to { transform: translateX(0); }
+}
+.community-motion-track { animation: community-logo-drift 30s linear infinite; }
+.community-motion-row:hover .community-motion-track,
+.community-motion-row:focus-within .community-motion-track { animation-play-state: paused !important; }
+@media (prefers-reduced-motion: reduce) {
+  .community-motion-track { animation: none; }
+}

@@ -289,7 +289,7 @@ export default function NewsDetail() {
               )}
             </div>
 
-            <h1 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">
               {post.title}
             </h1>
 
