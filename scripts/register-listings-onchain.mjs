@@ -68,12 +68,12 @@ const CATEGORY_PATH = {
   product: "/products/",
 };
 const TABLES = [
-  { category: "hackathon", table: "hackathons", filter: "" },
-  { category: "job", table: "jobs", filter: "" },
-  { category: "news", table: "news", filter: "&is_published=eq.true" },
-  { category: "event", table: "events", filter: "" },
-  { category: "community", table: "communities", filter: "&is_published=eq.true" },
-  { category: "product", table: "products", filter: "&status=eq.approved&is_approved=eq.true" },
+  { category: "hackathon", table: "hackathons", filter: "", select: "id,title,name,slug" },
+  { category: "job", table: "jobs", filter: "", select: "id,title,slug" },
+  { category: "news", table: "news", filter: "&is_published=eq.true", select: "id,title,slug" },
+  { category: "event", table: "events", filter: "", select: "id,title,slug" },
+  { category: "community", table: "communities", filter: "&is_published=eq.true", select: "id,name,slug" },
+  { category: "product", table: "products", filter: "&status=eq.approved&is_approved=eq.true", select: "id,name,slug" },
 ];
 
 // ---- canonicalization (MUST match src/lib/onchain-proof.ts) ----
@@ -90,11 +90,11 @@ const canonicalPayload = (category, row) =>
 const contentHashOf = (category, row) =>
   ethers.keccak256(ethers.toUtf8Bytes(canonicalPayload(category, row)));
 
-async function fetchRows(table, filter) {
+async function fetchRows(table, filter, select) {
   const rows = [];
   const pageSize = 1000;
   for (let offset = 0; ; offset += pageSize) {
-    const url = `${SUPABASE_URL}/rest/v1/${table}?select=*${filter}&limit=${pageSize}&offset=${offset}`;
+    const url = `${SUPABASE_URL}/rest/v1/${table}?select=${select}${filter}&limit=${pageSize}&offset=${offset}`;
     const res = await fetch(url, {
       headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
     });
@@ -123,8 +123,19 @@ async function main() {
   console.log(`Balance:  ${ethers.formatEther(balance)} SepETH`);
   if (balance === 0n) throw new Error("Deployer has no Sepolia ETH - fund it from a faucet first");
 
-  // Deploy or reuse the registry
-  let address = process.env.REGISTRY_ADDRESS || "";
+  // Deploy or reuse the registry. Resolution order: explicit env var, then the
+  // registry recorded in the proofs file, then (first run only) a fresh deploy.
+  // Without this a scheduled run would redeploy and orphan existing records.
+  const proofsPath = path.join(root, "src/data/onchain-proofs.json");
+  const existingProofs = fs.existsSync(proofsPath)
+    ? JSON.parse(fs.readFileSync(proofsPath, "utf8"))
+    : null;
+  let address =
+    process.env.REGISTRY_ADDRESS || (existingProofs && existingProofs.contract) || "";
+  if (address) {
+    const code = await provider.getCode(address);
+    if (code === "0x") throw new Error(`No contract code at registry address ${address}`);
+  }
   if (!address) {
     console.log("Deploying ApnaListingRegistry...");
     const factory = new ethers.ContractFactory(artifact.abi, artifact.bytecode, wallet);
@@ -141,10 +152,10 @@ async function main() {
   const contract = new ethers.Contract(address, artifact.abi, wallet);
 
   // Existing proofs file (for idempotent re-runs)
-  const proofsPath = path.join(root, "src/data/onchain-proofs.json");
-  const proofs = fs.existsSync(proofsPath)
-    ? JSON.parse(fs.readFileSync(proofsPath, "utf8"))
-    : { categories: {} };
+  const proofs = existingProofs || { categories: {} };
+  const proofsOriginalBytes = fs.existsSync(proofsPath)
+    ? fs.readFileSync(proofsPath, "utf8")
+    : null;
   proofs.contract = address;
   proofs.chainId = CHAIN_ID;
   proofs.explorer = EXPLORER;
@@ -167,8 +178,8 @@ async function main() {
   // Phase 1: decide what needs a transaction.
   const work = [];
   const seen = {};
-  for (const { category, table, filter } of TABLES) {
-    const rows = await fetchRows(table, filter);
+  for (const { category, table, filter, select } of TABLES) {
+    const rows = await fetchRows(table, filter, select);
     console.log(`\n${category}: ${rows.length} public rows from ${table}`);
     proofs.categories[category] = proofs.categories[category] || {};
     seen[category] = new Set(rows.map((r) => norm(r.id)));
@@ -257,11 +268,20 @@ async function main() {
   const libPath = path.join(root, "src/lib/onchain-proof.ts");
   const lib = fs.readFileSync(libPath, "utf8");
   const patched = lib.replace(
-    /export const ONCHAIN_REGISTRY_ADDRESS =\s*\n?\s*"0x[0-9a-fA-F]{40}" as const;[^/]*/ ,
+    /export const ONCHAIN_REGISTRY_ADDRESS =\s*\n?\s*"0x[0-9a-fA-F]{40}" as const;.*/,
     `export const ONCHAIN_REGISTRY_ADDRESS =\n  "${address}" as const; // set by scripts/register-listings-onchain.mjs`,
   );
   if (patched !== lib) fs.writeFileSync(libPath, patched);
 
+  if (
+    proofsOriginalBytes !== null &&
+    registered === 0 && updated === 0 && revoked === 0 &&
+    !process.argv.includes("--prune-deploy")
+  ) {
+    // No listing state changed: keep the proofs file byte-identical so the
+    // caller's git diff stays empty and no commit/redeploy is triggered.
+    fs.writeFileSync(proofsPath, proofsOriginalBytes);
+  }
   console.log(
     `\nDone. registered=${registered} updated=${updated} skipped=${skipped} revoked=${revoked}`,
   );

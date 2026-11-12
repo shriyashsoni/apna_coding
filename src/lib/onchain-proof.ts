@@ -39,7 +39,7 @@ export const ONCHAIN_PROOF_VERSION = "apna-coding-listing-v1";
 export const ONCHAIN_CHAIN_ID = 11155111; // Ethereum Sepolia testnet
 export const ONCHAIN_CHAIN_NAME = "Sepolia testnet";
 export const ONCHAIN_REGISTRY_ADDRESS =
-  "0x84D6aB007816f678FCa2C19e43268043B3323254" as const; // set by scripts/register-listings-onchain.mjs// deployed by scripts/register-listings-onchain.mjs
+  "0x84D6aB007816f678FCa2C19e43268043B3323254" as const; // set by scripts/register-listings-onchain.mjs
 export const ONCHAIN_EXPLORER = "https://sepolia.etherscan.io";
 
 const CATEGORY_PATH: Record<OnchainCategory, string> = {
