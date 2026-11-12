@@ -138,7 +138,7 @@ export function SmartWorkflow() {
                 <Globe className="w-8 h-8 text-white/80" />
               </div>
               <p className="text-white/60 text-sm max-w-[200px] mx-auto">
-                Once verified, your opportunity is broadcasted to our network of 20,000+ developers.
+                Once reviewed, your opportunity can be discovered through the platform.
               </p>
             </div>
           </motion.div>
