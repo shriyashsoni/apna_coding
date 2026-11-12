@@ -70,6 +70,9 @@ function RouteSEO() {
   const page = PUBLIC_PAGES[pathname];
   const privatePage = PRIVATE_PATH.test(pathname);
   const knownDetail = /^\/(events|hackathons|jobs|news|products|community|event-groups)\/[^/]+\/?$/.test(pathname);
+  // Pages with their own SEO own the head; this fallback covers otherwise-unmanaged routes.
+  const hasPageSEO = knownDetail || ['/', '/events', '/event-groups', '/hackathons', '/jobs', '/products', '/news', '/communities', '/contact'].includes(pathname);
+  if (hasPageSEO && !privatePage) return null;
   return <NextSeo title={page?.[0]} description={page?.[1]} canonical={canonicalUrl(pathname)} noindex={privatePage || (!page && !knownDetail)} />;
 }
 
@@ -85,6 +88,8 @@ function RouteLoading() {
   );
 }
 
+// React 19 owns metadata after takeover. Do not retain duplicate server tags.
+document.querySelectorAll('[data-server-seo]').forEach(node => node.remove());
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HelmetProvider>
