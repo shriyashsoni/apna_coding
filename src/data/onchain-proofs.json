@@ -2,7 +2,7 @@
   "contract": "0x84D6aB007816f678FCa2C19e43268043B3323254",
   "chainId": 11155111,
   "explorer": "https://sepolia.etherscan.io",
-  "generatedAt": "2026-11-14T01:01:39.587Z",
+  "generatedAt": "2026-11-15T00:05:38.986Z",
   "version": "apna-coding-listing-v2",
   "proofFields": {
     "hackathon": [
@@ -932,6 +932,38 @@
         "pageUrl": "https://www.apnacoding.com/jobs/bdd7926c-1d3e-4527-b086-c6a1c9f84df3",
         "registeredAt": "2026-11-14T01:00:48.000Z",
         "blockNumber": 12129697
+      },
+      "8ea363b2-7f5c-476f-878c-c22f4fb926ad": {
+        "txHash": "0x2dc5ebe22a9f4ee6b599e37ae4799dbf332d7d7fe84df4760cf2d626bfeddcd0",
+        "contentHash": "0x6f09dd6d562611b863ca4877ba8cfe2e2ef34896c7c861b99442d2d4a99d7754",
+        "title": "Senior/Staff Engineer - Web3 - Onchain Data",
+        "pageUrl": "https://www.apnacoding.com/jobs/8ea363b2-7f5c-476f-878c-c22f4fb926ad",
+        "registeredAt": "2026-11-15T00:05:36.000Z",
+        "blockNumber": 12136559
+      },
+      "f0c1e6f6-3fad-4fcb-b5c2-3efff9564aea": {
+        "txHash": "0xda3594f03afb71ec9dd66e2288496c27af2d06c263ffffc2f0d998281e237573",
+        "contentHash": "0x0da0b4fb60a8091ca3219bbd5e4616a60a43441c6c1f5c8939c395093b6cd654",
+        "title": "Senior/Staff Engineer - Blockchain Parsing",
+        "pageUrl": "https://www.apnacoding.com/jobs/f0c1e6f6-3fad-4fcb-b5c2-3efff9564aea",
+        "registeredAt": "2026-11-15T00:05:36.000Z",
+        "blockNumber": 12136559
+      },
+      "d5cedf60-8470-41d6-897d-92d82eff8f2d": {
+        "txHash": "0x6c0df8785067900338657471d36e6791ece6b95055d7bc41ba6f8cce425bb719",
+        "contentHash": "0xcdde75893e7b5f443c2b3cf599d4978162d087f60b278b4ebff6cd9a6d3f2955",
+        "title": "Senior/Staff Engineer, Decentralize Exchange (DEX)",
+        "pageUrl": "https://www.apnacoding.com/jobs/d5cedf60-8470-41d6-897d-92d82eff8f2d",
+        "registeredAt": "2026-11-15T00:05:36.000Z",
+        "blockNumber": 12136559
+      },
+      "a80f8fc9-8eb1-4e8c-8874-7ba861dcd106": {
+        "txHash": "0xc2bf507ff1c5412c8a48efbbdb74af781dfbbd0b11db86c824deb2ff7f48c276",
+        "contentHash": "0x9a5ea1c90ce7bf2b78f096315f90576371e238447c56844c8c2c22dd712d2964",
+        "title": "Information Security Engineer",
+        "pageUrl": "https://www.apnacoding.com/jobs/a80f8fc9-8eb1-4e8c-8874-7ba861dcd106",
+        "registeredAt": "2026-11-15T00:05:36.000Z",
+        "blockNumber": 12136559
       }
     },
     "news": {
@@ -1302,6 +1334,38 @@
         "pageUrl": "https://www.apnacoding.com/news/thailand-proposes-148k-daily-stablecoin-transfer-cap",
         "registeredAt": "2026-11-14T01:01:24.000Z",
         "blockNumber": 12129700
+      },
+      "2223cb36-2a81-4390-9472-eadf934a0daa": {
+        "txHash": "0xf15112f0524af7bedf049fa4f406279f8d58bf1ef02a2e9e92a6b4210bd7ff7c",
+        "contentHash": "0x5f4edc47a2a8b7d9cd176e381291f7f4331ad4eac0efe30f1e74142803ee59a3",
+        "title": "JPMorgan's Bitcoin and Crypto-Linked Holdings Approach $1 Billion",
+        "pageUrl": "https://www.apnacoding.com/news/jpmorgan-bitcoin-crypto-holdings-approach-1-billion",
+        "registeredAt": "2026-11-15T00:05:36.000Z",
+        "blockNumber": 12136559
+      },
+      "48ad2264-3116-4ec5-ae18-74d3db9d159d": {
+        "txHash": "0x77e6a63e9f9f7ed8613326b74a19f2c39135a61a3b1cfe2398d8785ceb9ead4a",
+        "contentHash": "0x7645f8901d49855fe9d63236c6eb80eca3dd1ae4ff4c6be3767804e0c2feb317",
+        "title": "Crypto Laundering a 'Material Risk' for UK Ahead of FATF Review: RUSI",
+        "pageUrl": "https://www.apnacoding.com/news/crypto-laundering-material-risk-uk-fatf-rusi",
+        "registeredAt": "2026-11-15T00:05:36.000Z",
+        "blockNumber": 12136559
+      },
+      "5cd76fed-39b4-49cb-a698-eb0457923e8f": {
+        "txHash": "0x6584fa97a2d87708c58e2a10f64413f4ed05138e192d6e251dfe1b14d4773ebb",
+        "contentHash": "0x77a1fbeb2d0498b22cad857849ffa04cae8021ccb70f65f5ace7d83026258c1c",
+        "title": "Trump's First Democratic Picks for SEC and CFTC Could Reshape Crypto's Regulators",
+        "pageUrl": "https://www.apnacoding.com/news/trump-democratic-picks-sec-cftc-crypto-regulators",
+        "registeredAt": "2026-11-15T00:05:36.000Z",
+        "blockNumber": 12136559
+      },
+      "697cb526-1e33-4433-b915-92e31904ad29": {
+        "txHash": "0x4e8d09e5f4fcebc78b2fa1e2bd1fe1923c26860dea3c616ba18e624918665e11",
+        "contentHash": "0x735974a364972318f2fc2b8e927ddd56ec91fbec09690efd51482aa72ec0a6ba",
+        "title": "'Roadmap is Complete,' Cardano Founder Charles Hoskinson Says",
+        "pageUrl": "https://www.apnacoding.com/news/cardano-roadmap-complete-charles-hoskinson",
+        "registeredAt": "2026-11-15T00:05:36.000Z",
+        "blockNumber": 12136559
       }
     },
     "event": {
