@@ -2,7 +2,7 @@
   "contract": "0x84D6aB007816f678FCa2C19e43268043B3323254",
   "chainId": 11155111,
   "explorer": "https://sepolia.etherscan.io",
-  "generatedAt": "2026-11-15T00:05:38.986Z",
+  "generatedAt": "2026-11-16T00:11:27.448Z",
   "version": "apna-coding-listing-v2",
   "proofFields": {
     "hackathon": [
@@ -964,6 +964,38 @@
         "pageUrl": "https://www.apnacoding.com/jobs/a80f8fc9-8eb1-4e8c-8874-7ba861dcd106",
         "registeredAt": "2026-11-15T00:05:36.000Z",
         "blockNumber": 12136559
+      },
+      "c073da38-7029-472d-9204-17d30612addb": {
+        "txHash": "0xd5f2e49d034d377dd7bc04ac16876367f942894bb5b38e8decfb292f6b67c444",
+        "contentHash": "0xd967e4aabd866edfd49e549482ad63a4c293b00dec5183890538a23b71c804b6",
+        "title": "Machine Learning Engineer — Risk & AI",
+        "pageUrl": "https://www.apnacoding.com/jobs/c073da38-7029-472d-9204-17d30612addb",
+        "registeredAt": "2026-11-16T00:11:24.000Z",
+        "blockNumber": 12143688
+      },
+      "9fd9a948-8020-4738-ae9b-4703173d75fa": {
+        "txHash": "0xa81839ccf4830123fba12061cd5376b15e08b16d2e1135f51df88ecead9e0741",
+        "contentHash": "0x124a0ddbef8ebe0f88b71049c9d8f05d195b21e8914c963c2cf54e4e410e40bb",
+        "title": "Principal AI Engineer, AI Agent Development",
+        "pageUrl": "https://www.apnacoding.com/jobs/9fd9a948-8020-4738-ae9b-4703173d75fa",
+        "registeredAt": "2026-11-16T00:11:24.000Z",
+        "blockNumber": 12143688
+      },
+      "10bbfcaf-e759-4852-a4d2-d0a0bf1d0e54": {
+        "txHash": "0x9466f97bc8437da905086cbd40ab26b5a8c4e9baee71ae50823ce14784f3fb72",
+        "contentHash": "0xb1b99f36509d1441e562eed72b0a540d077237a29cc3afcb21903e54496a8121",
+        "title": "Senior/Staff Engineer, Security Platform Development",
+        "pageUrl": "https://www.apnacoding.com/jobs/10bbfcaf-e759-4852-a4d2-d0a0bf1d0e54",
+        "registeredAt": "2026-11-16T00:11:24.000Z",
+        "blockNumber": 12143688
+      },
+      "c79f57c5-678e-4bef-93c2-669eabe114bf": {
+        "txHash": "0xd684585fa5672fb8aee1efbbd6b166365d18b5c24fbec32395b6ec735e3eb962",
+        "contentHash": "0x90178dcbfa66de1da31687616850ea6b5828b8af912fbd8869f1916930e0951a",
+        "title": "DevOps / Site Reliability Engineer",
+        "pageUrl": "https://www.apnacoding.com/jobs/c79f57c5-678e-4bef-93c2-669eabe114bf",
+        "registeredAt": "2026-11-16T00:11:24.000Z",
+        "blockNumber": 12143688
       }
     },
     "news": {
@@ -1366,6 +1398,46 @@
         "pageUrl": "https://www.apnacoding.com/news/cardano-roadmap-complete-charles-hoskinson",
         "registeredAt": "2026-11-15T00:05:36.000Z",
         "blockNumber": 12136559
+      },
+      "a4bf27cf-6b98-441d-9077-5e1c5e68a6ab": {
+        "txHash": "0xd44bd6f9d066ea3e67a1d83e5d608c777a8103913c0070334d2012cd7e95953e",
+        "contentHash": "0xf333af1cc289aabbabfb1d9b5f310f28d97ee1480a02d5dd31743f1c1cfca88c",
+        "title": "RWA Protocol stUSDT Winds Down Three Years After $2.3B TVL Peak",
+        "pageUrl": "https://www.apnacoding.com/news/rwa-stusdt-winds-down-23b-tvl-peak",
+        "registeredAt": "2026-11-16T00:11:24.000Z",
+        "blockNumber": 12143688
+      },
+      "3166d7d4-5d99-469f-aedd-48f494bc3e46": {
+        "txHash": "0x2cf71293cc3f9531788940cb28e16256cee8be41ef6d00ede87edf5cf0bf8dbc",
+        "contentHash": "0x99ca35d21e7161c13042ea3dfe8fb72b044ccf000d7a875c636ac6901cb76a4e",
+        "title": "MegaETH Parent Cuts 20% of Staff Amid Restructuring, AI Push",
+        "pageUrl": "https://www.apnacoding.com/news/megaeth-parent-cuts-20-percent-staff-ai-push",
+        "registeredAt": "2026-11-16T00:11:24.000Z",
+        "blockNumber": 12143688
+      },
+      "dc2b8844-6cce-4e62-8324-82a4922cfb62": {
+        "txHash": "0x5ee769fc95b692959d1090979ddc44163543e40c96c4c4a9afd39787076a4a7b",
+        "contentHash": "0x724f4aba6290c01db12894129b446aeb211416e3dc546a1c096b47edbb8f8160",
+        "title": "Adam Back Makes Case for Simpler Security as Blockstream Launches Bitcoin Custody System",
+        "pageUrl": "https://www.apnacoding.com/news/adam-back-blockstream-bitcoin-custody-system",
+        "registeredAt": "2026-11-16T00:11:24.000Z",
+        "blockNumber": 12143688
+      },
+      "832ec4ab-7c22-410f-9693-c8f15d1b9c69": {
+        "txHash": "0x2666463a92da5ac763ba9ecea6acc8dd849225b49037b1992d5e9fa4a1cf4204",
+        "contentHash": "0x8e75338e089c0aa8bfa948f648a33c118e667817d25527afbf38f2835f7db083",
+        "title": "US Regulators Move Ahead on Crypto Trust Charters as Senate Scrutiny Grows",
+        "pageUrl": "https://www.apnacoding.com/news/us-crypto-trust-charters-senate-scrutiny",
+        "registeredAt": "2026-11-16T00:11:24.000Z",
+        "blockNumber": 12143688
+      },
+      "5c0588e7-2c14-4a0c-bad5-9e5647d88411": {
+        "txHash": "0x81cad36a6df8b5967635890d591897f4742a8346ff93b12b662eb9cc69cf4c1a",
+        "contentHash": "0xa6d2c39bedcc5601a81815f78aa1d4f56112d9025a31d04eb729086fc90ef273",
+        "title": "What Is Canton Network? The Privacy Blockchain Built for Wall Street",
+        "pageUrl": "https://www.apnacoding.com/news/what-is-canton-network-privacy-blockchain-wall-street",
+        "registeredAt": "2026-11-16T00:11:24.000Z",
+        "blockNumber": 12143688
       }
     },
     "event": {
