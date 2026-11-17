@@ -2,7 +2,7 @@
   "contract": "0x84D6aB007816f678FCa2C19e43268043B3323254",
   "chainId": 11155111,
   "explorer": "https://sepolia.etherscan.io",
-  "generatedAt": "2026-11-16T00:11:27.448Z",
+  "generatedAt": "2026-11-17T03:04:51.384Z",
   "version": "apna-coding-listing-v2",
   "proofFields": {
     "hackathon": [
@@ -226,6 +226,14 @@
         "pageUrl": "https://www.apnacoding.com/hackathons/b6507301-1525-4962-804a-65cccae0c726",
         "registeredAt": "2026-11-12T08:16:48.000Z",
         "blockNumber": 12117603
+      },
+      "cdadb9fb-43ab-4deb-ba65-04e512a05247": {
+        "txHash": "0x15372636edbecdf6e5dc14da794a944cd707d517e10a775d90859bd96e20aee7",
+        "contentHash": "0xcf988bfdbc6a111f729ed979113db541c62ad9ffe3e9834eeb6cd979a8b4f476",
+        "title": "Agent Arena Competition: Evidence Mining",
+        "pageUrl": "https://www.apnacoding.com/hackathons/cdadb9fb-43ab-4deb-ba65-04e512a05247",
+        "registeredAt": "2026-11-17T03:04:48.000Z",
+        "blockNumber": 12151628
       }
     },
     "job": {
@@ -996,6 +1004,38 @@
         "pageUrl": "https://www.apnacoding.com/jobs/c79f57c5-678e-4bef-93c2-669eabe114bf",
         "registeredAt": "2026-11-16T00:11:24.000Z",
         "blockNumber": 12143688
+      },
+      "31266a3d-20b7-45a5-83a6-6e3648afa201": {
+        "txHash": "0x213a51bc972901eb260236904d81120b23e07bf8c59a1faace1e04aca7661cec",
+        "contentHash": "0x3d4d15231f68c5fd9b931e5788a35cc24b774c6875264e0e16b64b9e16f4b024",
+        "title": "Senior/Staff Engineer, Data Platform Development",
+        "pageUrl": "https://www.apnacoding.com/jobs/31266a3d-20b7-45a5-83a6-6e3648afa201",
+        "registeredAt": "2026-11-17T03:04:48.000Z",
+        "blockNumber": 12151628
+      },
+      "38624e3c-7ba3-40b2-9d30-47932f99d795": {
+        "txHash": "0x0c78701090e6896a737928b31cf491d7f152b14a165b56951404e59a3d1c1046",
+        "contentHash": "0x6b20c2a1a4396955b0442bf70960e2d4f12feff73bfbad1501238f9be56c0ecd",
+        "title": "Senior Data Engineer, Compliance Data Platform",
+        "pageUrl": "https://www.apnacoding.com/jobs/38624e3c-7ba3-40b2-9d30-47932f99d795",
+        "registeredAt": "2026-11-17T03:04:48.000Z",
+        "blockNumber": 12151628
+      },
+      "b0d3e1e2-a9cf-4e95-9999-9b20327744c5": {
+        "txHash": "0x49d4ab449f8ede6718b19af40a2e01466fe6802a7f546b595416c6e1f4111838",
+        "contentHash": "0xe59b007c6d3b5d242ccc6e9fbde16f223d06f70ccd8596e6ac8924d07add8810",
+        "title": "Infrastructure Architect",
+        "pageUrl": "https://www.apnacoding.com/jobs/b0d3e1e2-a9cf-4e95-9999-9b20327744c5",
+        "registeredAt": "2026-11-17T03:04:48.000Z",
+        "blockNumber": 12151628
+      },
+      "1650d51e-6da7-4089-940b-d02cb23a896f": {
+        "txHash": "0x6b47178483d65f8f0ca7b1885f5c7b69a4c0bac607c9a337b0fb1d5ffa605e55",
+        "contentHash": "0x40bb0b148cc4d920a1d464323eadb835424c81ab1a95ed797656af82ed133744",
+        "title": "Director, Data & Analytics",
+        "pageUrl": "https://www.apnacoding.com/jobs/1650d51e-6da7-4089-940b-d02cb23a896f",
+        "registeredAt": "2026-11-17T03:04:48.000Z",
+        "blockNumber": 12151628
       }
     },
     "news": {
@@ -1438,6 +1478,30 @@
         "pageUrl": "https://www.apnacoding.com/news/what-is-canton-network-privacy-blockchain-wall-street",
         "registeredAt": "2026-11-16T00:11:24.000Z",
         "blockNumber": 12143688
+      },
+      "f2df75c9-afbc-43e6-8b94-fd192fc9fe23": {
+        "txHash": "0x2b884887bcf6857d4cc13fa67c1b5f9a8e621bdbcc3f9ac8b14fc161f0139503",
+        "contentHash": "0x6210af2b472820991cbd2d98663959a3d38a2603b23507c0f33000ebd234bf9a",
+        "title": "How Wall Street Is Racing to Claim the Onchain Dollar",
+        "pageUrl": "https://www.apnacoding.com/news/wall-street-racing-onchain-dollar-stablecoins",
+        "registeredAt": "2026-11-17T03:04:48.000Z",
+        "blockNumber": 12151628
+      },
+      "e242b1b1-fddf-417f-bf7c-d6fca113273a": {
+        "txHash": "0x3e9de6fafee9fe7628f3b9a9f09c953b608e69a618dcc955b328662c93541588",
+        "contentHash": "0x15a466fb5b20914a06aed7f827448a1cec836f0d62fcdf2a32304d4b112034e1",
+        "title": "Luxor CEO Warns of AI 'Dark Forest' After Bitcoin Miner Hijack",
+        "pageUrl": "https://www.apnacoding.com/news/luxor-ceo-ai-dark-forest-bitcoin-miner-hijack",
+        "registeredAt": "2026-11-17T03:04:48.000Z",
+        "blockNumber": 12151628
+      },
+      "ed11720b-bdb9-4422-8a10-fe833c832f13": {
+        "txHash": "0x7b8b2556124e6181c99166c1d0bebe1f490734181047c1a71a67615881bf29aa",
+        "contentHash": "0x46a11156fcfafd2c6d25609d0e78176faaf58c7347250675d783d0c465ffa485",
+        "title": "Dormant Bitcoin Wallets Wake Up After 16 Years, Moving $6.9 Million",
+        "pageUrl": "https://www.apnacoding.com/news/dormant-bitcoin-wallets-wake-16-years-6-9-million",
+        "registeredAt": "2026-11-17T03:04:48.000Z",
+        "blockNumber": 12151628
       }
     },
     "event": {
