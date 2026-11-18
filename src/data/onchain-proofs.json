@@ -2,7 +2,7 @@
   "contract": "0x84D6aB007816f678FCa2C19e43268043B3323254",
   "chainId": 11155111,
   "explorer": "https://sepolia.etherscan.io",
-  "generatedAt": "2026-11-17T03:04:51.384Z",
+  "generatedAt": "2026-11-18T02:33:41.775Z",
   "version": "apna-coding-listing-v2",
   "proofFields": {
     "hackathon": [
@@ -234,6 +234,22 @@
         "pageUrl": "https://www.apnacoding.com/hackathons/cdadb9fb-43ab-4deb-ba65-04e512a05247",
         "registeredAt": "2026-11-17T03:04:48.000Z",
         "blockNumber": 12151628
+      },
+      "ccc08b6a-f692-4148-ad26-5b623b753d36": {
+        "txHash": "0x1c1d46baf1f9f3ca58c8af11ff3f267e6345350330470fc39a0af512d84da5af",
+        "contentHash": "0x787230c25e6fcfbcede0202cc08d11c000b9a10a49919270ea596926c4eee4af",
+        "title": "Heads Up: Even Realities Hackathon by TVM Ventures & Daos Hub",
+        "pageUrl": "https://www.apnacoding.com/hackathons/ccc08b6a-f692-4148-ad26-5b623b753d36",
+        "registeredAt": "2026-11-18T02:33:36.000Z",
+        "blockNumber": 12158551
+      },
+      "ebff3b84-0c1b-4b11-a7c4-3e1751908c39": {
+        "txHash": "0xf2091223df8bd54498f5d9baa496dcf0d0e5c74e4265039cefdcf4d4fef6dd87",
+        "contentHash": "0xbb591f12883a92e556c9615cd5c6e2632985bf604653a36377f71ea972719b39",
+        "title": "Build with CMC: API Hackathon (Plushie)",
+        "pageUrl": "https://www.apnacoding.com/hackathons/ebff3b84-0c1b-4b11-a7c4-3e1751908c39",
+        "registeredAt": "2026-11-18T02:33:36.000Z",
+        "blockNumber": 12158551
       }
     },
     "job": {
@@ -1502,6 +1518,38 @@
         "pageUrl": "https://www.apnacoding.com/news/dormant-bitcoin-wallets-wake-16-years-6-9-million",
         "registeredAt": "2026-11-17T03:04:48.000Z",
         "blockNumber": 12151628
+      },
+      "fb2752e6-efb4-4b70-941e-5daa61a4bdcf": {
+        "txHash": "0x9e52da38bba9fb0c3223eb895acc0f3da1e26a4a3e19122b05691f2fed4750f1",
+        "contentHash": "0xd66dacd2140f54fa1fc572baace8bf6096808af3c6e4c2c8fc80b8750e80a3f4",
+        "title": "Ex-Robinhood Engineer Pleads Guilty to $125K Hyperliquid Trading Scheme",
+        "pageUrl": "https://www.apnacoding.com/news/ex-robinhood-engineer-guilty-125k-hyperliquid-trading",
+        "registeredAt": "2026-11-18T02:33:36.000Z",
+        "blockNumber": 12158551
+      },
+      "2347e4bd-1059-4a15-bf57-e997f47ec9ff": {
+        "txHash": "0x786523daadfa9675ac7b0446d2f36fe98bf912507d6aac8e1b70d00ce9941281",
+        "contentHash": "0xb248ded6b2845a6b8fbdd77648b9a87df7f81fad8127a459d30b6c9df8b0603d",
+        "title": "'Tokenization Is Not the Finish Line': Jupiter to Let Users Borrow Against Bullish Shares",
+        "pageUrl": "https://www.apnacoding.com/news/jupiter-borrow-against-bullish-shares-tokenization",
+        "registeredAt": "2026-11-18T02:33:36.000Z",
+        "blockNumber": 12158551
+      },
+      "ac0578e2-303c-4d99-8ce9-5a6151a2964e": {
+        "txHash": "0xe54d0312bd09cd3dbb19ae5cd931b9477b5e5837ca1fd0c8dceb1229b464134d",
+        "contentHash": "0x7cbe50456dc5a4f5a2bb837eab6a36abbb761c1bf19ffe483555e24d54e9f889",
+        "title": "Solana Drops 'Mainnet Beta' After Six Years: Here's What 1.0 Is All About",
+        "pageUrl": "https://www.apnacoding.com/news/solana-drops-mainnet-beta-1-0",
+        "registeredAt": "2026-11-18T02:33:36.000Z",
+        "blockNumber": 12158551
+      },
+      "4bcdf1ec-2798-4808-bd5f-350c30046f49": {
+        "txHash": "0xd7a1d1fc8ce344a12ead2943dfe347c9e75403e44320b8f0ae9d5ef157a666f7",
+        "contentHash": "0x5dcbb14177b0dccbaa44ce360a65644936ba20819c531733cd688651bc09572a",
+        "title": "Trezor Customer Data Exposed in 3rd Partner Breach This Year",
+        "pageUrl": "https://www.apnacoding.com/news/trezor-customer-data-exposed-3rd-partner-breach-2026",
+        "registeredAt": "2026-11-18T02:33:36.000Z",
+        "blockNumber": 12158551
       }
     },
     "event": {
@@ -1656,6 +1704,38 @@
         "pageUrl": "https://www.apnacoding.com/events/3089ac7b-d21f-48d5-a244-52a227916ad3",
         "registeredAt": "2026-11-14T01:01:36.000Z",
         "blockNumber": 12129701
+      },
+      "142f12e2-54c2-491e-8e83-57024a57c6f9": {
+        "txHash": "0x54803907f28a7e4c3f647cb754cd09943829375a1ecc20649aae4b122e1a8f15",
+        "contentHash": "0xa4b611006b7f578e0235d2f259f6f1e8b5f49a232585a56e64a35822c8e56f4b",
+        "title": "Devcon IX - Lisbon",
+        "pageUrl": "https://www.apnacoding.com/events/142f12e2-54c2-491e-8e83-57024a57c6f9",
+        "registeredAt": "2026-11-18T02:33:36.000Z",
+        "blockNumber": 12158551
+      },
+      "0030866b-fc91-4a2d-99b8-c664aa0e9f2c": {
+        "txHash": "0xa209431ce885ef9b350cbb701eaeb0ed0f733c41950065898f1f44c1512d5fd1",
+        "contentHash": "0xd9b1ddc522b87c7da15bde828649e30855ce56ade11033c7b0ab14a2f4858c65",
+        "title": "Binance Blockchain Week Bangkok 2026",
+        "pageUrl": "https://www.apnacoding.com/events/0030866b-fc91-4a2d-99b8-c664aa0e9f2c",
+        "registeredAt": "2026-11-18T02:33:36.000Z",
+        "blockNumber": 12158551
+      },
+      "91407f07-5846-4ab8-a5a2-4f191497be43": {
+        "txHash": "0xa7887184ac82731d9a715262e59d369632929134fd3a7e197df5c2d5f72fa98d",
+        "contentHash": "0x1e8f8b0635e6351e69faf568bd4519d881c0c1833b691cddfcbc4b2d7af18e75",
+        "title": "Next Builders: Bangkok Afterparty",
+        "pageUrl": "https://www.apnacoding.com/events/91407f07-5846-4ab8-a5a2-4f191497be43",
+        "registeredAt": "2026-11-18T02:33:36.000Z",
+        "blockNumber": 12158551
+      },
+      "8df82419-978c-45a9-8ed7-92fc12d5da6a": {
+        "txHash": "0xa98776571cac453ba72d59bc39bbb6c19aa58481690b82f6f71bd5a219f77d19",
+        "contentHash": "0x986e5a4c2f8962236007e0b02c7305b01f01e9a0ceae624bcc5f485400cabfec",
+        "title": "BORN UP - Binance Blockchain Week Bangkok Community Networking Meetup",
+        "pageUrl": "https://www.apnacoding.com/events/8df82419-978c-45a9-8ed7-92fc12d5da6a",
+        "registeredAt": "2026-11-18T02:33:36.000Z",
+        "blockNumber": 12158551
       }
     },
     "community": {
