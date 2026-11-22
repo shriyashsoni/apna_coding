@@ -2,7 +2,7 @@
   "contract": "0x84D6aB007816f678FCa2C19e43268043B3323254",
   "chainId": 11155111,
   "explorer": "https://sepolia.etherscan.io",
-  "generatedAt": "2026-11-18T02:33:41.775Z",
+  "generatedAt": "2026-11-22T00:36:37.773Z",
   "version": "apna-coding-listing-v2",
   "proofFields": {
     "hackathon": [
@@ -1736,6 +1736,14 @@
         "pageUrl": "https://www.apnacoding.com/events/8df82419-978c-45a9-8ed7-92fc12d5da6a",
         "registeredAt": "2026-11-18T02:33:36.000Z",
         "blockNumber": 12158551
+      },
+      "4277a590-4371-41d9-802b-cb1b02a9415d": {
+        "txHash": "0x67e0f6a194b27148b2634d35b6e0c0defd08bcd0927e78c64e1191ba0e6cab32",
+        "contentHash": "0xf7a793ddb7cff8c8d543dd6a89c9947cea901015ca1618943fbfb7ebaac8b2b7",
+        "title": "Traders Night 🇹🇭",
+        "pageUrl": "https://www.apnacoding.com/events/4277a590-4371-41d9-802b-cb1b02a9415d",
+        "registeredAt": "2026-11-22T00:36:36.000Z",
+        "blockNumber": 12185337
       }
     },
     "community": {
